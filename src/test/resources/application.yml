@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:niceteam-mem-db;MODE=MySQL;
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+logging.level:
+  org.hibernate:
+    SQL: debug
+    type: trace
+
+jwt:
+  secret: a2FrYW9jbG91ZHNjaG9vbGxvY2Fsa2FrYW9jbG91ZGMK
+  access-token-expired-time: 3600
+  refresh-token-expired-time: 2592000

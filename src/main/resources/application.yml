@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: niceteam-backend
+  profiles:
+    active: local
+    group:
+      local: db, db-local, jwt, jwt-local
+      dev: db, db-dev, jwt, jwt-dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      type: trace
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: 'aws-parameterstore:'
+
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      type: trace
