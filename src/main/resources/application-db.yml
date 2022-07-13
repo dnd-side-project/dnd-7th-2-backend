@@ -10,7 +10,7 @@ spring:
 spring:
   config:
     activate:
-      on-profile: db-local
+      on-profile: local
 
   datasource:
     url: jdbc:mysql://localhost:3306/niceteam?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
@@ -31,7 +31,7 @@ spring:
 spring:
   config:
     activate:
-      on-profile: db-dev
+      on-profile: dev
 
   datasource:
     url: ${DEV_DATABASE_URL}

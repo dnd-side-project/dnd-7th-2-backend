@@ -4,8 +4,8 @@ spring:
   profiles:
     active: local
     group:
-      local: db, db-local, jwt, jwt-local
-      dev: db, db-dev, jwt, jwt-dev
+      local: db, jwt
+      dev: db, jwt
 
 ---
 spring:

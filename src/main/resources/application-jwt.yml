@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: jwt-local
+      on-profile: local
 
 jwt:
   secret: a2FrYW9jbG91ZHNjaG9vbGxvY2Fsa2FrYW9jbG91ZGMK
@@ -12,7 +12,7 @@ jwt:
 spring:
   config:
     activate:
-      on-profile: jwt-dev
+      on-profile: dev
 
 jwt:
   secret: ${DEV_JWT_SECRET}
