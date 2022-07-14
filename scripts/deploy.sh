@@ -18,6 +18,7 @@ then
 else
   echo "> $CURRENT_PID 종료" >> $DEPLOY_LOG
   kill -15 $CURRENT_PID
+  sleep 5
 fi
 
 echo "> $JAR_NAME 실행 권한 추가" >> $DEPLOY_LOG
@@ -28,6 +29,6 @@ echo "> 애플리케이션 배포" >> $DEPLOY_LOG
 
 nohup java -jar \
   -Dspring.profiles.active=dev \
-  $JAR_NAME
+  $JAR_NAME >> $DEPLOY_LOG 2>&1 &
 
 echo "> 배포 완료" >> $DEPLOY_LOG
