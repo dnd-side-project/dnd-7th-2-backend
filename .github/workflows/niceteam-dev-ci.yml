@@ -27,7 +27,7 @@ jobs:
         run: mkdir deploy
 
       - name: Remove plain jar
-        run: rm *plain.jar
+        run: rm ./build/libs/*plain.jar
 
       - name: Copy jar
         run: cp ./build/libs/*.jar ./deploy
