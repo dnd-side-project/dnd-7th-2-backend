@@ -34,9 +34,9 @@ spring:
       on-profile: dev
 
   datasource:
-    url: ${DEV_DATABASE_URL}
-    username: ${DEV_DATABASE_USERNAME}
-    password: ${DEV_DATABASE_PASSWORD}
+    url: ${jdbc.url}
+    username: ${jdbc.username}
+    password: ${jdbc.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

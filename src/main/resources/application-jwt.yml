@@ -15,6 +15,6 @@ spring:
       on-profile: dev
 
 jwt:
-  secret: ${DEV_JWT_SECRET}
-  access-token-expired-time: ${DEV_JWT_ACCESS_TOKEN_EXPIRED_TIME}
-  refresh-token-expired-time: ${DEV_JWT_REFRESH_TOKEN_EXPIRED_TIME}
+  secret: ${jwt.secret}
+  access-token-validity: ${jwt.refresh_token_validity}
+  refresh-token-validity: ${jwt.refresh_token_validity}

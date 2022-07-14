@@ -6,7 +6,12 @@ spring:
     group:
       local: db, jwt
       dev: db, jwt
-
+aws:
+  paramstore:
+    name: niceteam
+    enabled: true
+    prefix: /config
+    profile-separator: _
 ---
 spring:
   config:

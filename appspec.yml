@@ -1,0 +1,15 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/app/deploy
+
+permissions:
+  - object: /home/ec2-user/app/deploy
+    pattern: "*.sh"
+    mode: 755
+
+hooks:
+  ApplicationStart:
+    - location: deploy.sh
+      timeout: 60
