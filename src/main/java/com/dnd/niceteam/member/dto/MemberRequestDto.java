@@ -1,4 +1,4 @@
-package com.dnd.niceteam.member;
+package com.dnd.niceteam.member.dto;
 
 import lombok.Data;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -7,7 +7,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 public class MemberRequestDto {
-
 
     @Data
     public static class Login {
@@ -21,5 +20,14 @@ public class MemberRequestDto {
         public UsernamePasswordAuthenticationToken toAuthentication() {
             return new UsernamePasswordAuthenticationToken(username, password);
         }
+    }
+
+    @Data
+    public static class Reissue {
+        @NotEmpty(message = "아이디는 필수 입력값입니다.")
+        private String username;
+
+        @NotEmpty(message = "refreshToken은 필수 입력값입니다.")
+        private String refreshToken;
     }
 }
