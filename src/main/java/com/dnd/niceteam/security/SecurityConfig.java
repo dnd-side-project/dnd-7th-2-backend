@@ -1,40 +1,45 @@
-package com.dnd.niceteam.security.jwt;
+package com.dnd.niceteam.security;
 
+import com.dnd.niceteam.security.jwt.JwtAuthenticationFilter;
+import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig extends OncePerRequestFilter {
+public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 토큰이 있을 경우 유효성 검증
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token= request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(token) && token.startsWith(TOKEN_PREFIX)) {
-            token = token.substring(TOKEN_PREFIX.length());
-            // accesstoken이 있으면 유효한지 체크
-            if (jwtTokenProvider.validateToken(token)) {
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                // TODO: 2022-07-14 logging만 한 상태. 여기서 Exception 던질지 Layer 가서 다룰지?
-                log.debug("토큰이 유효하지 않습니다.");
-            }
-        }
-        filterChain.doFilter(request, response);
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .formLogin().disable()
+                .httpBasic().disable()
+
+                .authorizeRequests(authz -> authz
+                        .antMatchers("api/member/login").authenticated()
+                        .antMatchers("api/member/reissue").authenticated()
+                        .anyRequest().permitAll()
+                        .and()
+                        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                )
+                .build();
     }
 }
