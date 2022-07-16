@@ -2,7 +2,7 @@
 name: Feature development
 about: 기능 개발
 title: "[Feature] 구현 이름"
-labels: enhancement
+labels: "Type: Feature"
 assignees: ''
 
 ---
