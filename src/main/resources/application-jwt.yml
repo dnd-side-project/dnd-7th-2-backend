@@ -5,8 +5,8 @@ spring:
 
 jwt:
   secret: a2FrYW9jbG91ZHNjaG9vbGxvY2Fsa2FrYW9jbG91ZGMK
-  access-token-expired-time: 3600
-  refresh-token-expired-time: 2592000
+  access-token-validity: 3600
+  refresh-token-validity: 2592000
 
 ---
 spring:
