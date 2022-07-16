@@ -2,7 +2,7 @@
 name: Bug report
 about: 버그 기록
 title: "[Bug] 버그 이름"
-labels: bug
+labels: "Type: Bug"
 assignees: ''
 
 ---
