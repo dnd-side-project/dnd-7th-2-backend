@@ -1,7 +1,7 @@
 package com.dnd.niceteam.security.jwt;
 
-import com.dnd.niceteam.member.dto.MemberResponseDto;
 import com.dnd.niceteam.security.UserDetailsServiceImpl;
+import com.dnd.niceteam.security.auth.dto.AuthResponseDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -27,9 +30,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
-    @Value("${jwt.access-token-expired-time}")
+    @Value("${jwt.access-token-validity}")
     private long accessTokenExpiredTimeInMilliseconds;
-    @Value("${jwt.refresh-token-expired-time}")
+    @Value("${jwt.refresh-token-validity}")
     private long refreshTokenExpiredTimeInMilliseconds;
     @Value("${jwt.secret}")
     private String secret;
@@ -43,23 +46,22 @@ public class JwtTokenProvider {
     }
 
     // 토큰 생성
-    public MemberResponseDto.TokenInfo generateTokens(Authentication authentication) {
-        String accessToken = createAccessToken(authentication);
+    public AuthResponseDto.TokenInfo generateTokens(String username, String role) {
+
+        String accessToken = createAccessToken(username, role);
         String refreshToken = createRefreshToken();
 
-        return new MemberResponseDto.TokenInfo(accessToken,refreshToken);
+        return new AuthResponseDto.TokenInfo(accessToken,refreshToken);
     }
 
-    private String createAccessToken(Authentication authentication) {
-        Date accessTokenExpiryTime = new Date(System.currentTimeMillis() + accessTokenExpiredTimeInMilliseconds);
+    private String createAccessToken(String username, String role) {
+            Date accessTokenExpiryTime = new Date(System.currentTimeMillis() + accessTokenExpiredTimeInMilliseconds);
         // 권한
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+        String authorities = convertRoleToAuthorities(role);
 
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
-                .setSubject(authentication.getName())
+                .setSubject(username)
                 .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(accessTokenExpiryTime)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -104,5 +106,14 @@ public class JwtTokenProvider {
     }
     private Jws<Claims> parseClaimsJws(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+    }
+
+    private String convertRoleToAuthorities(String fullName) {
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        grantedAuthorities.add(new SimpleGrantedAuthority(fullName));
+
+        return grantedAuthorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
     }
 }
