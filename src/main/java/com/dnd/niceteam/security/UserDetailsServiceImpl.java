@@ -1,5 +1,8 @@
 package com.dnd.niceteam.security;
 
+import com.dnd.niceteam.error.exception.BusinessException;
+import com.dnd.niceteam.error.exception.ErrorCode;
+import com.dnd.niceteam.error.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.domain.Member;
 import com.dnd.niceteam.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +32,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetailsImpl user = findSecurityUserByUsername(username);
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), "", user.getAuthorities());
     }
 
     // security user 조회
     public UserDetailsImpl findSecurityUserByUsername(String username) {
-        // TODO: 2022-07-15 error throw
         Member member = memberRepository.findOneByUsername(username)
-                .orElseThrow();
+                .orElseThrow(()-> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, "UserDetailsServiceImpl.findSecurityUserByUsername - 존재하지 않는 사용자입니다."));
         return convertToUserDetails(member);
     }
 
@@ -50,4 +52,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 grantedAuthorities
         );
     }
+
 }
