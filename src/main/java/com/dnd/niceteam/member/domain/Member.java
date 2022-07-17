@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name="MEMBER")
+@Table(name="member")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -13,37 +13,29 @@ import javax.persistence.*;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MEMBER_ID")
+    @Column(name = "member_id")
     private Long id;
 
-    @Column(name = "USERNAME")
+    @Column(name = "username")
     private String username;
 
-    @Column(name = "PASSWORD", length = 60)
+    @Column(name = "password", length = 60)
     private String password;
 
-    @Column(name="ROLE", nullable = false)
+    @Column(name="role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "EMAIL")
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "NAME")
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "ACCESS_TOKEN")
-    private String accessToken;
-
-    @Column(name = "REFRESH_TOKEN")
+    @Column(name = "refresh_token")
     private String refreshToken;
 
-    public void updateAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public void setTokenInfo(String accessToken, String refreshToken) {
-        this.accessToken = accessToken;
+    public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 }
