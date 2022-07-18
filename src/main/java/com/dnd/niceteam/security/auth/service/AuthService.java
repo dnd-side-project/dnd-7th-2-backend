@@ -30,7 +30,10 @@ public class AuthService {
         // TODO: 2022-07-16 Security Filter에서 처리할 예정
 
         // 3.jwt 생성 및 세팅
-        AuthResponseDto.TokenInfo tokenInfo = jwtTokenProvider.generateTokens(member.getUsername(), member.getRole().getAuthority());
+        AuthResponseDto.TokenInfo tokenInfo = new AuthResponseDto.TokenInfo();
+        tokenInfo.setAccessToken(jwtTokenProvider.createAccessToken(member.getUsername()));
+        tokenInfo.setAccessToken(jwtTokenProvider.createRefreshToken(member.getUsername()));
+
         // 이미 로그인 되어있어도 다시 업데이트
         member.setRefreshToken(tokenInfo.getRefreshToken());
 
@@ -57,7 +60,9 @@ public class AuthService {
         }
 
         // AccessToken 재발급
-        AuthResponseDto.TokenInfo tokenInfo = jwtTokenProvider.generateTokens(member.getUsername(), member.getRole().getFullName());
+        AuthResponseDto.TokenInfo tokenInfo = new AuthResponseDto.TokenInfo();
+        tokenInfo.setAccessToken(jwtTokenProvider.createAccessToken(member.getUsername()));
+        tokenInfo.setAccessToken(jwtTokenProvider.createRefreshToken(member.getUsername()));
 
         return new AuthResponseDto.Reissue(tokenInfo.getAccessToken());
     }
