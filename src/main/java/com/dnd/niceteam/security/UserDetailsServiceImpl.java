@@ -1,8 +1,7 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.error.exception.BusinessException;
 import com.dnd.niceteam.error.exception.ErrorCode;
-import com.dnd.niceteam.error.exception.MemberNotFoundException;
+import com.dnd.niceteam.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.domain.Member;
 import com.dnd.niceteam.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
