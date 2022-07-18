@@ -23,8 +23,9 @@ public class AuthService {
     @Transactional
     public AuthResponseDto.TokenInfo login(AuthRequestDto.Login loginRequestDto) {
         // 1. 존재 여부 검증
-         Member member = memberRepository.findOneByUsername(loginRequestDto.getUsername())
-                .orElseThrow(()-> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, "UserDetailsServiceImpl.findSecurityUserByUsername - 존재하지 않는 사용자입니다."));
+        Member member = memberRepository.findOneByUsername(loginRequestDto.getUsername())
+                .orElseThrow(()-> new MemberNotFoundException("UserDetailsServiceImpl.findSecurityUserByUsername - " +
+                        "username = " + loginRequestDto.getUsername()));
 
         // 2. 인증(Authentication) 객체 및 검증
         // TODO: 2022-07-16 Security Filter에서 처리할 예정
@@ -40,7 +41,8 @@ public class AuthService {
     @Transactional
     public AuthResponseDto.Reissue reissueAccessToken(AuthRequestDto.Reissue reissueRequestDto) {
         Member member = memberRepository.findOneByUsername(reissueRequestDto.getUsername())
-                .orElseThrow(()-> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, "UserDetailsServiceImpl.findSecurityUserByUsername - 존재하지 않는 사용자입니다."));
+                .orElseThrow(()-> new MemberNotFoundException("UserDetailsServiceImpl.findSecurityUserByUsername " +
+                        "- username = " + reissueRequestDto.getUsername()));
 
         // 로그아웃한 상태인 경우, 사용자가 재 로그인하도록 응답
         if (member.getRefreshToken() == null) {
@@ -63,7 +65,8 @@ public class AuthService {
     @Transactional
     public void logout(String username) {
         Member member = memberRepository.findOneByUsername(username)
-                .orElseThrow(()-> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, "UserDetailsServiceImpl.findSecurityUserByUsername - 존재하지 않는 사용자입니다."));
+                .orElseThrow(()-> new MemberNotFoundException(
+                        "UserDetailsServiceImpl.findSecurityUserByUsername - username = " + username));
 
         member.setRefreshToken(null);
     }

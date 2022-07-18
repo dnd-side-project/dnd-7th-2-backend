@@ -1,8 +1,7 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.error.exception.ErrorCode;
-import com.dnd.niceteam.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.domain.Member;
+import com.dnd.niceteam.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,7 +36,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     // security user 조회
     public UserDetailsImpl findSecurityUserByUsername(String username) {
         Member member = memberRepository.findOneByUsername(username)
-                .orElseThrow(()-> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, "UserDetailsServiceImpl.findSecurityUserByUsername - 존재하지 않는 사용자입니다."));
+                .orElseThrow(()-> new MemberNotFoundException("UserDetailsServiceImpl.findSecurityUserByUsername " +
+                        "- username = " + username));
         return convertToUserDetails(member);
     }
 
