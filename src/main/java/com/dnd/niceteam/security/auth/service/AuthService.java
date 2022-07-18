@@ -1,13 +1,12 @@
 package com.dnd.niceteam.security.auth.service;
 
-import com.dnd.niceteam.error.exception.ErrorCode;
-import com.dnd.niceteam.member.exception.MemberNotFoundException;
-import com.dnd.niceteam.security.exception.RefreshTokenIsNullException;
-import com.dnd.niceteam.security.exception.TokenInvalidException;
 import com.dnd.niceteam.member.domain.Member;
+import com.dnd.niceteam.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.repository.MemberRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
 import com.dnd.niceteam.security.auth.dto.AuthResponseDto;
+import com.dnd.niceteam.security.exception.RefreshTokenIsNullException;
+import com.dnd.niceteam.security.exception.TokenInvalidException;
 import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,7 +53,7 @@ public class AuthService {
         // TODO: 2022-07-16 Filter 내에서 검증 예정 => 구현 진행되지 않아서 우선 service 메서드내에서 처리
         if (!jwtTokenProvider.validateToken(reissueRequestDto.getRefreshToken())
                 || !member.getRefreshToken().equals(reissueRequestDto.getRefreshToken())) {
-            throw new TokenInvalidException(ErrorCode.INVALID_TOKEN, "AuthService.reissueAccessToken - 유효하지 않는 토큰입니다.");
+            throw new TokenInvalidException("AuthService.reissueAccessToken - 유효하지 않는 토큰입니다.");
         }
 
         // AccessToken 재발급
