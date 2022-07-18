@@ -1,8 +1,6 @@
 package com.dnd.niceteam.security.auth.controller;
 
 import com.dnd.niceteam.common.dto.ApiResult;
-import com.dnd.niceteam.member.dto.MemberResponseDto;
-import com.dnd.niceteam.member.service.MemberService;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
 import com.dnd.niceteam.security.auth.dto.AuthResponseDto;
 import com.dnd.niceteam.security.auth.service.AuthService;
@@ -23,11 +21,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDto.Login loginRequestDto) {
+    public ResponseEntity<ApiResult<AuthResponseDto.TokenInfo>> login(
+            @Valid @RequestBody AuthRequestDto.Login loginRequestDto) {
         AuthResponseDto.TokenInfo login = authService.login(loginRequestDto);
         ApiResult<AuthResponseDto.TokenInfo> apiResult = ApiResult.success(login);
 
-        return new ResponseEntity<>(apiResult, HttpStatus.CREATED);
+        return ResponseEntity.ok(apiResult);
     }
 
     @PostMapping("/reissue")
