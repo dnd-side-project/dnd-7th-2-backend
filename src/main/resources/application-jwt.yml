@@ -16,5 +16,5 @@ spring:
 
 jwt:
   secret: ${jwt.secret}
-  access-token-validity: ${jwt.refresh_token_validity}
+  access-token-validity: ${jwt.access_token_validity}
   refresh-token-validity: ${jwt.refresh_token_validity}
