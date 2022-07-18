@@ -6,12 +6,13 @@ import com.dnd.niceteam.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,35 +22,22 @@ import java.util.List;
  * History     : [2022-07-15] 문윤지 - Class Create
  */
 
-@RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
+
     private final MemberRepository memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDetailsImpl user = findSecurityUserByUsername(username);
-
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), "", user.getAuthorities());
-    }
-
-    // security user 조회
-    public UserDetailsImpl findSecurityUserByUsername(String username) {
         Member member = memberRepository.findOneByUsername(username)
-                .orElseThrow(()-> new MemberNotFoundException("UserDetailsServiceImpl.findSecurityUserByUsername " +
-                        "- username = " + username));
-        return convertToUserDetails(member);
+                .orElseThrow(() -> new MemberNotFoundException("username = " + username));
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getRole().getFullName()));
+
+        return User.withUsername(username)
+                .password(member.getPassword())
+                .authorities(authorities)
+                .build();
     }
-
-    private UserDetailsImpl convertToUserDetails(Member member) {
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(member.getRole().getFullName()));
-
-        return new UserDetailsImpl(
-                member.getUsername(),
-                member.getPassword(),
-                grantedAuthorities
-        );
-    }
-
 }
