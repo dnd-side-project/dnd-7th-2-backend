@@ -46,7 +46,8 @@ public class AuthService {
 
         // 로그아웃한 상태인 경우, 사용자가 재 로그인하도록 응답
         if (member.getRefreshToken() == null) {
-            throw new RefreshTokenIsNullException(ErrorCode.REFRESH_TOKEN_IS_NULL_ERROR, "AuthService.reissueAccessToken - 로그아웃 상태입니다.");
+            throw new RefreshTokenIsNullException("AuthService.reissueAccessToken - 로그아웃 상태입니다. " +
+                    "username = " + member.getUsername());
         }
 
         // 토큰이 유효하지 않거나 일치하지 않는 토큰을 보낸 경우, 재 로그인하도록 응답
