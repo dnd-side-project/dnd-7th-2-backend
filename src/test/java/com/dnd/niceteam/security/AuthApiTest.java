@@ -1,7 +1,6 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
-import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.member.domain.Member;
 import com.dnd.niceteam.member.repository.MemberRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
@@ -27,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@Import({RestDocsConfig.class, TestJpaConfig.class})
+@Import(RestDocsConfig.class)
 @Transactional
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
