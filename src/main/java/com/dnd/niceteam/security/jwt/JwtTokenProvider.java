@@ -23,6 +23,8 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
+    public static final String TOKEN_PREFIX = "Bearer ";
+
     private static final String TOKEN_TYPE = "token_type";
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
@@ -91,7 +93,7 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         String usernameFromToken = getUsernameFromToken(accessToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     private String getUsernameFromToken(String token) {

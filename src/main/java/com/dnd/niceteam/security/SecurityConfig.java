@@ -1,6 +1,6 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.security.jwt.JwtAuthenticationFilter;
+import com.dnd.niceteam.security.jwt.JwtAuthenticationCheckFilter;
 import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,11 +28,7 @@ public class SecurityConfig {
     };
 
     private final JwtTokenProvider jwtTokenProvider;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+    private final JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -49,7 +45,7 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
 
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationCheckFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, GET_PERMITTED_URLS).permitAll()
@@ -58,5 +54,10 @@ public class SecurityConfig {
 
                 .and()
                 .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
