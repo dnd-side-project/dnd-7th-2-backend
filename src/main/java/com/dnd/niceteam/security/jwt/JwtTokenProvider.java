@@ -1,25 +1,18 @@
 package com.dnd.niceteam.security.jwt;
 
-import com.dnd.niceteam.security.UserDetailsServiceImpl;
-import com.dnd.niceteam.security.auth.dto.AuthResponseDto;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.security.Key;
-import java.util.ArrayList;
+import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Author      : 문 윤지
@@ -27,93 +20,87 @@ import java.util.stream.Collectors;
  * History     : [2022-07-15] 문윤지 - Class Create
  */
 @Slf4j
-@RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
-    @Value("${jwt.access-token-validity}")
-    private long accessTokenExpiredTimeInMilliseconds;
-    @Value("${jwt.refresh-token-validity}")
-    private long refreshTokenExpiredTimeInMilliseconds;
-    @Value("${jwt.secret}")
-    private String secret;
-    private Key key;
-    private static final String AUTHORITIES_KEY = "auth";
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
-    @PostConstruct
-    protected void init() {
-        key = Keys.hmacShaKeyFor(secret.getBytes());
+    public static final String TOKEN_PREFIX = "Bearer ";
+
+    private static final String TOKEN_TYPE = "token_type";
+    private static final String ACCESS_TOKEN = "access_token";
+    private static final String REFRESH_TOKEN = "refresh_token";
+
+    private final SecretKey secretKey;
+
+    private final long accessTokenValidityInMillis;
+
+    private final long refreshTokenValidityInMillis;
+
+    private final UserDetailsService userDetailsService;
+
+    public JwtTokenProvider(
+            @Value("${jwt.access-token-validity}") long accessTokenValidity,
+            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
+            @Value("${jwt.secret}") String secret,
+            UserDetailsService userDetailsService) {
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        this.accessTokenValidityInMillis = accessTokenValidity * 1000;
+        this.refreshTokenValidityInMillis = refreshTokenValidity * 1000;
+        this.userDetailsService = userDetailsService;
     }
 
-    // 토큰 생성
-    public AuthResponseDto.TokenInfo generateTokens(String username, String role) {
-
-        String accessToken = createAccessToken(username, role);
-        String refreshToken = createRefreshToken();
-
-        return new AuthResponseDto.TokenInfo(accessToken,refreshToken);
+    public String createAccessToken(String username) {
+        return createToken(username, ACCESS_TOKEN);
     }
 
-    private String createAccessToken(String username, String role) {
-            Date accessTokenExpiryTime = new Date(System.currentTimeMillis() + accessTokenExpiredTimeInMilliseconds);
-        // 권한
-        String authorities = convertRoleToAuthorities(role);
+    public String createRefreshToken(String username) {
+        return createToken(username, REFRESH_TOKEN);
+    }
 
+    private String createToken(String username, String tokenType) {
+        long expiredTimeMillis = tokenType.equals(ACCESS_TOKEN) ?
+                accessTokenValidityInMillis : refreshTokenValidityInMillis;
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
                 .setSubject(username)
-                .claim(AUTHORITIES_KEY, authorities)
-                .setExpiration(accessTokenExpiryTime)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    private String createRefreshToken() {
-        Date refreshTokenExpiryTime = new Date(System.currentTimeMillis() + refreshTokenExpiredTimeInMilliseconds);
-        return Jwts.builder()
-                .setExpiration(refreshTokenExpiryTime)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .claim(TOKEN_TYPE, tokenType)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiredTimeMillis))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     // 토큰 유효성 및 만료기간 검사
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claimsJws = parseClaimsJws(token);
-            return claimsJws.getBody().getExpiration().after(new Date());
-        } catch (io.jsonwebtoken.security.SecurityException e) {
-            log.info("Invalid JWT Token", e);
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT signature.");
+            log.trace("Invalid JWT signature trace: ", e);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            log.info("Expired JWT token.");
+            log.trace("Expired JWT token trace: ", e);
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
+            log.info("Unsupported JWT token.");
+            log.trace("Unsupported JWT token trace: ", e);
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
+            log.info("JWT token compact of handler are invalid.");
+            log.trace("JWT token compact of handler are invalid trace: ", e);
         }
-
         return false;
     }
 
     // 토큰에서 인증 정보 추출
     public Authentication getAuthentication(String accessToken) {
         String usernameFromToken = getUsernameFromToken(accessToken);
-        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(usernameFromToken);
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     private String getUsernameFromToken(String token) {
         return parseClaimsJws(token).getBody().getSubject();
     }
+
     private Jws<Claims> parseClaimsJws(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-    }
-
-    private String convertRoleToAuthorities(String fullName) {
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(fullName));
-
-        return grantedAuthorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
     }
 }

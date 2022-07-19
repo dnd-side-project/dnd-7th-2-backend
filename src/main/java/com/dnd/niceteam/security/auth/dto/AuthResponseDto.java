@@ -2,19 +2,18 @@ package com.dnd.niceteam.security.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
-public class AuthResponseDto {
+public interface AuthResponseDto {
+
     @Data
-    @AllArgsConstructor
-    public static class TokenInfo {
+    class TokenInfo {
         private String accessToken;
         private String refreshToken;
     }
 
-    @Getter
+    @Data
     @AllArgsConstructor
-    public static class Reissue {
+    class Reissue {
         private String accessToken;
     }
 }

@@ -5,10 +5,11 @@
 :toc: left
 :toclevels: 2
 :sectlinks:
-:operation-curl-request-title: Example request
+:operation-http-request-title: Example request
 :operation-http-response-title: Example response
 
 .API Domain
+- xref:auth.adoc[Authentication]
 
 
 == API 응답 결과
