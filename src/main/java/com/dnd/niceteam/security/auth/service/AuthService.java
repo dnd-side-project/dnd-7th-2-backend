@@ -32,7 +32,7 @@ public class AuthService {
         // 3.jwt 생성 및 세팅
         AuthResponseDto.TokenInfo tokenInfo = new AuthResponseDto.TokenInfo();
         tokenInfo.setAccessToken(jwtTokenProvider.createAccessToken(member.getUsername()));
-        tokenInfo.setAccessToken(jwtTokenProvider.createRefreshToken(member.getUsername()));
+        tokenInfo.setRefreshToken(jwtTokenProvider.createRefreshToken(member.getUsername()));
 
         // 이미 로그인 되어있어도 다시 업데이트
         member.setRefreshToken(tokenInfo.getRefreshToken());
