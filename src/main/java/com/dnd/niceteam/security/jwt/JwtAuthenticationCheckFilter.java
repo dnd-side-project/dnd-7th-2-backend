@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,12 +18,10 @@ import java.io.IOException;
  * Description : 요청의 header 내에 jwt 토큰 유효성 검증 필터 (토큰 유효하면 SecurityContextHolder에 set)
  * History     : [2022-07-15] 문윤지 - Class Create
  */
-@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationCheckFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

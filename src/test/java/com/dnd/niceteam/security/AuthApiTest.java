@@ -66,7 +66,7 @@ class AuthApiTest {
         loginDto.setPassword("testPassword11!");
 
         //expected
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDto)))

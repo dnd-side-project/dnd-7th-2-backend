@@ -20,15 +20,6 @@ import javax.validation.Valid;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResult<AuthResponseDto.TokenInfo>> login(
-            @Valid @RequestBody AuthRequestDto.Login loginRequestDto) {
-        AuthResponseDto.TokenInfo login = authService.login(loginRequestDto);
-        ApiResult<AuthResponseDto.TokenInfo> apiResult = ApiResult.success(login);
-
-        return ResponseEntity.ok(apiResult);
-    }
-
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(@Valid @RequestBody AuthRequestDto.Reissue reissueRequestDto) {
         AuthResponseDto.Reissue reissue = authService.reissueAccessToken(reissueRequestDto);

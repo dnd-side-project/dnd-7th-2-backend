@@ -2,14 +2,12 @@ package com.dnd.niceteam.common;
 
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
@@ -23,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Import({RestDocsConfig.class})
 @WebMvcTest(CommonDocsController.class)
-@ExtendWith(SpringExtension.class)
 @AutoConfigureRestDocs
 class CommonDocsControllerTest {
 

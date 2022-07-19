@@ -18,6 +18,7 @@ public enum ErrorCode {
 
     REFRESH_TOKEN_IS_NULL_ERROR(AUTH, 1, SC_NOT_ACCEPTABLE, "로그아웃 상태입니다."),
     INVALID_TOKEN(AUTH, 2, SC_BAD_REQUEST, "유효하지 않은 토큰입니다."),
+    USERNAME_NOT_FOUND(AUTH, 3, SC_NOT_FOUND, "존재하지 않는 아이디 입니다."),
 
     MEMBER_NOT_FOUND(MEMBER, 1, SC_NOT_FOUND, "존재하지 않는 회원입니다."),
     ;

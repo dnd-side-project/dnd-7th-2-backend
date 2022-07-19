@@ -1,15 +1,14 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.member.domain.Member;
-import com.dnd.niceteam.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.security.exception.UsernameNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +29,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         Member member = memberRepository.findOneByUsername(username)
-                .orElseThrow(() -> new MemberNotFoundException("username = " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getRole().getFullName()));
 
         return User.withUsername(username)
