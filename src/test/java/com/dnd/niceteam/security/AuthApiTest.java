@@ -1,6 +1,7 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
+import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.member.domain.Member;
 import com.dnd.niceteam.member.repository.MemberRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
@@ -23,6 +24,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -71,6 +73,9 @@ class AuthApiTest {
                         .content(objectMapper.writeValueAsString(loginDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(ApiResult.Status.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.accessToken").exists())
+                .andExpect(jsonPath("$.data.refreshToken").exists())
                 .andDo(document("auth-login",
                         requestFields(
                                 fieldWithPath("username").description("로그인 아이디"),
