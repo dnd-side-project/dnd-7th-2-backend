@@ -2,27 +2,28 @@ package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.ApiResult;
+import com.dnd.niceteam.error.exception.ErrorCode;
 import com.dnd.niceteam.member.domain.Member;
 import com.dnd.niceteam.member.repository.MemberRepository;
-import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
+import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
-class AuthApiTest {
+class JwtWebTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,45 +48,40 @@ class AuthApiTest {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
     private MemberRepository memberRepository;
 
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     @Test
-    @DisplayName("로그인 - 성공")
-    void loginApi_Success() throws Exception {
+    @DisplayName("만료된 토큰으로 요청")
+    void expiredJwtToken() throws Exception {
         //given
-        memberRepository.save(Member.builder()
+        JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
+                0L, 3600L, jwtSecret, userDetailsService);
+        Member member = memberRepository.save(Member.builder()
                 .username("test-username")
                 .password(passwordEncoder.encode("testPassword11!"))
                 .email("test@email.com")
                 .name("test-name")
                 .build());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getUsername());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getUsername());
+        member.setRefreshToken(refreshToken);
         em.flush();
         em.clear();
 
-        AuthRequestDto.Login loginDto = new AuthRequestDto.Login();
-        loginDto.setUsername("test-username");
-        loginDto.setPassword("testPassword11!");
-
         //expected
-        mockMvc.perform(post("/login")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDto)))
+        mockMvc.perform(get("/not-exist-path-for-test")
+                        .header(HttpHeaders.AUTHORIZATION, JwtTokenProvider.TOKEN_PREFIX + accessToken))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(ApiResult.Status.SUCCESS.name()))
-                .andExpect(jsonPath("$.data.accessToken").exists())
-                .andExpect(jsonPath("$.data.refreshToken").exists())
-                .andDo(document("auth-login",
-                        requestFields(
-                                fieldWithPath("username").description("로그인 아이디"),
-                                fieldWithPath("password").description("로그인 비밀번호")
-                        ),
-                        responseFields(
-                                beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("accessToken").description("JWT Access Token"),
-                                fieldWithPath("refreshToken").description("JWT Refresh Token")
-                        )
-                ));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(ApiResult.Status.FAIL.name()))
+                .andExpect(jsonPath("$.error.code").value(ErrorCode.HANDLE_UNAUTHORIZED.getCode()))
+                .andExpect(jsonPath("$.error.message").value(ErrorCode.HANDLE_UNAUTHORIZED.getMessage()))
+                .andExpect(jsonPath("$.error.errors").isEmpty());
     }
 }

@@ -1,9 +1,6 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.security.jwt.JwtAuthenticationCheckFilter;
-import com.dnd.niceteam.security.jwt.JwtAuthenticationFilter;
-import com.dnd.niceteam.security.jwt.JwtAuthenticationSuccessHandler;
-import com.dnd.niceteam.security.jwt.JwtTokenProvider;
+import com.dnd.niceteam.security.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -60,6 +57,9 @@ public class SecurityConfig {
 
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtAuthenticationCheckFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(config -> config
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper))
+                )
 
                 .authorizeRequests(antz -> antz
                         .antMatchers(HttpMethod.GET, GET_PERMITTED_URLS).permitAll()
