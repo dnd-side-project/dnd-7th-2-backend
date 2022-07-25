@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .addFilterAfter(jwtAuthenticationCheckFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(config -> config
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper))
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint(objectMapper))
                 )
 
                 .authorizeRequests(antz -> antz
@@ -82,6 +82,11 @@ public class SecurityConfig {
         AuthenticationManagerFactoryBean authenticationManagerFactoryBean = new AuthenticationManagerFactoryBean();
         authenticationManagerFactoryBean.setBeanFactory(context);
         return authenticationManagerFactoryBean.getObject();
+    }
+
+    @Bean
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        return new JwtAuthenticationEntryPoint(objectMapper);
     }
 
     @Bean
