@@ -56,8 +56,10 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
 
-                .addFilterBefore(jwtAuthenticationFilter(authenticationManager(context)), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthenticationCheckFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(jwtTokenProvider, objectMapper, authenticationManager(context)),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationCheckFilter(jwtTokenProvider),
+                        UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(config -> config
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper))
                 )
@@ -83,7 +85,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(objectMapper);
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager);
         jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(
@@ -92,7 +95,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter() {
+    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
         JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
         return jwtAuthenticationCheckFilter;
     }
