@@ -1,6 +1,9 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.security.jwt.*;
+import com.dnd.niceteam.security.jwt.JwtAuthenticationCheckFilter;
+import com.dnd.niceteam.security.jwt.JwtAuthenticationEntryPoint;
+import com.dnd.niceteam.security.jwt.JwtAuthenticationFilter;
+import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -32,19 +35,18 @@ public class SecurityConfig {
     private static final String[] POST_PERMITTED_URLS = {
     };
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-    private final ObjectMapper objectMapper;
-
-    private final ApplicationContext context;
-
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().antMatchers("/docs/**");
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity httpSecurity,
+            JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            JwtAuthenticationFilter jwtAuthenticationFilter
+    ) throws Exception {
         return httpSecurity
                 .cors()
 
@@ -56,12 +58,10 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
 
-                .addFilterBefore(jwtAuthenticationFilter(jwtTokenProvider, objectMapper, authenticationManager(context)),
-                        UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthenticationCheckFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationCheckFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(config -> config
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint(objectMapper))
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
 
                 .authorizeRequests(antz -> antz
@@ -85,27 +85,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
-        return new JwtAuthenticationEntryPoint(objectMapper);
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(objectMapper);
-        jwtAuthenticationFilter.setAuthenticationManager(authenticationManager);
-        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(
-                jwtTokenProvider, objectMapper));
-        return jwtAuthenticationFilter;
-    }
-
-    @Bean
-    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
-        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
-        return jwtAuthenticationCheckFilter;
-    }
-
-    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.addAllowedOrigin("*");
@@ -117,5 +96,24 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfig);
 
         return source;
+    }
+
+    @Bean
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        return new JwtAuthenticationEntryPoint(objectMapper);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
+                jwtTokenProvider, authenticationManager, objectMapper);
+        return jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
+        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
+        return jwtAuthenticationCheckFilter;
     }
 }
