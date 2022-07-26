@@ -1,5 +1,6 @@
 package com.dnd.niceteam.security;
 
+import com.dnd.niceteam.member.repository.MemberRepository;
 import com.dnd.niceteam.security.jwt.JwtAuthenticationCheckFilter;
 import com.dnd.niceteam.security.jwt.JwtAuthenticationEntryPoint;
 import com.dnd.niceteam.security.jwt.JwtAuthenticationFilter;
@@ -105,15 +106,13 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
-                jwtTokenProvider, authenticationManager, objectMapper);
-        return jwtAuthenticationFilter;
+            JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository,
+            ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
+        return new JwtAuthenticationFilter(jwtTokenProvider, memberRepository, authenticationManager, objectMapper);
     }
 
     @Bean
     public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
-        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
-        return jwtAuthenticationCheckFilter;
+        return new JwtAuthenticationCheckFilter(jwtTokenProvider);
     }
 }
