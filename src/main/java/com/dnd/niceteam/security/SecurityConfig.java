@@ -1,10 +1,7 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.member.repository.MemberRepository;
-import com.dnd.niceteam.security.jwt.JwtAuthenticationCheckFilter;
-import com.dnd.niceteam.security.jwt.JwtAuthenticationEntryPoint;
-import com.dnd.niceteam.security.jwt.JwtAuthenticationFilter;
-import com.dnd.niceteam.security.jwt.JwtTokenProvider;
+import com.dnd.niceteam.security.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -43,10 +40,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(
-            HttpSecurity httpSecurity,
-            JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
-            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtAuthenticationFilter jwtAuthenticationFilter
+            HttpSecurity httpSecurity, JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtLogoutHandler jwtLogoutHandler, JwtLogoutSuccessHandler jwtLogoutSuccessHandler
     ) throws Exception {
         return httpSecurity
                 .cors()
@@ -64,6 +60,10 @@ public class SecurityConfig {
                 .exceptionHandling(config -> config
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
+
+                .logout(logout -> logout
+                        .addLogoutHandler(jwtLogoutHandler)
+                        .logoutSuccessHandler(jwtLogoutSuccessHandler))
 
                 .authorizeRequests(antz -> antz
                         .antMatchers(HttpMethod.GET, GET_PERMITTED_URLS).permitAll()
@@ -114,5 +114,15 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
         return new JwtAuthenticationCheckFilter(jwtTokenProvider);
+    }
+
+    @Bean
+    public JwtLogoutHandler jwtLogoutHandler(JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository) {
+        return new JwtLogoutHandler(jwtTokenProvider, memberRepository);
+    }
+
+    @Bean
+    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(ObjectMapper objectMapper) {
+        return new JwtLogoutSuccessHandler(objectMapper);
     }
 }

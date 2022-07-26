@@ -98,4 +98,8 @@ public class JwtTokenProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+    public String getSubject(String token) {
+        return jwtParser.parseClaimsJws(token).getBody().getSubject();
+    }
 }
