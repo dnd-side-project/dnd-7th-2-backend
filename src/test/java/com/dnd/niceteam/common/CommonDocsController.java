@@ -40,10 +40,10 @@ public class CommonDocsController {
         ErrorResponseDto errorResponseDto = ErrorResponseDto.of(errorCode,
                 ErrorResponseDto.FieldError.of("input-field", "input-value", "error-reason"));
         ApiResult<String> result = ApiResult.<String>builder()
-                .data("response-data")
                 .success(true)
                 .error(errorResponseDto)
                 .build();
-        return ResponseEntity.ok(result);
+        HttpStatus status = HttpStatus.valueOf(errorCode.getStatus());
+        return ResponseEntity.status(status).body(result);
     }
 }

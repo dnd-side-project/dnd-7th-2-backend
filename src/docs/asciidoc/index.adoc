@@ -12,11 +12,27 @@
 - xref:auth.adoc[Authentication]
 
 
+== HTTP Method
+
+
+== HTTP Status
+
+
 == API 응답 결과
 
-.$.status
-- SUCCESS: 요청 성공
-- FAIL: 요청 실패
-- ERROR: 서버 에러
+[[ApiResult-success]]
+=== 성공
 
-operation::common-ApiResult[snippets='http-request,request-headers,http-response,response-fields']
+operation::common-ApiResult-success[snippets='http-request,request-headers,http-response,response-fields']
+
+
+[[ApiResult-error]]
+=== 에러
+
+operation::common-ApiResult-error[snippets='http-response,response-fields']
+
+
+[[ApiResult-field-error]]
+=== 필드 에러
+
+operation::common-ApiResult-field-error[snippets='http-response,response-fields']
