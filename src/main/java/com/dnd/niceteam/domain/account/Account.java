@@ -29,11 +29,6 @@ public class Account extends BaseEntity {
     @Column(name = "refresh_token")
     private String refreshToken;
 
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", length = 25, nullable = false)
-    private Role role = Role.USER;
-
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 }
