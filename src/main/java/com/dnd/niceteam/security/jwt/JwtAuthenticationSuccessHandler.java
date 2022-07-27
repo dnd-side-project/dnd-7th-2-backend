@@ -1,8 +1,8 @@
 package com.dnd.niceteam.security.jwt;
 
 import com.dnd.niceteam.common.dto.ApiResult;
-import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.account.Account;
+import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.security.auth.dto.AuthResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final MemberRepository memberRepository;
+    private final AccountRepository accountRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -34,9 +34,9 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
         String username = authentication.getName();
         String accessToken = jwtTokenProvider.createAccessToken(username);
         String refreshToken = jwtTokenProvider.createRefreshToken(username);
-        Member member = memberRepository.findOneByUsername(username)
+        Account account = accountRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
-        member.setRefreshToken(refreshToken);
+        account.setRefreshToken(refreshToken);
         AuthResponseDto.TokenInfo tokenDto = new AuthResponseDto.TokenInfo();
         tokenDto.setAccessToken(accessToken);
         tokenDto.setRefreshToken(refreshToken);

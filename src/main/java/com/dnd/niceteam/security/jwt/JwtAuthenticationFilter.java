@@ -1,6 +1,6 @@
 package com.dnd.niceteam.security.jwt;
 
-import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -24,11 +24,11 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     private final ObjectMapper objectMapper;
 
     public JwtAuthenticationFilter(
-            JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository,
+            JwtTokenProvider jwtTokenProvider, AccountRepository accountRepository,
             AuthenticationManager authenticationManager, ObjectMapper objectMapper) {
         super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
         setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(
-                jwtTokenProvider, memberRepository, objectMapper));
+                jwtTokenProvider, accountRepository, objectMapper));
         this.objectMapper = objectMapper;
     }
 

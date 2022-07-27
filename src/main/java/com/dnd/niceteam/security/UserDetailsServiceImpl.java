@@ -1,7 +1,7 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.account.Account;
+import com.dnd.niceteam.domain.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,16 +26,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        Member member = memberRepository.findOneByUsername(username)
+        Account account = accountRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getRole().getFullName()));
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(account.getRole().getFullName()));
 
         return User.withUsername(username)
-                .password(member.getPassword())
+                .password(account.getPassword())
                 .authorities(authorities)
                 .build();
     }

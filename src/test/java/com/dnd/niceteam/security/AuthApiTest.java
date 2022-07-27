@@ -2,8 +2,8 @@ package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.ApiResult;
-import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.account.Account;
+import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
 import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +51,7 @@ class AuthApiTest {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MemberRepository memberRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -60,17 +60,15 @@ class AuthApiTest {
     @DisplayName("로그인 - 성공")
     void loginApi_Success() throws Exception {
         //given
-        memberRepository.save(Member.builder()
-                .username("test-username")
-                .password(passwordEncoder.encode("testPassword11!"))
+        accountRepository.save(Account.builder()
                 .email("test@email.com")
-                .name("test-name")
+                .password(passwordEncoder.encode("testPassword11!"))
                 .build());
         em.flush();
         em.clear();
 
         AuthRequestDto.Login loginDto = new AuthRequestDto.Login();
-        loginDto.setUsername("test-username");
+        loginDto.setUsername("test@email.com");
         loginDto.setPassword("testPassword11!");
 
         //expected
@@ -100,15 +98,13 @@ class AuthApiTest {
     @DisplayName("로그아웃 - 성공")
     void logoutApi_Success() throws Exception {
         //given
-        Member member = memberRepository.save(Member.builder()
-                .username("test-username")
-                .password(passwordEncoder.encode("testPassword11!"))
+        Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
-                .name("test-name")
+                .password(passwordEncoder.encode("testPassword11!"))
                 .build());
-        String accessToken = jwtTokenProvider.createAccessToken(member.getUsername());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getUsername());
-        member.setRefreshToken(refreshToken);
+        String accessToken = jwtTokenProvider.createAccessToken(account.getEmail());
+        String refreshToken = jwtTokenProvider.createRefreshToken(account.getEmail());
+        account.setRefreshToken(refreshToken);
         em.flush();
         em.clear();
 

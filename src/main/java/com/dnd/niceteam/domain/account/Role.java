@@ -1,4 +1,4 @@
-package com.dnd.niceteam.domain.member;
+package com.dnd.niceteam.domain.account;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
