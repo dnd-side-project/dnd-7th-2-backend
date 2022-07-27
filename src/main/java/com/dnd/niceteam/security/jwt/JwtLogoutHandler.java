@@ -1,7 +1,7 @@
 package com.dnd.niceteam.security.jwt;
 
-import com.dnd.niceteam.member.domain.Member;
-import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.domain.member.Member;
+import com.dnd.niceteam.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;

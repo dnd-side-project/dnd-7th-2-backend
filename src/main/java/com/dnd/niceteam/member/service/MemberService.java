@@ -1,6 +1,6 @@
 package com.dnd.niceteam.member.service;
 
-import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,8 +1,8 @@
 package com.dnd.niceteam.security.auth.service;
 
-import com.dnd.niceteam.member.domain.Member;
+import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.member.exception.MemberNotFoundException;
-import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
 import com.dnd.niceteam.security.auth.dto.AuthResponseDto;
 import com.dnd.niceteam.security.exception.RefreshTokenIsNullException;

@@ -1,6 +1,5 @@
-package com.dnd.niceteam.member.repository;
+package com.dnd.niceteam.domain.member;
 
-import com.dnd.niceteam.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

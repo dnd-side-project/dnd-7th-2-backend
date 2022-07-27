@@ -1,6 +1,6 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.security.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
