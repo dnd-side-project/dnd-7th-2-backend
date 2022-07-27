@@ -29,19 +29,56 @@ class CommonDocsControllerTest {
 
     @Test
     @WithMockUser
-    void apiResult() throws Exception {
-        mockMvc.perform(get("/docs/common/api-result")
+    void apiResult_Success() throws Exception {
+        mockMvc.perform(get("/docs/common/api-result/success")
                         .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer authentication-token"))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer access-token"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andDo(document("common-ApiResult",
+                .andDo(document("common-ApiResult-success",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION)
+                                        .description("인증이 필요한 요청의 경우 인증 토큰을 포함")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("API 응답 성공 여부"),
+                                fieldWithPath("data").type(Object.class).description("응답 결과 데이터")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    void apiResult_Error() throws Exception {
+        mockMvc.perform(get("/docs/common/api-result/error")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("common-ApiResult-error",
+                        responseFields(
+                                fieldWithPath("success").description("API 응답 성공 여부"),
+                                fieldWithPath("error").description("에러 결과"),
+                                fieldWithPath("error.code").description("에러코드"),
+                                fieldWithPath("error.message").description("에러 메세지"),
+                                fieldWithPath("error.errors").description("필드 에러가 없는 경우 빈 배열")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    void apiResult() throws Exception {
+        mockMvc.perform(get("/docs/common/api-result/field-error")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("common-ApiResult-success",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION)
                                         .description("인증이 필요한 요청의 경우 해당 헤더에 인증 토큰을 포함")
                         ),
                         responseFields(
-                                fieldWithPath("success").description("API 응답 상태"),
+                                fieldWithPath("success").description("API 응답 성공 여부"),
                                 fieldWithPath("data").type(Object.class).optional()
                                         .description("응답 결과 데이터\n- 응답이 실패한 경우 포함되지 않음"),
                                 fieldWithPath("error").optional()
