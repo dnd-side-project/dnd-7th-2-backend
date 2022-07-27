@@ -19,7 +19,7 @@ public class CommonDocsController {
                 ErrorResponseDto.FieldError.of("input-field", "input-value", "error-reason"));
         ApiResult<String> result = ApiResult.<String>builder()
                 .data("response-data")
-                .status(ApiResult.Status.SUCCESS)
+                .success(true)
                 .error(errorResponseDto)
                 .build();
         return ResponseEntity.ok(result);

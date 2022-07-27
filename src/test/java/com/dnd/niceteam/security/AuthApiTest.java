@@ -1,7 +1,6 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
-import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
@@ -78,7 +77,7 @@ class AuthApiTest {
                         .content(objectMapper.writeValueAsString(loginDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(ApiResult.Status.SUCCESS.name()))
+                .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.accessToken").exists())
                 .andExpect(jsonPath("$.data.refreshToken").exists())
                 .andDo(document("auth-login",
@@ -115,7 +114,7 @@ class AuthApiTest {
                         .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(ApiResult.Status.SUCCESS.name()))
+                .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("auth-logout",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("JWT access token")

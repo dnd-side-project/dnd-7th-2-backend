@@ -41,7 +41,7 @@ class CommonDocsControllerTest {
                                         .description("인증이 필요한 요청의 경우 해당 헤더에 인증 토큰을 포함")
                         ),
                         responseFields(
-                            fieldWithPath("status").description("API 응답 상태"),
+                                fieldWithPath("success").description("API 응답 상태"),
                                 fieldWithPath("data").type(Object.class).optional()
                                         .description("응답 결과 데이터\n- 응답이 실패한 경우 포함되지 않음"),
                                 fieldWithPath("error").optional()

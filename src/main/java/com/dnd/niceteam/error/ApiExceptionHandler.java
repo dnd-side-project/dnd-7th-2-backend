@@ -27,7 +27,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = ex.getErrorCode();
         ErrorResponseDto response = ErrorResponseDto.of(errorCode);
         ApiResult<Void> result = ApiResult.<Void>builder()
-                .status(ApiResult.Status.FAIL)
+                .success(false)
                 .error(response)
                 .build();
         return new ResponseEntity<>(result, HttpStatus.valueOf(errorCode.getStatus()));
@@ -38,7 +38,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             MethodArgumentTypeMismatchException ex) {
         ErrorResponseDto response = ErrorResponseDto.of(ex);
         ApiResult<Void> result = ApiResult.<Void>builder()
-                .status(ApiResult.Status.FAIL)
+                .success(false)
                 .error(response)
                 .build();
         return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
@@ -51,7 +51,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         String message = errorCode.getMessage();
         ErrorResponseDto response = new ErrorResponseDto(errorCode.getCode(), message);
         ApiResult<Void> result = ApiResult.<Void>builder()
-                .status(ApiResult.Status.FAIL)
+                .success(false)
                 .error(response)
                 .build();
         return new ResponseEntity<>(result, status);
@@ -64,7 +64,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         String message = errorCode.getMessage();
         ErrorResponseDto response = new ErrorResponseDto(errorCode.getCode(), message);
         ApiResult<Void> result = ApiResult.<Void>builder()
-                .status(ApiResult.Status.ERROR)
+                .success(false)
                 .error(response)
                 .build();
         return new ResponseEntity<>(result, status);
@@ -76,7 +76,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         ErrorResponseDto response = ErrorResponseDto.of(errorCode, ex.getBindingResult());
         ApiResult<Void> result = ApiResult.<Void>builder()
-                .status(ApiResult.Status.FAIL)
+                .success(false)
                 .error(response)
                 .build();
         return handleExceptionInternal(ex, result, headers, HttpStatus.valueOf(errorCode.getStatus()), request);
@@ -85,7 +85,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        body = isNull(body) ? ApiResult.<Void>builder().status(ApiResult.Status.ERROR).build() : body;
+        body = isNull(body) ? ApiResult.<Void>builder().success(false).build() : body;
         return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 }

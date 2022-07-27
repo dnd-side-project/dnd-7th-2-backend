@@ -1,10 +1,9 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
-import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.domain.account.Account;
-import com.dnd.niceteam.error.exception.ErrorCode;
 import com.dnd.niceteam.domain.account.AccountRepository;
+import com.dnd.niceteam.error.exception.ErrorCode;
 import com.dnd.niceteam.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -77,7 +76,7 @@ class JwtWebTest {
                         .header(HttpHeaders.AUTHORIZATION, JwtTokenProvider.TOKEN_PREFIX + accessToken))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(ApiResult.Status.FAIL.name()))
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.HANDLE_UNAUTHORIZED.getCode()))
                 .andExpect(jsonPath("$.error.message").value(ErrorCode.HANDLE_UNAUTHORIZED.getMessage()))
                 .andExpect(jsonPath("$.error.errors").isEmpty());
