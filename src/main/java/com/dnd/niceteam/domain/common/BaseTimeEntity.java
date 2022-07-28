@@ -27,7 +27,7 @@ public abstract class BaseTimeEntity {
 
     @Setter(AccessLevel.PRIVATE)
     @Column(name = "use_yn", nullable = false)
-    private boolean useYn = true;
+    private Boolean useYn = true;
 
     public void delete() {
         setUseYn(false);

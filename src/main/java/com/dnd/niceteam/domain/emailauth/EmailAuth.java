@@ -28,7 +28,7 @@ public class EmailAuth extends BaseTimeEntity {
     @Column(name = "authenticated", nullable = false)
     @Builder.Default
     @Setter(AccessLevel.PRIVATE)
-    private boolean authenticated = false;
+    private Boolean authenticated = false;
 
     public void authenticate() {
         setAuthenticated(true);
