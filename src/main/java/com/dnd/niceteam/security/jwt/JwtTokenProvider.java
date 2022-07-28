@@ -37,6 +37,8 @@ public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
+    private final JwtParser jwtParser;
+
     public JwtTokenProvider(
             @Value("${jwt.access-token-validity}") long accessTokenValidity,
             @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
@@ -46,6 +48,7 @@ public class JwtTokenProvider {
         this.accessTokenValidityInMillis = accessTokenValidity * 1000;
         this.refreshTokenValidityInMillis = refreshTokenValidity * 1000;
         this.userDetailsService = userDetailsService;
+        this.jwtParser = Jwts.parserBuilder().setSigningKey(secretKey).build();
     }
 
     public String createAccessToken(String username) {
@@ -71,7 +74,7 @@ public class JwtTokenProvider {
     // 토큰 유효성 및 만료기간 검사
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            jwtParser.parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT signature.");
@@ -91,16 +94,12 @@ public class JwtTokenProvider {
 
     // 토큰에서 인증 정보 추출
     public Authentication getAuthentication(String accessToken) {
-        String usernameFromToken = getUsernameFromToken(accessToken);
+        String usernameFromToken = jwtParser.parseClaimsJws(accessToken).getBody().getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
-    private String getUsernameFromToken(String token) {
-        return parseClaimsJws(token).getBody().getSubject();
-    }
-
-    private Jws<Claims> parseClaimsJws(String token) {
-        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+    public String getSubject(String token) {
+        return jwtParser.parseClaimsJws(token).getBody().getSubject();
     }
 }
