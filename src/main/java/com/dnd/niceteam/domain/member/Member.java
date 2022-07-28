@@ -3,6 +3,8 @@ package com.dnd.niceteam.domain.member;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.domain.common.BaseEntity;
+import com.dnd.niceteam.domain.department.Department;
+import com.dnd.niceteam.domain.university.University;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,6 +25,14 @@ public class Member extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "university_id")
+    private University university;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     @Column(name = "nickname", length = 25, unique = true, nullable = false)
     private String nickname;
