@@ -121,4 +121,44 @@ class AuthApiTest {
                         )
                 ));
     }
+
+    @Test
+    @DisplayName("Refresh token을 통해 토큰 재발급")
+    void reissueApi_Success() throws Exception {
+        //given
+        Account account = accountRepository.save(Account.builder()
+                .email("test@email.com")
+                .password(passwordEncoder.encode("testPassword11!"))
+                .build());
+        String accessToken = jwtTokenProvider.createAccessToken(account.getEmail());
+        String refreshToken = jwtTokenProvider.createRefreshToken(account.getEmail());
+        account.setRefreshToken(refreshToken);
+        em.flush();
+        em.clear();
+
+        AuthRequestDto.Reissue reissueDto = new AuthRequestDto.Reissue();
+        reissueDto.setUsername(account.getEmail());
+        reissueDto.setRefreshToken(refreshToken);
+
+        //expected
+        mockMvc.perform(post("/auth/reissue")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reissueDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("auth-reissue",
+                        requestFields(
+                                fieldWithPath("username").description("회원 로그인 아이디"),
+                                fieldWithPath("refreshToken").description("토큰 재발급을 위한 JWT Refresh Token")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("accessToken").description("JWT Access Token"),
+                                fieldWithPath("refreshToken").description("JWT Refresh Token")
+                        )
+                ))
+        ;
+    }
 }

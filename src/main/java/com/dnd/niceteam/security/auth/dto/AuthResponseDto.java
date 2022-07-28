@@ -1,6 +1,5 @@
 package com.dnd.niceteam.security.auth.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 public interface AuthResponseDto {
@@ -9,11 +8,5 @@ public interface AuthResponseDto {
     class TokenInfo {
         private String accessToken;
         private String refreshToken;
-    }
-
-    @Data
-    @AllArgsConstructor
-    class Reissue {
-        private String accessToken;
     }
 }
