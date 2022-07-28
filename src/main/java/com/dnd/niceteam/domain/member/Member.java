@@ -8,6 +8,8 @@ import com.dnd.niceteam.domain.university.University;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,6 +35,11 @@ public class Member extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "member_interest", joinColumns = @JoinColumn(name = "member_id", nullable = false))
+    @Builder.Default
+    private Set<MemberInterest> memberInterests = new HashSet<>();
 
     @Column(name = "nickname", length = 25, unique = true, nullable = false)
     private String nickname;
