@@ -1,5 +1,6 @@
 package com.dnd.niceteam.security;
 
+import com.dnd.niceteam.member.repository.MemberRepository;
 import com.dnd.niceteam.security.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -31,19 +33,17 @@ public class SecurityConfig {
     private static final String[] POST_PERMITTED_URLS = {
     };
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-    private final ObjectMapper objectMapper;
-
-    private final ApplicationContext context;
-
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().antMatchers("/docs/**");
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity httpSecurity, JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtLogoutHandler jwtLogoutHandler, JwtLogoutSuccessHandler jwtLogoutSuccessHandler
+    ) throws Exception {
         return httpSecurity
                 .cors()
 
@@ -55,11 +55,15 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
 
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthenticationCheckFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationCheckFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(config -> config
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper))
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
+
+                .logout(logout -> logout
+                        .addLogoutHandler(jwtLogoutHandler)
+                        .logoutSuccessHandler(jwtLogoutSuccessHandler))
 
                 .authorizeRequests(antz -> antz
                         .antMatchers(HttpMethod.GET, GET_PERMITTED_URLS).permitAll()
@@ -75,20 +79,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(objectMapper);
+    public AuthenticationManager authenticationManager(ApplicationContext context) throws Exception {
         AuthenticationManagerFactoryBean authenticationManagerFactoryBean = new AuthenticationManagerFactoryBean();
         authenticationManagerFactoryBean.setBeanFactory(context);
-        jwtAuthenticationFilter.setAuthenticationManager(authenticationManagerFactoryBean.getObject());
-        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(
-                jwtTokenProvider, objectMapper));
-        return jwtAuthenticationFilter;
-    }
-
-    @Bean
-    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter() {
-        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
-        return jwtAuthenticationCheckFilter;
+        return authenticationManagerFactoryBean.getObject();
     }
 
     @Bean
@@ -103,5 +97,32 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfig);
 
         return source;
+    }
+
+    @Bean
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        return new JwtAuthenticationEntryPoint(objectMapper);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository,
+            ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
+        return new JwtAuthenticationFilter(jwtTokenProvider, memberRepository, authenticationManager, objectMapper);
+    }
+
+    @Bean
+    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
+        return new JwtAuthenticationCheckFilter(jwtTokenProvider);
+    }
+
+    @Bean
+    public JwtLogoutHandler jwtLogoutHandler(JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository) {
+        return new JwtLogoutHandler(jwtTokenProvider, memberRepository);
+    }
+
+    @Bean
+    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(ObjectMapper objectMapper) {
+        return new JwtLogoutSuccessHandler(objectMapper);
     }
 }

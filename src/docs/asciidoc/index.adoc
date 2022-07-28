@@ -14,30 +14,9 @@
 
 == API 응답 결과
 
-[source]
-----
-object {
-    string status;
-    object {
-        // 응답 데이터
-    }* data?;
-    object {
-        integer code?;
-        string message?;
-        array [
-            object {
-                string field?;
-                string value?;
-                string reason?;
-            }*;
-        ] errors?;
-    }* error?;
-}*;
-----
-
 .$.status
 - SUCCESS: 요청 성공
 - FAIL: 요청 실패
 - ERROR: 서버 에러
 
-operation::common-ApiResult[snippets='http-request,request-headers,response-fields,http-response']
+operation::common-ApiResult[snippets='http-request,request-headers,http-response,response-fields']
