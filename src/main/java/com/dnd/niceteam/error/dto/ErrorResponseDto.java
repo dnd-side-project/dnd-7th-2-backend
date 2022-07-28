@@ -49,13 +49,13 @@ public class ErrorResponseDto {
     }
 
     private ErrorResponseDto(final ErrorCode code, final List<FieldError> errors) {
-        this.code = code.getCode();
+        this.code = code.name();
         this.message = code.getMessage();
         this.errors = errors;
     }
 
     private ErrorResponseDto(final ErrorCode code) {
-        this.code = code.getCode();
+        this.code = code.name();
         this.message = code.getMessage();
         this.errors = new ArrayList<>();
     }

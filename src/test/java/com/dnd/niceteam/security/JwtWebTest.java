@@ -77,7 +77,7 @@ class JwtWebTest {
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.error.code").value(ErrorCode.HANDLE_UNAUTHORIZED.getCode()))
+                .andExpect(jsonPath("$.error.code").value(ErrorCode.HANDLE_UNAUTHORIZED.name()))
                 .andExpect(jsonPath("$.error.message").value(ErrorCode.HANDLE_UNAUTHORIZED.getMessage()))
                 .andExpect(jsonPath("$.error.errors").isEmpty());
     }

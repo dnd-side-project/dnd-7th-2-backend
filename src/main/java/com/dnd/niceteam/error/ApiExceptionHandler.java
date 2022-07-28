@@ -87,7 +87,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = ErrorCode.HANDLE_ACCESS_DENIED;
         HttpStatus status = HttpStatus.valueOf(errorCode.getStatus());
         String message = errorCode.getMessage();
-        ErrorResponseDto response = new ErrorResponseDto(errorCode.getCode(), message);
+        ErrorResponseDto response = new ErrorResponseDto(errorCode.name(), message);
         ApiResult<Void> result = ApiResult.<Void>builder()
                 .success(false)
                 .error(response)
@@ -114,7 +114,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = ErrorCode.HANDLE_INTERNAL_SERVER_ERROR;
         HttpStatus status = HttpStatus.valueOf(errorCode.getStatus());
         String message = errorCode.getMessage();
-        ErrorResponseDto response = new ErrorResponseDto(errorCode.getCode(), message);
+        ErrorResponseDto response = new ErrorResponseDto(errorCode.name(), message);
         ApiResult<Void> result = ApiResult.<Void>builder()
                 .success(false)
                 .error(response)
