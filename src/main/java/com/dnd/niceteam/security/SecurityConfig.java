@@ -1,6 +1,6 @@
 package com.dnd.niceteam.security;
 
-import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.security.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +31,7 @@ public class SecurityConfig {
     };
 
     private static final String[] POST_PERMITTED_URLS = {
+            "/auth/reissue"
     };
 
     @Bean
@@ -106,9 +107,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository,
+            JwtTokenProvider jwtTokenProvider, AccountRepository accountRepository,
             ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
-        return new JwtAuthenticationFilter(jwtTokenProvider, memberRepository, authenticationManager, objectMapper);
+        return new JwtAuthenticationFilter(jwtTokenProvider, accountRepository, authenticationManager, objectMapper);
     }
 
     @Bean
@@ -117,8 +118,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtLogoutHandler jwtLogoutHandler(JwtTokenProvider jwtTokenProvider, MemberRepository memberRepository) {
-        return new JwtLogoutHandler(jwtTokenProvider, memberRepository);
+    public JwtLogoutHandler jwtLogoutHandler(JwtTokenProvider jwtTokenProvider, AccountRepository accountRepository) {
+        return new JwtLogoutHandler(jwtTokenProvider, accountRepository);
     }
 
     @Bean

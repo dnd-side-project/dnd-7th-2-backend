@@ -12,26 +12,20 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResult<T> {
 
-    private Status status;
+    private boolean success;
 
     private T data;
 
     private ErrorResponseDto error;
 
-    public enum Status {
-        SUCCESS,    // 응답 성공
-        FAIL,       // Client 요청 실패
-        ERROR,      // Server 관련 에러
-    }
-
     public static <R> ApiResult.ApiResultBuilder<R> success() {
         return ApiResult.<R>builder()
-                .status(Status.SUCCESS);
+                .success(true);
     }
 
     public static <R> ApiResult<R> success(R data) {
         return ApiResult.<R>builder()
-                .status(Status.SUCCESS)
+                .success(true)
                 .data(data)
                 .build();
     }

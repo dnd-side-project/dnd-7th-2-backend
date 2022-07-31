@@ -19,3 +19,9 @@ operation::auth-login[snippets='http-request,request-fields,http-response,respon
 == Logout
 
 operation::auth-logout[snippets='http-request,request-headers,http-response']
+
+
+[[auth-reissue]]
+== Reissue
+
+operation::auth-reissue[snippets='http-request,request-fields,http-response,response-fields-data']

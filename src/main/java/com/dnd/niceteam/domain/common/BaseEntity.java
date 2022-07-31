@@ -1,4 +1,4 @@
-package com.dnd.niceteam.common.domain;
+package com.dnd.niceteam.domain.common;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;

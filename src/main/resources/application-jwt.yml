@@ -15,6 +15,6 @@ spring:
       on-profile: dev
 
 jwt:
-  secret: ${jwt.secret}
+  secret: ${jwt.secret_key}
   access-token-validity: ${jwt.access_token_validity}
   refresh-token-validity: ${jwt.refresh_token_validity}

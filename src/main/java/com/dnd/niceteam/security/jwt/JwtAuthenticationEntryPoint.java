@@ -30,7 +30,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         ErrorCode errorCode = ErrorCode.HANDLE_UNAUTHORIZED;
         ErrorResponseDto errorResponseDto = ErrorResponseDto.of(errorCode);
         ApiResult<Void> result = ApiResult.<Void>builder()
-                .status(ApiResult.Status.FAIL)
+                .success(false)
                 .error(errorResponseDto)
                 .build();
         response.setStatus(errorCode.getStatus());

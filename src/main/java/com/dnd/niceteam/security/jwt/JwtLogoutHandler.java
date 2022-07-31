@@ -1,7 +1,7 @@
 package com.dnd.niceteam.security.jwt;
 
-import com.dnd.niceteam.member.domain.Member;
-import com.dnd.niceteam.member.repository.MemberRepository;
+import com.dnd.niceteam.domain.account.Account;
+import com.dnd.niceteam.domain.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -17,16 +17,16 @@ public class JwtLogoutHandler implements LogoutHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final MemberRepository memberRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String token = resolveToken(request);
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             String username = jwtTokenProvider.getSubject(token);
-            Member member = memberRepository.findOneByUsername(username)
+            Account account = accountRepository.findByEmail(username)
                     .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
-            member.setRefreshToken(null);
+            account.setRefreshToken(null);
         }
     }
 
