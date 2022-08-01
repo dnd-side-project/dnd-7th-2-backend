@@ -1,0 +1,15 @@
+aws:
+  ses:
+    access-key: ${aws.ses.access_key}
+    secret-key: ${aws.ses.secret_key}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+aws:
+  ses:
+    access-key: fake-aws-ses-access-key
+    secret-key: fake-aws-ses-secret-key
