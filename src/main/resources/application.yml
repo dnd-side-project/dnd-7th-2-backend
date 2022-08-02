@@ -13,6 +13,8 @@ aws:
     prefix: /config
     profile-separator: _
 
+firebase:
+  config-path: firebase/springboot-fcm-test-firebase-adminsdk-o6qme-71dcb938bf.json
 ---
 spring:
   config:
