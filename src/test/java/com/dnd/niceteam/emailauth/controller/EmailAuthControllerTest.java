@@ -32,8 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Import(RestDocsConfig.class)
 @AutoConfigureRestDocs
-//@SpringBootTest
-//@AutoConfigureMockMvc
 @WebMvcTest(controllers = EmailAuthController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })
 class EmailAuthControllerTest {
