@@ -54,7 +54,7 @@ class EmailAuthControllerTest {
         // given
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("teat@teamgoo.ac.kr");
-        requestDto.setUnivName("팀구대학교");
+        requestDto.setUniversityName("팀구대학교");
 
         // expected
         mockMvc.perform(post("/email-auth/send").with(csrf())
@@ -68,7 +68,7 @@ class EmailAuthControllerTest {
                         requestFields(
                                 fieldWithPath("email").description("인증할 이메일")
                                         .attributes(key("constraint").value("해당 대학교의 이메일 도메인과 일치")),
-                                fieldWithPath("univName").description("대학교 이름")
+                                fieldWithPath("universityName").description("대학교 이름")
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 -> 인증번호 해당 이메일로 발송")

@@ -37,8 +37,8 @@ public class EmailAuthService {
 
     @Transactional
     public void sendEmailAuthKey(EmailAuthKeySendRequestDto requestDto) {
-        University university = universityRepository.findByName(requestDto.getUnivName())
-                .orElseThrow(() -> new UniversityNotFoundException("University name = " + requestDto.getUnivName()));
+        University university = universityRepository.findByName(requestDto.getUniversityName())
+                .orElseThrow(() -> new UniversityNotFoundException("University name = " + requestDto.getUniversityName()));
         String email = requestDto.getEmail();
         if (isInvalidEmailDomain(university, email)) {
             throw new InvalidEmailDomainException("email = " + email);

@@ -13,5 +13,5 @@ public class EmailAuthKeySendRequestDto {
     private String email;
 
     @NotEmpty
-    private String univName;
+    private String universityName;
 }

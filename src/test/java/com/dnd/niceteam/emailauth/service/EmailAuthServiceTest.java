@@ -71,7 +71,7 @@ class EmailAuthServiceTest {
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUnivName("팀구대학교");
+        requestDto.setUniversityName("팀구대학교");
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
@@ -96,7 +96,7 @@ class EmailAuthServiceTest {
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUnivName("없는대학교");
+        requestDto.setUniversityName("없는대학교");
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
@@ -117,7 +117,7 @@ class EmailAuthServiceTest {
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@invalidemail.com");
-        requestDto.setUnivName("팀구대학교");
+        requestDto.setUniversityName("팀구대학교");
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
