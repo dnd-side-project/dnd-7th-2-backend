@@ -4,16 +4,20 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
 import com.dnd.niceteam.domain.emailauth.EmailAuth;
 import com.dnd.niceteam.domain.emailauth.EmailAuthRepository;
+import com.dnd.niceteam.domain.emailauth.exception.EmailAuthNotFoundException;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import com.dnd.niceteam.domain.university.exception.InvalidEmailDomainException;
 import com.dnd.niceteam.domain.university.exception.UniversityNotFoundException;
+import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckRequestDto;
+import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckResponseDto;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeySendRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -62,5 +66,25 @@ public class EmailAuthService {
 
     private boolean isInvalidEmailDomain(University university, String email) {
         return !email.endsWith(university.getEmailDomain());
+    }
+
+    @Transactional
+    public EmailAuthKeyCheckResponseDto checkEmailAuthKey(EmailAuthKeyCheckRequestDto requestDto) {
+        String email = requestDto.getEmail();
+        EmailAuth emailAuth = emailAuthRepository.findLatestByEmail(email)
+                .orElseThrow(() -> new EmailAuthNotFoundException("email = " + email));
+        if (isValidKey(emailAuth, requestDto.getAuthKey())) {
+            emailAuth.authenticate();
+        }
+
+        EmailAuthKeyCheckResponseDto responseDto = new EmailAuthKeyCheckResponseDto();
+        responseDto.setEmail(email);
+        responseDto.setAuthenticated(emailAuth.getAuthenticated());
+        return responseDto;
+    }
+
+    private boolean isValidKey(EmailAuth emailAuth, String authKey) {
+        return emailAuth.getAuthKey().equals(authKey) &&
+                LocalDateTime.now().isBefore(emailAuth.getCreatedDate().plusMinutes(5L));
     }
 }
