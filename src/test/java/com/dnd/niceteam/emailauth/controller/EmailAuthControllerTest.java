@@ -1,6 +1,8 @@
 package com.dnd.niceteam.emailauth.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
+import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckRequestDto;
+import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckResponseDto;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeySendRequestDto;
 import com.dnd.niceteam.emailauth.service.EmailAuthService;
 import com.dnd.niceteam.security.SecurityConfig;
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -42,11 +45,11 @@ class EmailAuthControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private EmailAuthService emailAuthService;
+    private EmailAuthService mockEmailAuthService;
 
     @Test
     @WithMockUser
-    @DisplayName("이메일 인증번호 전송")
+    @DisplayName("이메일 인증번호 전송 API")
     void emailAuthKeySend_Success() throws Exception {
         // given
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
@@ -71,5 +74,44 @@ class EmailAuthControllerTest {
                                 fieldWithPath("success").description("요청 성공 -> 인증번호 해당 이메일로 발송")
                         )
                 ));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("이메일 인증번호 확인 API")
+    void emailAuthKeyCheck_Success() throws Exception {
+        // given
+        EmailAuthKeyCheckRequestDto requestDto = new EmailAuthKeyCheckRequestDto();
+        requestDto.setAuthKey("123456");
+        requestDto.setEmail("test@email.com");
+
+        EmailAuthKeyCheckResponseDto responseDto = new EmailAuthKeyCheckResponseDto();
+        responseDto.setEmail("test@email.com");
+        responseDto.setAuthenticated(true);
+        given(mockEmailAuthService.checkEmailAuthKey(requestDto)).willReturn(responseDto);
+
+        // expected
+        mockMvc.perform(post("/email-auth/check").with(csrf())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.email").value("test@email.com"))
+                .andExpect(jsonPath("$.data.authenticated").value(true))
+                .andDo(document("email-auth-check",
+                        requestFields(
+                                fieldWithPath("email").description("인증하려는 이메일"),
+                                fieldWithPath("authKey").description("전송된 인증번호")
+                                        .attributes(key("constraint").value("인증 번호 전송 요청 후 5분 이내"))
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("email").description("인증된 이메일"),
+                                fieldWithPath("authenticated").description("인증 여부. 인증되지 않았을 경우 false.")
+                        )
+                ))
+        ;
     }
 }
