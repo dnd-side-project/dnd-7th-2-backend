@@ -31,7 +31,8 @@ public class SecurityConfig {
     };
 
     private static final String[] POST_PERMITTED_URLS = {
-            "/auth/reissue"
+            "/auth/reissue",
+            "/email-auth/send"
     };
 
     @Bean
