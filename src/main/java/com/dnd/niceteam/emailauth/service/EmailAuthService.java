@@ -43,17 +43,21 @@ public class EmailAuthService {
                 .email(email)
                 .authKey(keyCreator.createEmailAuthKey())
                 .build());
+        SendEmailRequest sendEmailRequest = createSendEmailRequest(emailAuth);
+        emailService.sendEmail(sendEmailRequest);
+    }
+
+    private SendEmailRequest createSendEmailRequest(EmailAuth emailAuth) {
         Content content = new Content()
                 .withData("인증번호: " + emailAuth.getAuthKey())
                 .withCharset(StandardCharsets.UTF_8.name());
         Message message = new Message()
                 .withSubject(new Content(EMAIL_AUTH_SUBJECT).withCharset(StandardCharsets.UTF_8.name()))
                 .withBody(new Body(content));
-        SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        return new SendEmailRequest()
                 .withDestination(new Destination(List.of(emailAuth.getEmail())))
                 .withSource("nice2meetteam@gmail.com")
                 .withMessage(message);
-        emailService.sendEmail(sendEmailRequest);
     }
 
     private boolean isInvalidEmailDomain(University university, String email) {
