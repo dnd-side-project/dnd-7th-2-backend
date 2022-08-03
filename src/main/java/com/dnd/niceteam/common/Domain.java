@@ -5,4 +5,6 @@ public enum Domain {
     AUTH,
     ACCOUNT,
     MEMBER,
+    UNIVERSITY,
+    EMAIL_AUTH,
 }

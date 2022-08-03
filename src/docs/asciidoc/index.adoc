@@ -8,8 +8,9 @@
 :operation-http-request-title: Example request
 :operation-http-response-title: Example response
 
-.API Domain
+== API Domain
 - xref:auth.adoc[Authentication]
+- xref:email-auth.adoc[Email Authentication]
 
 
 == HTTP Method
