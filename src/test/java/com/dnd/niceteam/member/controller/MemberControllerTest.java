@@ -70,4 +70,32 @@ class MemberControllerTest {
                         )
                 ));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("닉네임 중복 확인 API")
+    void memberNicknameDupCheck() throws Exception {
+        // given
+        DupCheck.ResponseDto responseDto = new DupCheck.ResponseDto();
+        responseDto.setDuplicated(false);
+        given(memberService.checkNicknameDuplicate("테스트닉네임")).willReturn(responseDto);
+
+        // expected
+        mockMvc.perform(get("/members/dup-check/nickname")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("nickname", "테스트닉네임"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.duplicated").value(false))
+                .andDo(document("member-nickname-dup-check",
+                        requestParameters(
+                                parameterWithName("nickname").description("중복 확인 하려는 이메일")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("duplicated").description("중복 여부. 중복이 있을 경우 true.")
+                        )
+                ));
+    }
 }

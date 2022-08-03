@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 
 @RequiredArgsConstructor
@@ -23,6 +25,14 @@ public class MemberController {
     @GetMapping("/dup-check/email")
     public ResponseEntity<ApiResult<DupCheck.ResponseDto>> memberEmailDupCheck(@RequestParam @Email String email) {
         DupCheck.ResponseDto responseDto = memberService.checkEmailDuplicate(email);
+        ApiResult<DupCheck.ResponseDto> apiResult = ApiResult.success(responseDto);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/dup-check/nickname")
+    public ResponseEntity<ApiResult<DupCheck.ResponseDto>> memberNicknameDupCheck(
+            @RequestParam @NotBlank @Size(max = 10) String nickname) {
+        DupCheck.ResponseDto responseDto = memberService.checkNicknameDuplicate(nickname);
         ApiResult<DupCheck.ResponseDto> apiResult = ApiResult.success(responseDto);
         return ResponseEntity.ok(apiResult);
     }
