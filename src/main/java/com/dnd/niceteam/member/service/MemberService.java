@@ -24,4 +24,10 @@ public class MemberService {
         responseDto.setDuplicated(accountRepository.existsByEmail(email));
         return responseDto;
     }
+
+    public DupCheck.ResponseDto checkNicknameDuplicate(String nickname) {
+        DupCheck.ResponseDto responseDto = new DupCheck.ResponseDto();
+        responseDto.setDuplicated(memberRepository.existsByNickname(nickname));
+        return responseDto;
+    }
 }

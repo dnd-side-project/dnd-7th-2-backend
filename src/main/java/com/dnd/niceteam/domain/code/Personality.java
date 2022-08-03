@@ -25,10 +25,16 @@ public class Personality {
     private Noun noun;
 
     public enum Adjective {
-
+        LOGICAL,        // 논리적인
+        PRECISE,        // 꼼꼼한
+        PLANNED,        // 계획적인
+        PERSISTENT,     // 끈기있는
+        LISTENING,      // 경청하는
     }
 
     public enum Noun {
-
+        INVENTOR,       // 발명가
+        LEADER,         // 리더
+        FOLLOWER,       // 팔로워
     }
 }
