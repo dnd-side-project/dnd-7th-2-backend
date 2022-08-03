@@ -71,7 +71,7 @@ class EmailAuthServiceTest {
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUniversityName("팀구대학교");
+        requestDto.setUniversityId(1L);
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
@@ -90,13 +90,13 @@ class EmailAuthServiceTest {
     @DisplayName("이메일 인증번호 요청 -> 없는 대학교 이름으로 - 실패")
     void sendEmailAuthKey_NotFoundUniv_ThenFail() {
         // given
-        universityRepository.save(University.builder()
+        University university = universityRepository.save(University.builder()
                 .name("팀구대학교")
                 .emailDomain("teamgoo.com")
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUniversityName("없는대학교");
+        requestDto.setUniversityId(university.getId() + 1L);
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
@@ -111,13 +111,13 @@ class EmailAuthServiceTest {
     @DisplayName("이메일 인증번호 요청 -> 일치하지 않는 이메일 도메인 - 실패")
     void sendEmailAuthKey_InvalidEmail_ThenFail() {
         // given
-        universityRepository.save(University.builder()
+        University university = universityRepository.save(University.builder()
                 .name("팀구대학교")
                 .emailDomain("teamgoo.com")
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@invalidemail.com");
-        requestDto.setUniversityName("팀구대학교");
+        requestDto.setUniversityId(university.getId());
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
