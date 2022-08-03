@@ -28,14 +28,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String[] GET_PERMITTED_URLS = {
+            "/members/dup-check/email",
+            "/members/dup-check/nickname"
     };
 
     private static final String[] POST_PERMITTED_URLS = {
             "/auth/reissue",
             "/email-auth/send",
             "/email-auth/check",
-            "/members/dup-check/email",
-            "/members/dup-check/nickname"
     };
 
     @Bean
