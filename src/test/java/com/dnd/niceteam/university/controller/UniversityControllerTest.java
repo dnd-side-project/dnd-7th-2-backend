@@ -2,6 +2,7 @@ package com.dnd.niceteam.university.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.security.SecurityConfig;
+import com.dnd.niceteam.university.dto.DepartmentDto;
 import com.dnd.niceteam.university.dto.UniversityDto;
 import com.dnd.niceteam.university.service.UniversityService;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +24,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,6 +69,37 @@ class UniversityControllerTest {
                                 fieldWithPath("id").description("대학교 ID"),
                                 fieldWithPath("name").description("대학교 이름"),
                                 fieldWithPath("emailDomain").description("대학교 이메일 도메인")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("대학교 학과 검색 API")
+    void departmentListOfUniversity() throws Exception {
+        // given
+        given(mockUniversityService.getDepartmentsOfUniversity(1L)).willReturn(List.of(
+                new DepartmentDto(1L, "테스트단과대학", "테스트학과1"),
+                new DepartmentDto(2L, "테스트단과대학", "테스트학과2"),
+                new DepartmentDto(3L, "테스트단과대학", "테스트학과3")
+        ));
+
+        // expected
+        mockMvc.perform(get("/universities/{universityId}/departments", 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray())
+                .andDo(document("university-department-list",
+                        pathParameters(
+                                parameterWithName("universityId").description("학과를 조회하려는 대학교 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("학과 ID"),
+                                fieldWithPath("collegeName").description("단과대학 이름"),
+                                fieldWithPath("name").description("학과 이름")
                         )
                 ));
     }
