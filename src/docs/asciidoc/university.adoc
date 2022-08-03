@@ -1,0 +1,15 @@
+= University (대학교)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[member-email-dup-check]]
+== 이메일 중복 확인
+
+operation::university-search[snippets='http-request,request-parameters,http-response,response-fields-data']

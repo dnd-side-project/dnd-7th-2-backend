@@ -60,7 +60,7 @@ class UniversityControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
-                .andDo(document("university-list",
+                .andDo(document("university-search",
                         requestParameters(
                                 parameterWithName("name").description("대학교 이름 검색 키워드")
                         ),
