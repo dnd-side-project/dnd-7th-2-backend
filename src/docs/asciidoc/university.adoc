@@ -9,7 +9,13 @@
 :operation-http-response-title: Example response
 
 
-[[member-email-dup-check]]
-== 이메일 중복 확인
+[[university-search]]
+== 대학교 검색
 
 operation::university-search[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[university-department-list]]
+== 대학교 학과 리스트 조회
+
+operation::university-department-list[snippets='http-request,path-parameters,http-response,response-fields-data']
