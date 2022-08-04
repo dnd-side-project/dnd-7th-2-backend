@@ -37,6 +37,7 @@ public class SecurityConfig {
             "/auth/reissue",
             "/email-auth/send",
             "/email-auth/check",
+            "/members"
     };
 
     @Bean
