@@ -2,6 +2,8 @@ package com.dnd.niceteam.domain.account;
 
 import com.dnd.niceteam.domain.common.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @Table(name = "account")
+@Where(clause = "use_yn = true")
+@SQLDelete(sql = "UPDATE account SET use_yn = false, deleted_at = NOW() where account_id = ?")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseEntity {

@@ -7,6 +7,8 @@ import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.university.University;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -16,6 +18,8 @@ import java.util.Set;
 @Getter
 @Builder
 @Table(name = "member")
+@Where(clause = "use_yn = true")
+@SQLDelete(sql = "UPDATE member SET use_yn = false where member_id = ?")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
