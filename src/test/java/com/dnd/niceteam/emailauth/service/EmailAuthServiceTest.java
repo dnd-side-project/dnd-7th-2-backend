@@ -65,13 +65,13 @@ class EmailAuthServiceTest {
     @DisplayName("이메일 인증번호 요청 - 성공")
     void sendEmailAuthKey_Success() {
         // given
-        universityRepository.save(University.builder()
+        University university = universityRepository.save(University.builder()
                 .name("팀구대학교")
                 .emailDomain("teamgoo.com")
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUniversityId(1L);
+        requestDto.setUniversityId(university.getId());
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
