@@ -19,3 +19,9 @@ operation::member-email-dup-check[snippets='http-request,request-parameters,http
 == 닉네임 중복 확인
 
 operation::member-nickname-dup-check[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[member-join]]
+== 회원 가입
+
+operation::member-join[snippets='http-request,request-fields,http-response,response-fields-data']
