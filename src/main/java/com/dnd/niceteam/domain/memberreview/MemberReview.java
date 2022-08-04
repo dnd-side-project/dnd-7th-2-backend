@@ -6,6 +6,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -30,5 +32,9 @@ public class MemberReview extends BaseEntity {
 
     @Column(name = "is_skipped", nullable = false)
     private Boolean isSkipped;
+
+    @OneToMany(mappedBy = "memberReview", cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private Set<MemberReviewTag> memberReviewTags = new HashSet<>();
 
 }
