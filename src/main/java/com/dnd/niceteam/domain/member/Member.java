@@ -1,6 +1,7 @@
 package com.dnd.niceteam.domain.member;
 
 import com.dnd.niceteam.domain.account.Account;
+import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.department.Department;
@@ -38,8 +39,10 @@ public class Member extends BaseEntity {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "member_interest", joinColumns = @JoinColumn(name = "member_id", nullable = false))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "field", length = 25, nullable = false)
     @Builder.Default
-    private Set<MemberInterest> memberInterests = new HashSet<>();
+    private Set<Field> interestingFields = new HashSet<>();
 
     @Column(name = "nickname", length = 25, unique = true, nullable = false)
     private String nickname;
