@@ -2,14 +2,13 @@ package com.dnd.niceteam.member.controller;
 
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.member.dto.DupCheck;
+import com.dnd.niceteam.member.dto.MemberCreation;
 import com.dnd.niceteam.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -34,6 +33,14 @@ public class MemberController {
             @RequestParam @NotBlank @Size(max = 10) String nickname) {
         DupCheck.ResponseDto responseDto = memberService.checkNicknameDuplicate(nickname);
         ApiResult<DupCheck.ResponseDto> apiResult = ApiResult.success(responseDto);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResult<MemberCreation.ResponseDto>> memberJoin(
+            @RequestBody @Valid MemberCreation.RequestDto requestDto) {
+        MemberCreation.ResponseDto responseDto = memberService.createMember(requestDto);
+        ApiResult<MemberCreation.ResponseDto> apiResult = ApiResult.success(responseDto);
         return ResponseEntity.ok(apiResult);
     }
 }

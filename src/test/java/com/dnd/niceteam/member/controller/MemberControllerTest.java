@@ -1,7 +1,10 @@
 package com.dnd.niceteam.member.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
+import com.dnd.niceteam.domain.code.Field;
+import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.member.dto.DupCheck;
+import com.dnd.niceteam.member.dto.MemberCreation;
 import com.dnd.niceteam.member.service.MemberService;
 import com.dnd.niceteam.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +21,18 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+import java.util.Set;
+
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +50,7 @@ class MemberControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private MemberService memberService;
+    private MemberService mockMemberService;
 
     @Test
     @WithMockUser
@@ -50,7 +59,7 @@ class MemberControllerTest {
         // given
         DupCheck.ResponseDto responseDto = new DupCheck.ResponseDto();
         responseDto.setDuplicated(false);
-        given(memberService.checkEmailDuplicate("test@email.com")).willReturn(responseDto);
+        given(mockMemberService.checkEmailDuplicate("test@email.com")).willReturn(responseDto);
 
         // expected
         mockMvc.perform(get("/members/dup-check/email")
@@ -78,7 +87,7 @@ class MemberControllerTest {
         // given
         DupCheck.ResponseDto responseDto = new DupCheck.ResponseDto();
         responseDto.setDuplicated(false);
-        given(memberService.checkNicknameDuplicate("테스트닉네임")).willReturn(responseDto);
+        given(mockMemberService.checkNicknameDuplicate("테스트닉네임")).willReturn(responseDto);
 
         // expected
         mockMvc.perform(get("/members/dup-check/nickname")
@@ -98,4 +107,64 @@ class MemberControllerTest {
                         )
                 ));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 가입 API")
+    void memberJoin() throws Exception {
+        // given
+        MemberCreation.RequestDto requestDto = new MemberCreation.RequestDto();
+        requestDto.setEmail("test@email.com");
+        requestDto.setPassword("Password123!@#");
+        requestDto.setNickname("테스트닉네임");
+        requestDto.setPersonalityAdjective(Personality.Adjective.LOGICAL);
+        requestDto.setPersonalityNoun(Personality.Noun.LEADER);
+        requestDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.PLANNING_IDEA));
+        requestDto.setDepartmentId(1L);
+        requestDto.setAdmissionYear(2017);
+        requestDto.setIntroduction("자기소개");
+        requestDto.setIntroductionUrl("자기소개 링크");
+
+        MemberCreation.ResponseDto responseDto = new MemberCreation.ResponseDto();
+        responseDto.setId(1L);
+        responseDto.setEmail("test@email.com");
+        given(mockMemberService.createMember(requestDto)).willReturn(responseDto);
+
+        // expected
+        mockMvc.perform(post("/members").with(csrf())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("member-join",
+                        requestFields(
+                                fieldWithPath("email").description("회원 이메일"),
+                                fieldWithPath("password").description("회원 비밀번호")
+                                        .attributes(key("constraint").value("8~16자 영문 대/소문자, 숫자, 특수문자 사용")),
+                                fieldWithPath("nickname").description("회원 닉네임")
+                                        .attributes(key("constraint").value("1~10자 공백없이 한글만 사용")),
+                                fieldWithPath("personalityAdjective").description("성향 형용사")
+                                        .attributes(key("constraint").value(Personality.Adjective.values())),
+                                fieldWithPath("personalityNoun").description("성향 명사")
+                                        .attributes(key("constraint").value(Personality.Noun.values())),
+                                fieldWithPath("interestingFields").description("관심 분야")
+                                        .attributes(key("constraint")
+                                        .value(Arrays.toString(Field.values()) + " 이 중 최대 3개")),
+                                fieldWithPath("departmentId").description("회원 학과 -> 이를 통해 대학교도 알 수 있음"),
+                                fieldWithPath("admissionYear").description("입학 년도 (학번)"),
+                                fieldWithPath("introduction").description("자기소개")
+                                        .attributes(key("constraint").value("없을 경우 null 이 아닌 \"\" 로 처리")),
+                                fieldWithPath("introductionUrl").description("자기소개 링크")
+                                        .attributes(key("constraint").value("없을 경우 null 이 아닌 \"\" 로 처리"))
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("회원 DB ID"),
+                                fieldWithPath("email").description("회원 이메일")
+                        )
+                ));
+    }
+
 }
