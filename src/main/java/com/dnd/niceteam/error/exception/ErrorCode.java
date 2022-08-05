@@ -22,6 +22,11 @@ public enum ErrorCode {
     REFRESH_TOKEN_IS_NULL_ERROR(AUTH, SC_UNAUTHORIZED, "로그아웃 상태입니다."),
 
     MEMBER_NOT_FOUND(MEMBER, SC_NOT_FOUND, "존재하지 않는 회원입니다."),
+
+    UNIVERSITY_NOT_FOUND(UNIVERSITY, SC_NOT_FOUND, "존재하지 않는 대학교입니다."),
+    INVALID_EMAIL_DOMAIN(UNIVERSITY, SC_BAD_REQUEST, "적절하지 않은 이메일 도메인입니다."),
+
+    EMAIL_AUTH_NOT_FOUND(EMAIL_AUTH, SC_NOT_FOUND, "인증번호 발급을 하지 않은 상태입니다."),
     ;
 
     private final Domain domain;
