@@ -26,6 +26,7 @@ public class ClassRecruiting extends Recruiting{
     @Column(nullable = false)
     private Department department;
 
+    @Builder.Default
     @ElementCollection
     @CollectionTable(name="class_time", joinColumns = @JoinColumn(name= "recruiting_id", referencedColumnName = "id", nullable = false))
     private Set<ClassTime> classTimes = new HashSet<>();
