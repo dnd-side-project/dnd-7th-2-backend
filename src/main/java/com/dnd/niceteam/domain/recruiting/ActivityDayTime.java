@@ -1,6 +1,6 @@
 package com.dnd.niceteam.domain.recruiting;
 
-import com.dnd.niceteam.domain.common.BaseEntity;
+import com.dnd.niceteam.domain.common.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import java.sql.Time;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "activity_day_time")
-public class ActivityDayTime extends BaseEntity {
+public class ActivityDayTime extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "activity_day_time_id")
