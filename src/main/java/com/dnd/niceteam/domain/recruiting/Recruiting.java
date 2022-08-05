@@ -13,7 +13,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -82,7 +81,7 @@ public abstract class Recruiting extends BaseEntity {
     private String introLink;
 
     @ElementCollection
-    @CollectionTable(name="recruiting_personality", joinColumns = @JoinColumn(name= "recruiting_id", referencedColumnName = "id", nullable = false))
+    @CollectionTable(name="recruiting_personality", joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
     private Set<Personality> personalities = new HashSet<>();
 
 }
