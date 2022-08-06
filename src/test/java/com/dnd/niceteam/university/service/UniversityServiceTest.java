@@ -90,7 +90,8 @@ class UniversityServiceTest {
         em.clear();
 
         // when
-        List<DepartmentDto> departmentDtos = universityService.getDepartmentsOfUniversity(university1.getId());
+        List<DepartmentDto> departmentDtos = universityService.getDepartmentsOfUniversity(
+                university1.getId(), "학과");
 
         // then
         assertThat(departmentDtos).hasSize(2);

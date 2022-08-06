@@ -78,7 +78,7 @@ class UniversityControllerTest {
     @DisplayName("대학교 학과 검색 API")
     void departmentListOfUniversity() throws Exception {
         // given
-        given(mockUniversityService.getDepartmentsOfUniversity(1L)).willReturn(List.of(
+        given(mockUniversityService.getDepartmentsOfUniversity(1L, "테스트")).willReturn(List.of(
                 new DepartmentDto(1L, "테스트단과대학", "테스트학과1"),
                 new DepartmentDto(2L, "테스트단과대학", "테스트학과2"),
                 new DepartmentDto(3L, "테스트단과대학", "테스트학과3")
@@ -86,7 +86,8 @@ class UniversityControllerTest {
 
         // expected
         mockMvc.perform(get("/universities/{universityId}/departments", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("name", "테스트"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -94,6 +95,9 @@ class UniversityControllerTest {
                 .andDo(document("university-department-list",
                         pathParameters(
                                 parameterWithName("universityId").description("학과를 조회하려는 대학교 ID")
+                        ),
+                        requestParameters(
+                                parameterWithName("name").description("학과 이름 검색 키워드")
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),

@@ -24,8 +24,9 @@ public class UniversityController {
     }
 
     @GetMapping("/{universityId}/departments")
-    public ResponseEntity<ApiResult<List<DepartmentDto>>> departmentListOfUniversity(@PathVariable long universityId) {
-        List<DepartmentDto> departmentDtos = universityService.getDepartmentsOfUniversity(universityId);
+    public ResponseEntity<ApiResult<List<DepartmentDto>>> departmentListOfUniversity(
+            @PathVariable long universityId, @RequestParam String name) {
+        List<DepartmentDto> departmentDtos = universityService.getDepartmentsOfUniversity(universityId, name);
         ApiResult<List<DepartmentDto>> apiResult = ApiResult.success(departmentDtos);
         return ResponseEntity.ok(apiResult);
     }

@@ -18,4 +18,4 @@ operation::university-search[snippets='http-request,request-parameters,http-resp
 [[university-department-list]]
 == 대학교 학과 리스트 조회
 
-operation::university-department-list[snippets='http-request,path-parameters,http-response,response-fields-data']
+operation::university-department-list[snippets='http-request,path-parameters,request-parameters,http-response,response-fields-data']

@@ -62,4 +62,24 @@ public class Member extends BaseEntity {
 
     @Column(name = "introduction_url", nullable = false)
     private String introductionUrl;
+
+    public MemberEditor.MemberEditorBuilder toEditor() {
+        return MemberEditor.builder()
+                .nickname(getNickname())
+                .personalityAdjective(getPersonality().getAdjective())
+                .personalityNoun(getPersonality().getNoun())
+                .interestingFields(new HashSet<>(getInterestingFields()))
+                .introduction(getIntroduction())
+                .introductionUrl(getIntroductionUrl());
+    }
+
+    public Long edit(MemberEditor memberEditor) {
+        nickname = memberEditor.getNickname();
+        personality = new Personality(
+                memberEditor.getPersonalityAdjective(), memberEditor.getPersonalityNoun());
+        interestingFields = memberEditor.getInterestingFields();
+        introduction = memberEditor.getIntroduction();
+        introductionUrl = memberEditor.getIntroductionUrl();
+        return getId();
+    }
 }

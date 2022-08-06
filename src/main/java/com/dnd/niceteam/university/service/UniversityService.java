@@ -3,6 +3,7 @@ package com.dnd.niceteam.university.service;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
+import com.dnd.niceteam.domain.university.exception.UniversityNotFoundException;
 import com.dnd.niceteam.university.dto.DepartmentDto;
 import com.dnd.niceteam.university.dto.UniversityDto;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,15 @@ public class UniversityService {
                 .collect(Collectors.toList());
     }
 
-    public List<DepartmentDto> getDepartmentsOfUniversity(long universityId) {
-        return departmentRepository.findAllByUniversity(University.builder().id(universityId).build()).stream()
+    public List<DepartmentDto> getDepartmentsOfUniversity(long universityId, String name) {
+        University university = getUniversityById(universityId);
+        return departmentRepository.findAllByUniversityAndNameContaining(university, name).stream()
                 .map(DepartmentDto::of)
                 .collect(Collectors.toList());
+    }
+
+    private University getUniversityById(long universityId) {
+        return universityRepository.findById(universityId)
+                .orElseThrow(() -> new UniversityNotFoundException("universityId = " + universityId));
     }
 }
