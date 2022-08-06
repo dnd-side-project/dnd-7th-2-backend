@@ -142,7 +142,8 @@ class MemberControllerTest {
                         requestFields(
                                 fieldWithPath("email").description("회원 이메일"),
                                 fieldWithPath("password").description("회원 비밀번호")
-                                        .attributes(key("constraint").value("8~16자 영문 대/소문자, 숫자, 특수문자 사용")),
+                                        .attributes(key("constraint")
+                                                .value("8~16자 영문 대/소문자, 숫자 사용")),
                                 fieldWithPath("nickname").description("회원 닉네임")
                                         .attributes(key("constraint").value("1~10자 공백없이 한글만 사용")),
                                 fieldWithPath("personalityAdjective").description("성향 형용사")

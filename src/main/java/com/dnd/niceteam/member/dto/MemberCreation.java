@@ -16,8 +16,8 @@ public interface MemberCreation {
         @Size(max = 65)
         private String email;
 
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$",
-                message = "비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()+|=]{8,20}$",
+                message = "비밀번호는 8~20자 영문 대/소문자, 숫자를 사용하세요.")
         private String password;
 
         @Size(min = 1, max = 10)
