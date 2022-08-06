@@ -11,6 +11,8 @@
 == API Domain
 - xref:auth.adoc[Authentication]
 - xref:email-auth.adoc[Email Authentication]
+- xref:university.adoc[University (대학교)]
+- xref:member.adoc[Member (회원)]
 
 
 == HTTP Method

@@ -1,0 +1,27 @@
+= Member (회원)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[member-email-dup-check]]
+== 이메일 중복 확인
+
+operation::member-email-dup-check[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[member-nickname-dup-check]]
+== 닉네임 중복 확인
+
+operation::member-nickname-dup-check[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[member-join]]
+== 회원 가입
+
+operation::member-join[snippets='http-request,request-fields,http-response,response-fields-data']

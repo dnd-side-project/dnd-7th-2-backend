@@ -12,16 +12,11 @@ import com.dnd.niceteam.domain.university.exception.UniversityNotFoundException;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckRequestDto;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckResponseDto;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeySendRequestDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +27,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 @DataJpaTest
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@Import(TestJpaConfig.class)
+@Import({TestJpaConfig.class, EmailAuthService.class})
 @Transactional
 class EmailAuthServiceTest {
 
+    @Autowired
     private EmailAuthService emailAuthService;
 
     @Autowired
@@ -46,32 +40,26 @@ class EmailAuthServiceTest {
     @Autowired
     private UniversityRepository universityRepository;
 
-    @Mock
+    @MockBean
     private AmazonSimpleEmailService mockEmailService;
 
-    @Mock
+    @MockBean
     private EmailAuthKeyCreator mockKeyCreator;
 
     @Autowired
     private EntityManager em;
 
-    @BeforeEach
-    void setup() {
-        emailAuthService = new EmailAuthService(
-                mockEmailService, emailAuthRepository, universityRepository, mockKeyCreator);
-    }
-
     @Test
     @DisplayName("이메일 인증번호 요청 - 성공")
     void sendEmailAuthKey_Success() {
         // given
-        universityRepository.save(University.builder()
+        University university = universityRepository.save(University.builder()
                 .name("팀구대학교")
                 .emailDomain("teamgoo.com")
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUnivName("팀구대학교");
+        requestDto.setUniversityId(university.getId());
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
@@ -90,13 +78,13 @@ class EmailAuthServiceTest {
     @DisplayName("이메일 인증번호 요청 -> 없는 대학교 이름으로 - 실패")
     void sendEmailAuthKey_NotFoundUniv_ThenFail() {
         // given
-        universityRepository.save(University.builder()
+        University university = universityRepository.save(University.builder()
                 .name("팀구대학교")
                 .emailDomain("teamgoo.com")
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@teamgoo.com");
-        requestDto.setUnivName("없는대학교");
+        requestDto.setUniversityId(university.getId() + 1L);
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
@@ -111,13 +99,13 @@ class EmailAuthServiceTest {
     @DisplayName("이메일 인증번호 요청 -> 일치하지 않는 이메일 도메인 - 실패")
     void sendEmailAuthKey_InvalidEmail_ThenFail() {
         // given
-        universityRepository.save(University.builder()
+        University university = universityRepository.save(University.builder()
                 .name("팀구대학교")
                 .emailDomain("teamgoo.com")
                 .build());
         EmailAuthKeySendRequestDto requestDto = new EmailAuthKeySendRequestDto();
         requestDto.setEmail("test@invalidemail.com");
-        requestDto.setUnivName("팀구대학교");
+        requestDto.setUniversityId(university.getId());
         given(mockKeyCreator.createEmailAuthKey()).willReturn("123456");
 
         em.flush();
