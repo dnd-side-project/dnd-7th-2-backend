@@ -4,7 +4,6 @@ import com.dnd.niceteam.domain.department.Department;
 import lombok.*;
 
 import javax.persistence.*;
-import java.sql.Time;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,20 +27,7 @@ public class ClassRecruiting extends Recruiting{
 
     @Builder.Default
     @ElementCollection
-    @CollectionTable(name="class_time", joinColumns = @JoinColumn(name= "recruiting_id", referencedColumnName = "id", nullable = false))
+    @CollectionTable(name="class_time", joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
     private Set<ClassTime> classTimes = new HashSet<>();
 
-}
-
-@Embeddable
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode
-class ClassTime {
-    @Column(nullable = false)
-    private char day;
-
-    @Column(nullable = false, name = "start_time")
-    private Time startTime;
 }
