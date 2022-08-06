@@ -14,10 +14,12 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.DuplicateEmailException;
 import com.dnd.niceteam.domain.member.exception.DuplicateNicknameException;
+import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberUpdate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -339,5 +341,78 @@ class MemberServiceTest {
         // when
         assertThatThrownBy(() -> memberService.createMember(requestDto))
                 .isInstanceOf(DuplicateNicknameException.class);
+    }
+
+    @Test
+    @DisplayName("회원 수정")
+    void updateMember() {
+        // given
+        University university = universityRepository.save(University.builder()
+                .name("테스트대학교")
+                .emailDomain("email.com")
+                .build());
+        Department department = departmentRepository.save(Department.builder()
+                .university(university)
+                .collegeName("테스트단과대학")
+                .name("테스트학과")
+                .region("서울")
+                .mainBranchType("본교")
+                .build());
+        Account account = accountRepository.save(Account.builder()
+                .email("test@email.com")
+                .password("Password123!@#")
+                .build());
+        Member member = memberRepository.save(Member.builder()
+                .account(account)
+                .university(university)
+                .department(department)
+                .nickname("테스트닉네임")
+                .admissionYear(2017)
+                .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
+                .interestingFields(Set.of(Field.DESIGN))
+                .introduction("")
+                .introductionUrl("")
+                .build());
+        MemberUpdate.RequestDto requestDto = new MemberUpdate.RequestDto();
+        requestDto.setNickname("변경된닉네임");
+        requestDto.setPersonalityAdjective(Personality.Adjective.PERSISTENT);
+        requestDto.setPersonalityNoun(Personality.Noun.INVENTOR);
+        requestDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.PLANNING_IDEA));
+        requestDto.setIntroduction("변경된 자기소개");
+        requestDto.setIntroductionUrl("변경된 자기소개 링크");
+        em.flush();
+        em.clear();
+
+        // when
+        MemberUpdate.ResponseDto responseDto = memberService.updateMember("test@email.com", requestDto);
+
+        // given
+        Member foundMember = memberRepository.findByEmail("test@email.com")
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버"));
+        assertThat(foundMember.getNickname()).isEqualTo("변경된닉네임");
+        assertThat(foundMember.getPersonality().getAdjective()).isEqualTo(Personality.Adjective.PERSISTENT);
+        assertThat(foundMember.getPersonality().getNoun()).isEqualTo(Personality.Noun.INVENTOR);
+        assertThat(foundMember.getInterestingFields()).containsOnly(Field.IT_SW_GAME, Field.PLANNING_IDEA);
+        assertThat(foundMember.getIntroduction()).isEqualTo("변경된 자기소개");
+        assertThat(foundMember.getIntroductionUrl()).isEqualTo("변경된 자기소개 링크");
+    }
+
+    @Test
+    @DisplayName("회원 수정 - 존재하지 않는 회원")
+    void updateMember_MemberNotExists() {
+        // given
+        MemberUpdate.RequestDto requestDto = new MemberUpdate.RequestDto();
+        requestDto.setNickname("변경된닉네임");
+        requestDto.setPersonalityAdjective(Personality.Adjective.PERSISTENT);
+        requestDto.setPersonalityNoun(Personality.Noun.INVENTOR);
+        requestDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.PLANNING_IDEA));
+        requestDto.setIntroduction("변경된 자기소개");
+        requestDto.setIntroductionUrl("변경된 자기소개 링크");
+        em.flush();
+        em.clear();
+
+        // expected
+        assertThatThrownBy(() -> memberService.updateMember("test@email.com", requestDto))
+                .isInstanceOf(MemberNotFoundException.class);
     }
 }
