@@ -125,7 +125,7 @@ class MemberControllerTest {
         requestDto.setDepartmentId(1L);
         requestDto.setAdmissionYear(2017);
         requestDto.setIntroduction("자기소개");
-        requestDto.setIntroductionUrl("자기소개 링크");
+        requestDto.setIntroductionUrl("http://테스트-자기소개-링크.com");
 
         MemberCreation.ResponseDto responseDto = new MemberCreation.ResponseDto();
         responseDto.setId(1L);
@@ -181,7 +181,7 @@ class MemberControllerTest {
         requestDto.setPersonalityNoun(Personality.Noun.LEADER);
         requestDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.PLANNING_IDEA));
         requestDto.setIntroduction("자기소개");
-        requestDto.setIntroductionUrl("자기소개 링크");
+        requestDto.setIntroductionUrl("http://테스트-자기소개-링크.com");
 
         MemberUpdate.ResponseDto responseDto = new MemberUpdate.ResponseDto();
         responseDto.setId(1L);

@@ -3,6 +3,7 @@ package com.dnd.niceteam.member.dto;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -33,6 +34,7 @@ public interface MemberUpdate {
         private String introduction;
 
         @NotNull
+        @URL
         @Size(max = 255)
         private String introductionUrl;
     }
