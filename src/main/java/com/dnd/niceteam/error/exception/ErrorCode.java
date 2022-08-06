@@ -32,6 +32,9 @@ public enum ErrorCode {
     NOT_AUTHENTICATED_EMAIL(EMAIL_AUTH, SC_BAD_REQUEST, "인증되지 않은 이메일입니다."),
 
     DEPARTMENT_NOT_FOUND(DEPARTMENT, SC_NOT_FOUND, "존재하지 않는 학과입니다."),
+
+    // Project
+    INVALID_PROJECT_DATE(PROJECT, SC_BAD_REQUEST, "프로젝트 기간이 유효하지 않습니다.")
     ;
 
     private final Domain domain;
