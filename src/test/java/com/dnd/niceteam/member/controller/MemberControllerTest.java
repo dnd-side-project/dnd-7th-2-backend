@@ -5,6 +5,7 @@ import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberUpdate;
 import com.dnd.niceteam.member.service.MemberService;
 import com.dnd.niceteam.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,10 +25,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
@@ -168,4 +170,51 @@ class MemberControllerTest {
                 ));
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("회원 수정 API")
+    void memberUpdate() throws Exception {
+        // given
+        MemberUpdate.RequestDto requestDto = new MemberUpdate.RequestDto();
+        requestDto.setNickname("테스트닉네임");
+        requestDto.setPersonalityAdjective(Personality.Adjective.LOGICAL);
+        requestDto.setPersonalityNoun(Personality.Noun.LEADER);
+        requestDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.PLANNING_IDEA));
+        requestDto.setIntroduction("자기소개");
+        requestDto.setIntroductionUrl("자기소개 링크");
+
+        MemberUpdate.ResponseDto responseDto = new MemberUpdate.ResponseDto();
+        responseDto.setId(1L);
+        given(mockMemberService.updateMember(anyString(), eq(requestDto))).willReturn(responseDto);
+
+        // expected
+        mockMvc.perform(put("/members").with(csrf())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("member-update",
+                        requestFields(
+                                fieldWithPath("nickname").description("회원 닉네임")
+                                        .attributes(key("constraint").value("1~10자 공백없이 한글만 사용")),
+                                fieldWithPath("personalityAdjective").description("성향 형용사")
+                                        .attributes(key("constraint").value(Personality.Adjective.values())),
+                                fieldWithPath("personalityNoun").description("성향 명사")
+                                        .attributes(key("constraint").value(Personality.Noun.values())),
+                                fieldWithPath("interestingFields").description("관심 분야")
+                                        .attributes(key("constraint")
+                                                .value(Arrays.toString(Field.values()) + " 이 중 최대 3개")),
+                                fieldWithPath("introduction").description("자기소개")
+                                        .attributes(key("constraint").value("없을 경우 null 이 아닌 \"\" 로 처리")),
+                                fieldWithPath("introductionUrl").description("자기소개 링크")
+                                        .attributes(key("constraint").value("없을 경우 null 이 아닌 \"\" 로 처리"))
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("회원 DB ID")
+                        )
+                ));
+    }
 }
