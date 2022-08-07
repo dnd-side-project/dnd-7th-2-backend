@@ -8,5 +8,7 @@ public enum Domain {
     DEPARTMENT,
     ACCOUNT,
     MEMBER,
-    MEMBER_SCORE
+    MEMBER_SCORE,
+
+    PROJECT
 }
