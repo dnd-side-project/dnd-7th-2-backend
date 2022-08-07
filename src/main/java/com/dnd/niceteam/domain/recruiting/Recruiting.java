@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "status")
+@DiscriminatorColumn(name = "recruiting_type")
 @Table(name = "recruiting")
 public abstract class Recruiting extends BaseEntity {
     @Id
@@ -46,19 +46,13 @@ public abstract class Recruiting extends BaseEntity {
     @Column(length = 500)
     private String content;
 
-    @Column(name = "project_start_date", nullable = false)
-    private LocalDate projectStartDate;
-
-    @Column(name = "project_end_date", nullable = false)
-    private LocalDate projectEndDate;
-
     @Column(name = "recruiting_member_count", nullable = false)
     private int recruitingMemberCount;
 
     @Column(name = "recruiting_type", nullable = false)
     private Type recruitingType;
 
-    // TODO: 2022-08-04 Enum? String?
+    // TODO: 2022-08-04 Enum 수정 예정
     @Column(name = "activity_area", length = 10, nullable = false)
     private String activityArea;
 
@@ -66,13 +60,13 @@ public abstract class Recruiting extends BaseEntity {
     private ProgressStatus status;
 
     @Column(name = "comment_count", nullable = false)
-    private int commentCount;
+    private Integer commentCount;
 
     @Column(name = "bookmark_count", nullable = false)
-    private int bookmarkCount;
+    private Integer bookmarkCount;
 
     @Column(name = "pool_up_count", nullable = false)
-    private int poolUpCount;
+    private Integer poolUpCount;
 
     @Column(name = "pool_up_date")
     private LocalDate poolUpDate;
