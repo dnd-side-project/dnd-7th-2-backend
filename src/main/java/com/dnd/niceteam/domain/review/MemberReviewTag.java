@@ -1,4 +1,4 @@
-package com.dnd.niceteam.domain.memberreview;
+package com.dnd.niceteam.domain.review;
 
 import com.dnd.niceteam.domain.common.BaseEntity;
 import lombok.*;

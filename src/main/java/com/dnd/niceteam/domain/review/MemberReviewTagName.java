@@ -1,4 +1,4 @@
-package com.dnd.niceteam.domain.memberreview;
+package com.dnd.niceteam.domain.review;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
