@@ -3,9 +3,11 @@ package com.dnd.niceteam.member.controller;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberUpdate;
 import com.dnd.niceteam.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,6 +43,15 @@ public class MemberController {
             @RequestBody @Valid MemberCreation.RequestDto requestDto) {
         MemberCreation.ResponseDto responseDto = memberService.createMember(requestDto);
         ApiResult<MemberCreation.ResponseDto> apiResult = ApiResult.success(responseDto);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @PutMapping
+    public ResponseEntity<ApiResult<MemberUpdate.ResponseDto>> memberUpdate(
+            @RequestBody @Valid MemberUpdate.RequestDto requestDto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        MemberUpdate.ResponseDto responseDto = memberService.updateMember(username, requestDto);
+        ApiResult<MemberUpdate.ResponseDto> apiResult = ApiResult.success(responseDto);
         return ResponseEntity.ok(apiResult);
     }
 }

@@ -10,12 +10,14 @@ import com.dnd.niceteam.domain.emailauth.EmailAuth;
 import com.dnd.niceteam.domain.emailauth.EmailAuthRepository;
 import com.dnd.niceteam.domain.emailauth.exception.NotAuthenticatedEmail;
 import com.dnd.niceteam.domain.member.Member;
+import com.dnd.niceteam.domain.member.MemberEditor;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.DuplicateEmailException;
 import com.dnd.niceteam.domain.member.exception.DuplicateNicknameException;
-import com.dnd.niceteam.domain.university.UniversityRepository;
+import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,8 +33,6 @@ public class MemberService {
     private final AccountRepository accountRepository;
 
     private final EmailAuthRepository emailAuthRepository;
-
-    private final UniversityRepository universityRepository;
 
     private final DepartmentRepository departmentRepository;
 
@@ -98,5 +98,26 @@ public class MemberService {
     private Department getDepartmentEntity(long departmentId) {
         return departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new DepartmentNotFoundException("departmentId = " + departmentId));
+    }
+
+    @Transactional
+    public MemberUpdate.ResponseDto updateMember(String username, MemberUpdate.RequestDto requestDto) {
+        Member member = getMemberEntityByEmail(username);
+        MemberEditor memberEditor = member.toEditor()
+                .nickname(requestDto.getNickname())
+                .personalityAdjective(requestDto.getPersonalityAdjective())
+                .personalityNoun(requestDto.getPersonalityNoun())
+                .interestingFields(requestDto.getInterestingFields())
+                .introduction(requestDto.getIntroduction())
+                .introductionUrl(requestDto.getIntroductionUrl())
+                .build();
+        MemberUpdate.ResponseDto responseDto = new MemberUpdate.ResponseDto();
+        responseDto.setId(member.edit(memberEditor));
+        return responseDto;
+    }
+
+    private Member getMemberEntityByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException("email = " + email));
     }
 }

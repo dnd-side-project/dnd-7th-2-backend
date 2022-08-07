@@ -25,3 +25,9 @@ operation::member-nickname-dup-check[snippets='http-request,request-parameters,h
 == 회원 가입
 
 operation::member-join[snippets='http-request,request-fields,http-response,response-fields-data']
+
+
+[[member-update]]
+== 회원 수정
+
+operation::member-update[snippets='http-request,request-fields,http-response,response-fields-data']

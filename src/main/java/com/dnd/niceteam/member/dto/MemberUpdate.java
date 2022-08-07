@@ -5,21 +5,15 @@ import com.dnd.niceteam.domain.code.Personality;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
-public interface MemberCreation {
+public interface MemberUpdate {
 
     @Data
     class RequestDto {
-
-        @Email
-        @Size(max = 65)
-        private String email;
-
-        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()+|=]{8,20}$",
-                message = "비밀번호는 8~20자 영문 대/소문자, 숫자를 사용하세요.")
-        private String password;
 
         @Size(min = 1, max = 10)
         @Pattern(regexp = "^[가-힣]+", message = "공백 없이 한글만 사용하세요.")
@@ -36,14 +30,6 @@ public interface MemberCreation {
         private Set<Field> interestingFields;
 
         @NotNull
-        private Long departmentId;
-
-        @Max(2023)
-        @Min(2000)
-        @NotNull
-        private Integer admissionYear;
-
-        @NotNull
         @Size(max = 300)
         private String introduction;
 
@@ -57,7 +43,5 @@ public interface MemberCreation {
     class ResponseDto {
 
         private Long id;
-
-        private String email;
     }
 }

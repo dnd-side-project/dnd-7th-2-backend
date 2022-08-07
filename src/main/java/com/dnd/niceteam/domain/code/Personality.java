@@ -36,5 +36,6 @@ public class Personality {
         INVENTOR,       // 발명가
         LEADER,         // 리더
         FOLLOWER,       // 팔로워
+        PERFECTIONIST,   // 완벽주의자
     }
 }
