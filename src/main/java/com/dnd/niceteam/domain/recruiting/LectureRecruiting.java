@@ -13,8 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @DiscriminatorValue("CLASS")
 @PrimaryKeyJoinColumn(name = "class_recruiting_id")
-@Table(name = "class_recruiting")
-public class ClassRecruiting extends Recruiting{
+@Table(name = "lecture_recruiting")
+public class LectureRecruiting extends Recruiting{
     @Column(name = "class_name", nullable = false)
     private String className;
 
@@ -28,6 +28,6 @@ public class ClassRecruiting extends Recruiting{
     @Builder.Default
     @ElementCollection
     @CollectionTable(name="class_time", joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
-    private Set<ClassTime> classTimes = new HashSet<>();
+    private Set<LectureTime> classTimes = new HashSet<>();
 
 }

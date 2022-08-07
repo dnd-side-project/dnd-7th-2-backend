@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
-public class ClassTime {
+public class LectureTime {
     @Column(nullable = false)
     private char day;
 
