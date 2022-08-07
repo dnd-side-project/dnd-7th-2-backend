@@ -11,6 +11,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
+@Builder
 @SQLDelete(sql = "UPDATE applicant SET use_yn = false WHERE id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

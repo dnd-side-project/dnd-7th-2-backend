@@ -1,7 +1,10 @@
 package com.dnd.niceteam.domain.recruiting;
 
 import com.dnd.niceteam.domain.department.Department;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -9,6 +12,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @DiscriminatorValue("CLASS")
@@ -22,7 +26,7 @@ public class LectureRecruiting extends Recruiting{
     private String professor;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @Column(nullable = false)
+    @JoinColumn(nullable = false)
     private Department department;
 
     @Builder.Default

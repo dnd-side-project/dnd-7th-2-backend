@@ -8,7 +8,6 @@ import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.member.Member;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -19,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Builder
 @SQLDelete(sql = "UPDATE recruiting SET use_yn = false WHERE id = ?")
 @Where(clause = "use_yn = true")
 @AllArgsConstructor
