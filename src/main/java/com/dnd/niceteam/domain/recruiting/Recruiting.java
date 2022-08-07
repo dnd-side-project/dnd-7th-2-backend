@@ -1,5 +1,6 @@
 package com.dnd.niceteam.domain.recruiting;
 
+import com.dnd.niceteam.domain.code.ActivityArea;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.code.Type;
@@ -52,9 +53,8 @@ public abstract class Recruiting extends BaseEntity {
     @Column(name = "recruiting_type", nullable = false)
     private Type recruitingType;
 
-    // TODO: 2022-08-04 Enum 수정 예정
     @Column(name = "activity_area", length = 10, nullable = false)
-    private String activityArea;
+    private ActivityArea activityArea;
 
     @Enumerated(EnumType.STRING)
     private ProgressStatus status;
