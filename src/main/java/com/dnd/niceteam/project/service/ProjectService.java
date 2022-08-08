@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +21,8 @@ public class ProjectService {
     // TODO: 기획 논의 후 startDate, endDate에 @Past, @Future 등의 유효성검사 어노테이션 붙이기
     @Transactional
     public ProjectResponse.Detail registerProject(ProjectRequest.Register request) {
-        LocalDateTime startDate = request.getStartDate();
-        LocalDateTime endDate = request.getEndDate();
+        LocalDate startDate = request.getStartDate();
+        LocalDate endDate = request.getEndDate();
 
         if (endDate.isBefore(startDate)) {
             throw new InvalidProjectSchedule("startDate = " + startDate + ", endDate = " + endDate);
