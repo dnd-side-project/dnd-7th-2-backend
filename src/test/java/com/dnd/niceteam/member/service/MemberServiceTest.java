@@ -17,10 +17,13 @@ import com.dnd.niceteam.domain.member.exception.DuplicateNicknameException;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.domain.memberscore.MemberScore;
 import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
+import com.dnd.niceteam.domain.project.ProjectMember;
+import com.dnd.niceteam.domain.project.ProjectMemberRepository;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberDetail;
 import com.dnd.niceteam.member.dto.MemberUpdate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +69,9 @@ class MemberServiceTest {
 
     @Autowired
     private MemberScoreRepository memberScoreRepository;
+
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
 
     @MockBean
     private PasswordEncoder passwordEncoder;
@@ -446,6 +453,76 @@ class MemberServiceTest {
 
         // expected
         assertThatThrownBy(() -> memberService.updateMember("test@email.com", requestDto))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("회원 상세")
+    void getMemberDetail() {
+        // given
+        University university = universityRepository.save(University.builder()
+                .name("테스트대학교")
+                .emailDomain("email.com")
+                .build());
+        Department department = departmentRepository.save(Department.builder()
+                .university(university)
+                .collegeName("테스트단과대학")
+                .name("테스트학과")
+                .region("서울")
+                .mainBranchType("본교")
+                .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
+        Account account = accountRepository.save(Account.builder()
+                .email("test@email.com")
+                .password("Password123!@#")
+                .build());
+        Member member = memberRepository.save(Member.builder()
+                .account(account)
+                .university(university)
+                .department(department)
+                .memberScore(memberScore)
+                .nickname("테스트닉네임")
+                .admissionYear(2017)
+                .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
+                .interestingFields(Set.of(Field.DESIGN))
+                .introduction("테스트 자기소개")
+                .introductionUrl("test.com")
+                .build());
+        em.flush();
+        em.clear();
+
+        // when
+        MemberDetail.ResponseDto responseDto = memberService.getMemberDetail(member.getId());
+
+        // given
+        List<ProjectMember> projectMembers = projectMemberRepository.findDoneProjectMemberByMember(member);
+        assertThat(responseDto.getId()).isEqualTo(member.getId());
+        assertThat(responseDto.getNickname()).isEqualTo(member.getNickname());
+        assertThat(responseDto.getPersonality().getAdjective()).isEqualTo(member.getPersonality().getAdjective());
+        assertThat(responseDto.getPersonality().getNoun()).isEqualTo(member.getPersonality().getNoun());
+        assertThat(responseDto.getDepartmentName()).isEqualTo(member.getDepartment().getName());
+        assertThat(responseDto.getInterestingFields()).isEqualTo(member.getInterestingFields());
+        assertThat(responseDto.getAdmissionYear()).isEqualTo(member.getAdmissionYear());
+        assertThat(responseDto.getIntroduction()).isEqualTo(member.getIntroduction());
+        assertThat(responseDto.getIntroductionUrl()).isEqualTo(member.getIntroductionUrl());
+        assertThat(responseDto.getLevel()).isEqualTo(memberScore.getLevel());
+        assertThat(responseDto.getParticipationPct()).isEqualTo(memberScore.participationPct());
+        assertThat(responseDto.getTagReviewToNums()).isEqualTo(memberScore.getTagReviewToNums());
+        assertThat(responseDto.getNumTotalEndProject()).isEqualTo(projectMembers.size());
+        assertThat(responseDto.getNumCompleteProject()).isEqualTo(
+                (int) projectMembers.stream().filter(projectMember -> !projectMember.getIsKicked()).count());
+    }
+
+    @Test
+    @DisplayName("회원 상세 - 존재하지 않는 회원")
+    void getMemberDetail_MemberNotExists() {
+        // expected
+        assertThatThrownBy(() -> memberService.getMemberDetail(1L))
                 .isInstanceOf(MemberNotFoundException.class);
     }
 }
