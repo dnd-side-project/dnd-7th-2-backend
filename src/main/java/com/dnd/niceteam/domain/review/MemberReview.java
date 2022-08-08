@@ -30,8 +30,8 @@ public class MemberReview extends BaseEntity {
     @Column(name = "hope_to_reunion_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
     private Integer hopeToReunionScore;
 
-    @Column(name = "is_skipped", nullable = false)
-    private Boolean isSkipped;
+    @Column(name = "skipped", nullable = false)
+    private Boolean skipped;
 
     @OneToMany(mappedBy = "memberReview", cascade = CascadeType.REMOVE)
     @Builder.Default
