@@ -5,6 +5,7 @@ import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.department.Department;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
 import com.dnd.niceteam.domain.university.University;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -40,6 +41,10 @@ public class Member extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_score_id")
+    private MemberScore memberScore;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "member_interest", joinColumns = @JoinColumn(name = "member_id", nullable = false))

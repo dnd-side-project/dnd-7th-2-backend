@@ -15,6 +15,8 @@ import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.DuplicateEmailException;
 import com.dnd.niceteam.domain.member.exception.DuplicateNicknameException;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
+import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
 import com.dnd.niceteam.member.dto.MemberUpdate;
@@ -37,6 +39,8 @@ public class MemberService {
     private final DepartmentRepository departmentRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final MemberScoreRepository memberScoreRepository;
 
     public DupCheck.ResponseDto checkEmailDuplicate(String email) {
         DupCheck.ResponseDto responseDto = new DupCheck.ResponseDto();
@@ -66,10 +70,17 @@ public class MemberService {
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Member member = memberRepository.save(Member.builder()
                 .account(account)
                 .university(department.getUniversity())
                 .department(department)
+                .memberScore(memberScore)
                 .nickname(requestDto.getNickname())
                 .admissionYear(requestDto.getAdmissionYear())
                 .personality(new Personality(

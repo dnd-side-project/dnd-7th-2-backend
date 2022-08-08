@@ -15,6 +15,8 @@ import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.DuplicateEmailException;
 import com.dnd.niceteam.domain.member.exception.DuplicateNicknameException;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
+import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import com.dnd.niceteam.member.dto.DupCheck;
@@ -60,6 +62,9 @@ class MemberServiceTest {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private MemberScoreRepository memberScoreRepository;
 
     @MockBean
     private PasswordEncoder passwordEncoder;
@@ -112,6 +117,12 @@ class MemberServiceTest {
                 .region("서울")
                 .mainBranchType("본교")
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
                 .password("testPassword123!@#")
@@ -120,6 +131,7 @@ class MemberServiceTest {
                 .account(account)
                 .university(university)
                 .department(department)
+                .memberScore(memberScore)
                 .nickname("테스트닉네임")
                 .admissionYear(2017)
                 .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
@@ -255,6 +267,12 @@ class MemberServiceTest {
                 .region("서울")
                 .mainBranchType("본교")
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
                 .password("test-password")
@@ -263,6 +281,7 @@ class MemberServiceTest {
                 .account(account)
                 .university(university)
                 .department(department)
+                .memberScore(memberScore)
                 .nickname("nickname")
                 .admissionYear(2017)
                 .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
@@ -309,6 +328,12 @@ class MemberServiceTest {
                 .region("서울")
                 .mainBranchType("본교")
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Account account = accountRepository.save(Account.builder()
                 .email("notduplicate@email.com")
                 .password("test-password")
@@ -317,6 +342,7 @@ class MemberServiceTest {
                 .account(account)
                 .university(university)
                 .department(department)
+                .memberScore(memberScore)
                 .nickname("test-nickname")
                 .admissionYear(2017)
                 .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
@@ -358,6 +384,12 @@ class MemberServiceTest {
                 .region("서울")
                 .mainBranchType("본교")
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
                 .password("Password123!@#")
@@ -366,6 +398,7 @@ class MemberServiceTest {
                 .account(account)
                 .university(university)
                 .department(department)
+                .memberScore(memberScore)
                 .nickname("테스트닉네임")
                 .admissionYear(2017)
                 .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))

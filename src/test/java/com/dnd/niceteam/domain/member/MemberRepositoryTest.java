@@ -6,6 +6,8 @@ import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
+import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,9 @@ class MemberRepositoryTest {
     private DepartmentRepository departmentRepository;
 
     @Autowired
+    private MemberScoreRepository memberScoreRepository;
+
+    @Autowired
     private EntityManager em;
 
     @Test
@@ -52,6 +57,12 @@ class MemberRepositoryTest {
                 .region("서울")
                 .mainBranchType("본교")
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
                 .password("test-password")
@@ -60,6 +71,7 @@ class MemberRepositoryTest {
                 .account(account)
                 .university(university)
                 .department(department)
+                .memberScore(memberScore)
                 .nickname("test-nickname")
                 .admissionYear(2017)
                 .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
