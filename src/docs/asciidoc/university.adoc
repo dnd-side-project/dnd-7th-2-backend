@@ -1,0 +1,21 @@
+= University (대학교)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[university-search]]
+== 대학교 검색
+
+operation::university-search[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[university-department-list]]
+== 대학교 학과 리스트 조회
+
+operation::university-department-list[snippets='http-request,path-parameters,request-parameters,http-response,response-fields-data']

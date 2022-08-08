@@ -3,6 +3,8 @@ package com.dnd.niceteam.domain.memberscore;
 import com.dnd.niceteam.domain.code.TagReview;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ import static java.util.Objects.isNull;
 @Getter
 @Builder
 @Table(name = "member_score")
+@Where(clause = "use_yn = true")
+@SQLDelete(sql = "UPDATE member_score SET use_yn = false where member_score_id = ?")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberScore extends BaseEntity {

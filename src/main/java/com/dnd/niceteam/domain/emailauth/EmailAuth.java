@@ -2,6 +2,8 @@ package com.dnd.niceteam.domain.emailauth;
 
 import com.dnd.niceteam.domain.common.BaseTimeEntity;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -10,6 +12,8 @@ import javax.persistence.*;
 @Builder
 @Table(name = "email_auth",
         indexes = @Index(name = "IX_email_auth_email", columnList = "email"))
+@Where(clause = "use_yn = true")
+@SQLDelete(sql = "UPDATE email_auth SET use_yn = false where email_auth_id = ?")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EmailAuth extends BaseTimeEntity {

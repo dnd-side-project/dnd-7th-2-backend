@@ -22,11 +22,19 @@ public enum ErrorCode {
     REFRESH_TOKEN_IS_NULL_ERROR(AUTH, SC_UNAUTHORIZED, "로그아웃 상태입니다."),
 
     MEMBER_NOT_FOUND(MEMBER, SC_NOT_FOUND, "존재하지 않는 회원입니다."),
+    DUPLICATE_EMAIL(MEMBER, SC_BAD_REQUEST, "존재하는 이메일입니다."),
+    DUPLICATE_NICKNAME(MEMBER, SC_BAD_REQUEST, "존재하는 닉네임입니다."),
 
     UNIVERSITY_NOT_FOUND(UNIVERSITY, SC_NOT_FOUND, "존재하지 않는 대학교입니다."),
     INVALID_EMAIL_DOMAIN(UNIVERSITY, SC_BAD_REQUEST, "적절하지 않은 이메일 도메인입니다."),
 
     EMAIL_AUTH_NOT_FOUND(EMAIL_AUTH, SC_NOT_FOUND, "인증번호 발급을 하지 않은 상태입니다."),
+    NOT_AUTHENTICATED_EMAIL(EMAIL_AUTH, SC_BAD_REQUEST, "인증되지 않은 이메일입니다."),
+
+    DEPARTMENT_NOT_FOUND(DEPARTMENT, SC_NOT_FOUND, "존재하지 않는 학과입니다."),
+
+    // Project
+    INVALID_PROJECT_SCHEDULE(PROJECT, SC_BAD_REQUEST, "프로젝트 기간이 유효하지 않습니다.")
     ;
 
     private final Domain domain;
