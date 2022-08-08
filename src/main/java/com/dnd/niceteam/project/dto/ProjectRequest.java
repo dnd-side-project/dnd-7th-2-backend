@@ -4,7 +4,7 @@ import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectType;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public interface ProjectRequest {
 
@@ -15,9 +15,9 @@ public interface ProjectRequest {
 
         private ProjectType type;
 
-        private LocalDateTime startDate;
+        private LocalDate startDate;
 
-        private LocalDateTime endDate;
+        private LocalDate endDate;
 
         public Project toEntity() {
             return Project.builder()

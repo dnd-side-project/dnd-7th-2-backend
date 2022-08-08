@@ -5,6 +5,7 @@ import com.dnd.niceteam.domain.project.ProjectStatus;
 import com.dnd.niceteam.domain.project.ProjectType;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public interface ProjectResponse {
@@ -19,8 +20,8 @@ public interface ProjectResponse {
         private ProjectType type;
         private ProjectStatus status;
 
-        private LocalDateTime startDate;
-        private LocalDateTime endDate;
+        private LocalDate startDate;
+        private LocalDate endDate;
 
         // Auditing 정보
         private LocalDateTime createdDate;
