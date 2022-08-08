@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Builder
 @Table(name = "project")
-@SQLDelete(sql = "UPDATE project SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE project SET use_yn = false WHERE project_id = ?")
 @Where(clause = "use_yn = true")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

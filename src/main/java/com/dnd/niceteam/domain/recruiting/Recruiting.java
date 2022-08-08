@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@SQLDelete(sql = "UPDATE recruiting SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE recruiting SET use_yn = false WHERE recruiting_id = ?")
 @Where(clause = "use_yn = true")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

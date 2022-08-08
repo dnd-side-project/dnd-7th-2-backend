@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 @Builder
 @Table(name = "member_review")
-@SQLDelete(sql = "UPDATE member_review SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE member_review SET use_yn = false WHERE member_review_id = ?")
 @Where(clause = "use_yn = true")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
