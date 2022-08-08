@@ -23,9 +23,9 @@ public class ProjectMember extends BaseEntity {
     @Column(name = "project_member_id")
     private Long id;
 
-    @Column(name = "is_kicked", nullable = false)
+    @Column(name = "expelled", nullable = false)
     @Builder.Default
-    private Boolean isKicked = false;
+    private Boolean expelled = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "project_id", nullable = false)
