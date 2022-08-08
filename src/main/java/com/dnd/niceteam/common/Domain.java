@@ -10,5 +10,6 @@ public enum Domain {
     MEMBER,
     MEMBER_SCORE,
 
-    PROJECT
+    PROJECT,
+    PROJECT_MEMBER
 }
