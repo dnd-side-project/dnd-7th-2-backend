@@ -1,4 +1,4 @@
-package com.dnd.niceteam.domain.recruiting;
+package com.dnd.niceteam.domain.project;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -7,13 +7,20 @@ import java.time.LocalTime;
 
 @Embeddable
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class LectureTime {
+
     @Column(nullable = false)
-    private char day;
+    private Character day;
 
     @Column(nullable = false, name = "start_time")
     private LocalTime startTime;
+
+    @Builder
+    private LectureTime(Character day, LocalTime startTime) {
+        this.day = day;
+        this.startTime = startTime;
+    }
+
 }
