@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,8 +91,8 @@ class ProjectMemberRepositoryTest {
                 .build());
         Project doneProject = projectRepository.save(Project.builder()
                 .name("테스트 프로젝트 1")
-                .startDate(LocalDateTime.of(2022, 3, 2, 12, 0))
-                .endDate(LocalDateTime.of(2022, 6, 30, 12, 0))
+                .startDate(LocalDate.of(2022, 3, 2))
+                .endDate(LocalDate.of(2022, 6, 30))
                 .type(ProjectType.SIDE)
                 .status(ProjectStatus.DONE)
                 .build());
@@ -102,8 +102,8 @@ class ProjectMemberRepositoryTest {
                 .build());
         Project notStartedProject = projectRepository.save(Project.builder()
                 .name("테스트 프로젝트 2")
-                .startDate(LocalDateTime.of(2022, 3, 2, 12, 0))
-                .endDate(LocalDateTime.of(2022, 6, 30, 12, 0))
+                .startDate(LocalDate.of(2022, 3, 2))
+                .endDate(LocalDate.of(2022, 6, 30))
                 .type(ProjectType.SIDE)
                 .status(ProjectStatus.NOT_STARTED)
                 .build());

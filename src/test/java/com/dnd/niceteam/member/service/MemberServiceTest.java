@@ -515,7 +515,7 @@ class MemberServiceTest {
         assertThat(responseDto.getTagReviewToNums()).isEqualTo(memberScore.getTagReviewToNums());
         assertThat(responseDto.getNumTotalEndProject()).isEqualTo(projectMembers.size());
         assertThat(responseDto.getNumCompleteProject()).isEqualTo(
-                (int) projectMembers.stream().filter(projectMember -> !projectMember.getIsKicked()).count());
+                (int) projectMembers.stream().filter(projectMember -> !projectMember.getExpelled()).count());
     }
 
     @Test

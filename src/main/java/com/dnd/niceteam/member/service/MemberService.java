@@ -157,7 +157,7 @@ public class MemberService {
         responseDto.setTagReviewToNums(memberScore.getTagReviewToNums());
         responseDto.setNumTotalEndProject(projectMembers.size());
         responseDto.setNumCompleteProject((int) projectMembers.stream()
-                .filter(projectMember -> !projectMember.getIsKicked())
+                .filter(projectMember -> !projectMember.getExpelled())
                 .count());
         return responseDto;
     }
