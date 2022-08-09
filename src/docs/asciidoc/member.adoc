@@ -31,3 +31,9 @@ operation::member-join[snippets='http-request,request-fields,http-response,respo
 == 회원 수정
 
 operation::member-update[snippets='http-request,request-fields,http-response,response-fields-data']
+
+
+[[member-detail]]
+== 회원 상세 조회
+
+operation::member-detail[snippets='http-request,path-parameters,http-response,response-fields-data']
