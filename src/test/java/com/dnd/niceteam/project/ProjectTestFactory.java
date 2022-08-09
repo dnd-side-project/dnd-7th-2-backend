@@ -1,6 +1,5 @@
 package com.dnd.niceteam.project;
 
-import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectType;
 import com.dnd.niceteam.project.dto.ProjectRequest;
 
