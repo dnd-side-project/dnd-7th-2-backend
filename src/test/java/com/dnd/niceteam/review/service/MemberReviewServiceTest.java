@@ -1,7 +1,11 @@
 package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.project.*;
+import com.dnd.niceteam.domain.member.MemberRepositoryCustom;
+import com.dnd.niceteam.domain.project.LectureProject;
+import com.dnd.niceteam.domain.project.LectureProjectRepository;
+import com.dnd.niceteam.domain.project.ProjectMember;
+import com.dnd.niceteam.domain.project.ProjectMemberRepository;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.review.MemberReviewTestFactory;
@@ -12,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +35,8 @@ class MemberReviewServiceTest {
     @Mock
     MemberReviewRepository memberReviewRepository;
     @Mock
+    MemberRepositoryCustom memberRepositoryCustom;
+    @Mock
     LectureProjectRepository lectureProjectRepository;
     @Mock
     ProjectMemberRepository projectMemberRepository;
@@ -40,10 +47,15 @@ class MemberReviewServiceTest {
         // given
         Long currentMemberId = 1L;
         Long revieweeId = 2L;
+        String email = "tester@gmail.com";
         MemberReviewRequest.Add request = MemberReviewTestFactory.getMemberReviewRequest(revieweeId);
+
+        User currentUser = mock(User.class);
+        when(currentUser.getUsername()).thenReturn(email);
 
         Member currentMember = mock(Member.class);
         when(currentMember.getId()).thenReturn(currentMemberId);
+        when(memberRepositoryCustom.findByEmail(anyString())).thenReturn(Optional.of(currentMember));
 
         LectureProject lectureProject = mock(LectureProject.class);
         when(lectureProjectRepository.findById(anyLong())).thenReturn(Optional.of(lectureProject));
@@ -58,7 +70,7 @@ class MemberReviewServiceTest {
         when(projectMemberRepository.findByProject(lectureProject)).thenReturn(projectMembers);
 
         // when
-        memberReviewService.addMemberReview(request, currentMember);
+        memberReviewService.addMemberReview(request, currentUser);
 
         // then
         verify(memberReviewRepository).save(any(MemberReview.class));
