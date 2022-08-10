@@ -1,10 +1,7 @@
 package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.project.Project;
-import com.dnd.niceteam.domain.project.ProjectMember;
-import com.dnd.niceteam.domain.project.ProjectMemberRepository;
-import com.dnd.niceteam.domain.project.ProjectRepository;
+import com.dnd.niceteam.domain.project.*;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.review.MemberReviewTestFactory;
@@ -33,7 +30,7 @@ class MemberReviewServiceTest {
     @Mock
     MemberReviewRepository memberReviewRepository;
     @Mock
-    ProjectRepository projectRepository;
+    LectureProjectRepository lectureProjectRepository;
     @Mock
     ProjectMemberRepository projectMemberRepository;
 
@@ -48,11 +45,17 @@ class MemberReviewServiceTest {
         Member currentMember = mock(Member.class);
         when(currentMember.getId()).thenReturn(currentMemberId);
 
-        Project project = mock(Project.class);
-        when(projectRepository.findById(anyLong())).thenReturn(Optional.of(project));
+        LectureProject lectureProject = mock(LectureProject.class);
+        when(lectureProjectRepository.findById(anyLong())).thenReturn(Optional.of(lectureProject));
 
-        List<ProjectMember> projectMembers = getMockProjectMembers(List.of(currentMemberId, revieweeId));
-        when(projectMemberRepository.findByProject(project)).thenReturn(projectMembers);
+        ProjectMember reviewer = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
+        when(reviewer.getMember().getId()).thenReturn(currentMemberId);
+
+        ProjectMember reviewee = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
+        when(reviewee.getMember().getId()).thenReturn(revieweeId);
+
+        List<ProjectMember> projectMembers = new ArrayList<>(List.of(reviewer, reviewee));
+        when(projectMemberRepository.findByProject(lectureProject)).thenReturn(projectMembers);
 
         // when
         memberReviewService.addMemberReview(request, currentMember);
