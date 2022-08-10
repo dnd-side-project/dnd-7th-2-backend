@@ -3,6 +3,7 @@ package com.dnd.niceteam.member.controller;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberDetail;
 import com.dnd.niceteam.member.dto.MemberUpdate;
 import com.dnd.niceteam.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,13 @@ public class MemberController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         MemberUpdate.ResponseDto responseDto = memberService.updateMember(username, requestDto);
         ApiResult<MemberUpdate.ResponseDto> apiResult = ApiResult.success(responseDto);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ApiResult<MemberDetail.ResponseDto>> memberDetail(@PathVariable long memberId) {
+        MemberDetail.ResponseDto responseDto = memberService.getMemberDetail(memberId);
+        ApiResult<MemberDetail.ResponseDto> apiResult = ApiResult.success(responseDto);
         return ResponseEntity.ok(apiResult);
     }
 }

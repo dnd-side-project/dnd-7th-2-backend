@@ -12,7 +12,7 @@ import java.sql.Time;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE activity_day_time SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE activity_day_time SET use_yn = false WHERE activity_day_time_id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor
 @AllArgsConstructor

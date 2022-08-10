@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Table(name = "project_member")
-@SQLDelete(sql = "UPDATE project_member SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE project_member SET use_yn = false WHERE project_member_id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectMember extends BaseEntity {

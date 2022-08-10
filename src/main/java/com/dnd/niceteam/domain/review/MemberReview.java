@@ -16,7 +16,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Table(name = "member_review")
-@SQLDelete(sql = "UPDATE member_review SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE member_review SET use_yn = false WHERE member_review_id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberReview extends BaseEntity {

@@ -17,7 +17,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Table(name = "project")
-@SQLDelete(sql = "UPDATE project SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE project SET use_yn = false WHERE project_id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.JOINED)

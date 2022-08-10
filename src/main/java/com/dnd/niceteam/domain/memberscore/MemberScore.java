@@ -52,17 +52,10 @@ public class MemberScore extends BaseEntity {
                     .collect(Collectors.toMap(i -> TagReview.values()[i], i -> 0))
     );
 
-    public Double participationAvg() {
+    public Double participationPct() {
         if (isNull(participationSum) || isNull(reviewNum)) {
             return null;
         }
-        return (double) participationSum / reviewNum;
-    }
-
-    public Double rematchingAvg() {
-        if (isNull(rematchingSum) || isNull(reviewNum)) {
-            return null;
-        }
-        return (double) rematchingSum / reviewNum;
+        return (double) participationSum / reviewNum * 20;
     }
 }

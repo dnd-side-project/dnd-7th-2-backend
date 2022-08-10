@@ -3,12 +3,15 @@ package com.dnd.niceteam.member.controller;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
+import com.dnd.niceteam.domain.code.TagReview;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberDetail;
 import com.dnd.niceteam.member.dto.MemberUpdate;
 import com.dnd.niceteam.member.service.MemberService;
 import com.dnd.niceteam.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +26,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -214,6 +218,62 @@ class MemberControllerTest {
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
                                 fieldWithPath("id").description("회원 DB ID")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 상세 조회 API")
+    void memberDetail() throws Exception {
+
+        // given
+        MemberDetail.ResponseDto responseDto = new MemberDetail.ResponseDto();
+        responseDto.setId(1L);
+        responseDto.setNickname("테스트닉네임");
+        responseDto.setPersonality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.ANALYST));
+        responseDto.setDepartmentName("테스트학과");
+        responseDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.DESIGN));
+        responseDto.setAdmissionYear(2017);
+        responseDto.setIntroduction("테스트자기소개");
+        responseDto.setIntroductionUrl("test.com");
+        responseDto.setLevel(1);
+        responseDto.setParticipationPct(100.0);
+        responseDto.setTagReviewToNums(new HashMap<>(
+                IntStream.range(0, TagReview.values().length).boxed()
+                        .collect(Collectors.toMap(i -> TagReview.values()[i], i -> 0))
+        ));
+        responseDto.setNumTotalEndProject(0);
+        responseDto.setNumCompleteProject(0);
+        given(mockMemberService.getMemberDetail(anyLong())).willReturn(responseDto);
+
+        // expected
+        mockMvc.perform(get("/members/{memberId}", 1L)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Access token"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("member-detail",
+                        pathParameters(
+                                parameterWithName("memberId").description("조회하려는 회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("회원 DB ID"),
+                                fieldWithPath("nickname").description("회원 닉네임"),
+                                subsectionWithPath("personality").description("회원 성향"),
+                                fieldWithPath("departmentName").description("학과 명"),
+                                fieldWithPath("interestingFields").description("관심 분야"),
+                                fieldWithPath("admissionYear").description("입학년도(학번)"),
+                                fieldWithPath("introduction").description("자기소개"),
+                                fieldWithPath("introductionUrl").description("자기소개 링크"),
+                                fieldWithPath("level").description("레벨"),
+                                fieldWithPath("participationPct").description("참여율"),
+                                subsectionWithPath("tagReviewToNums").description("리뷰 개수"),
+                                fieldWithPath("numTotalEndProject").description("전체 종료된 프로젝트 수"),
+                                fieldWithPath("numCompleteProject").description("완주한 프로젝트 수")
                         )
                 ));
     }
