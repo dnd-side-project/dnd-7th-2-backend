@@ -1,6 +1,7 @@
 package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
+import com.dnd.niceteam.domain.member.MemberRepositoryCustom;
 import com.dnd.niceteam.domain.project.LectureProjectRepository;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectMember;
@@ -8,10 +9,12 @@ import com.dnd.niceteam.domain.project.ProjectMemberRepository;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.domain.review.MemberReviewTag;
+import com.dnd.niceteam.member.util.MemberUtils;
 import com.dnd.niceteam.project.exception.ProjectMemberNotFoundException;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
 import com.dnd.niceteam.review.dto.MemberReviewRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +29,14 @@ import java.util.stream.Collectors;
 public class MemberReviewService {
 
     private final MemberReviewRepository memberReviewRepository;
+    private final MemberRepositoryCustom memberRepositoryCustom;
     private final LectureProjectRepository lectureProjectRepository;
     private final ProjectMemberRepository projectMemberRepository;
 
     @Transactional
-    public MemberReview addMemberReview(MemberReviewRequest.Add request, Member currentMember) {
+    public MemberReview addMemberReview(MemberReviewRequest.Add request, User currentUser) {
+        Member currentMember = MemberUtils.findMemberByEmail(currentUser.getUsername(), memberRepositoryCustom);
+
         Project project = findProject(request.getProjectId());
         List<ProjectMember> projectMembers = projectMemberRepository.findByProject(project);
 
