@@ -63,4 +63,11 @@ public abstract class Project extends BaseEntity {
         projectMembers.add(projectMember);
     }
 
+    public void start() {
+        this.status = ProjectStatus.IN_PROGRESS;
+    }
+
+    public void end() {
+        this.status = ProjectStatus.DONE;
+    }
 }
