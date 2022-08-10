@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectMemberRepositoryTest {
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private LectureProjectRepository lectureProjectRepository;
 
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
@@ -89,23 +91,32 @@ class ProjectMemberRepositoryTest {
                 .introduction("")
                 .introductionUrl("")
                 .build());
-        Project doneProject = projectRepository.save(Project.builder()
+        LectureProject doneProject = lectureProjectRepository.save(LectureProject.builder()
                 .name("테스트 프로젝트 1")
                 .startDate(LocalDate.of(2022, 3, 2))
                 .endDate(LocalDate.of(2022, 6, 30))
-                .type(ProjectType.SIDE)
-                .status(ProjectStatus.DONE)
+                .department(department)
+                .professor("교수1")
+                .lectureTimes(Set.of(LectureTime.builder()
+                        .day('월')
+                        .startTime(LocalTime.of(1, 30))
+                        .build()))
                 .build());
+        doneProject.end();
         projectMemberRepository.save(ProjectMember.builder()
                 .project(doneProject)
                 .member(member)
                 .build());
-        Project notStartedProject = projectRepository.save(Project.builder()
+        LectureProject notStartedProject = lectureProjectRepository.save(LectureProject.builder()
                 .name("테스트 프로젝트 2")
                 .startDate(LocalDate.of(2022, 3, 2))
                 .endDate(LocalDate.of(2022, 6, 30))
-                .type(ProjectType.SIDE)
-                .status(ProjectStatus.NOT_STARTED)
+                .department(department)
+                .professor("교수1")
+                .lectureTimes(Set.of(LectureTime.builder()
+                        .day('월')
+                        .startTime(LocalTime.of(1, 30))
+                        .build()))
                 .build());
         projectMemberRepository.save(ProjectMember.builder()
                 .project(notStartedProject)
