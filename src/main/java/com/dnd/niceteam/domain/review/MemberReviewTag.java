@@ -1,7 +1,10 @@
-package com.dnd.niceteam.domain.memberreview;
+package com.dnd.niceteam.domain.review;
 
 import com.dnd.niceteam.domain.common.BaseEntity;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -10,7 +13,6 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@Builder
 @Table(name = "member_review_tag")
 @SQLDelete(sql = "UPDATE member_review_tag SET use_yn = false WHERE id = ?")
 @Where(clause = "use_yn = true")
@@ -30,6 +32,14 @@ public class MemberReviewTag extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_review_id", nullable = false)
     private MemberReview memberReview;
+
+    public MemberReviewTag(String tagName) {
+        this.tag = MemberReviewTagName.getByKor(tagName);
+    }
+
+    public MemberReviewTag(MemberReviewTagName tag) {
+        this.tag = tag;
+    }
 
     @Override
     public boolean equals(Object o) {

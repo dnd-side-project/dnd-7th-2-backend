@@ -35,4 +35,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .authorities(AuthorityUtils.NO_AUTHORITIES)
                 .build();
     }
+
 }

@@ -37,6 +37,8 @@ public enum ErrorCode {
     INVALID_PROJECT_SCHEDULE(PROJECT, SC_BAD_REQUEST, "프로젝트 기간이 유효하지 않습니다."),
     PROJECT_NOT_FOUND(PROJECT, SC_NOT_FOUND, "존재하지 않는 프로젝트입니다."),
 
+    PROJECT_MEMBER_NOT_FUND(PROJECT_MEMBER, SC_NOT_FOUND, "존재하지 않는 팀원입니다."),
+
     // Recruiting
     INVALID_RECRUITING_TYPE(RECRUITING, SC_BAD_REQUEST, "모집글 타입이 유효하지 않습니다."),
     ;
