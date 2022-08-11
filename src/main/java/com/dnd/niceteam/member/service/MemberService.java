@@ -15,13 +15,20 @@ import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.DuplicateEmailException;
 import com.dnd.niceteam.domain.member.exception.DuplicateNicknameException;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
+import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
+import com.dnd.niceteam.domain.project.ProjectMember;
+import com.dnd.niceteam.domain.project.ProjectMemberRepository;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
+import com.dnd.niceteam.member.dto.MemberDetail;
 import com.dnd.niceteam.member.dto.MemberUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +44,10 @@ public class MemberService {
     private final DepartmentRepository departmentRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final MemberScoreRepository memberScoreRepository;
+
+    private final ProjectMemberRepository projectMemberRepository;
 
     public DupCheck.ResponseDto checkEmailDuplicate(String email) {
         DupCheck.ResponseDto responseDto = new DupCheck.ResponseDto();
@@ -66,10 +77,17 @@ public class MemberService {
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .participationSum(0)
+                .rematchingSum(0)
+                .build());
         Member member = memberRepository.save(Member.builder()
                 .account(account)
                 .university(department.getUniversity())
                 .department(department)
+                .memberScore(memberScore)
                 .nickname(requestDto.getNickname())
                 .admissionYear(requestDto.getAdmissionYear())
                 .personality(new Personality(
@@ -119,5 +137,33 @@ public class MemberService {
     private Member getMemberEntityByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberNotFoundException("email = " + email));
+    }
+
+    public MemberDetail.ResponseDto getMemberDetail(long memberId) {
+        Member member = getMemberEntityById(memberId);
+        MemberScore memberScore = member.getMemberScore();
+        List<ProjectMember> projectMembers = projectMemberRepository.findDoneProjectMemberByMember(member);
+        MemberDetail.ResponseDto responseDto = new MemberDetail.ResponseDto();
+        responseDto.setId(member.getId());
+        responseDto.setNickname(member.getNickname());
+        responseDto.setPersonality(member.getPersonality());
+        responseDto.setDepartmentName(member.getDepartment().getName());
+        responseDto.setInterestingFields(member.getInterestingFields());
+        responseDto.setAdmissionYear(member.getAdmissionYear());
+        responseDto.setIntroduction(member.getIntroduction());
+        responseDto.setIntroductionUrl(member.getIntroductionUrl());
+        responseDto.setLevel(memberScore.getLevel());
+        responseDto.setParticipationPct(memberScore.participationPct());
+        responseDto.setTagReviewToNums(memberScore.getTagReviewToNums());
+        responseDto.setNumTotalEndProject(projectMembers.size());
+        responseDto.setNumCompleteProject((int) projectMembers.stream()
+                .filter(projectMember -> !projectMember.getExpelled())
+                .count());
+        return responseDto;
+    }
+
+    private Member getMemberEntityById(long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("memberId = " + memberId));
     }
 }

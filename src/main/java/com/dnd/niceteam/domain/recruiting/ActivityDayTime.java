@@ -12,7 +12,7 @@ import java.sql.Time;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE activity_day_time SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE activity_day_time SET use_yn = false WHERE activity_day_time_id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,8 +28,8 @@ public class ActivityDayTime extends BaseTimeEntity {
     private Recruiting recruiting;
 
     //'월'~'금'
-    @Column(nullable = false)
-    private char day;
+    @Column(name = "`day`", nullable = false)
+    private Character day;
 
     @Column(name = "start_time", nullable = false)
     private Time startTime;

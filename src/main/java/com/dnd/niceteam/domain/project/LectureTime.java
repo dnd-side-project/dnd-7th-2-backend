@@ -11,7 +11,7 @@ import java.time.LocalTime;
 @EqualsAndHashCode
 public class LectureTime {
 
-    @Column(nullable = false)
+    @Column(name = "`day`", nullable = false)
     private Character day;
 
     @Column(nullable = false, name = "start_time")

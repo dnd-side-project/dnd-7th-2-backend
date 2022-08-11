@@ -14,7 +14,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @Table(name = "member_review_tag")
-@SQLDelete(sql = "UPDATE member_review_tag SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE member_review_tag SET use_yn = false WHERE member_review_tag_id = ?")
 @Where(clause = "use_yn = true")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

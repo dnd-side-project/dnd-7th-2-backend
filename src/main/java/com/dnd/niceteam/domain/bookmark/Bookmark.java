@@ -14,7 +14,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE bookmark SET use_yn = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE bookmark SET use_yn = false WHERE bookmark_id = ?")
 @Where(clause = "use_yn = true")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
