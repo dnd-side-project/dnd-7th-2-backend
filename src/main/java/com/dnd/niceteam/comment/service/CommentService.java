@@ -23,11 +23,11 @@ public class CommentService {
 
     @Transactional
     public CommentCreation.ResponseDto addComment(Long recruitingId, CommentCreation.RequestDto commentDto) {
-        Comment save = commentRepository.save(commentDto.toEntity(getMemberEntity(recruitingId),
+        Comment savedComment = commentRepository.save(commentDto.toEntity(getMemberEntity(recruitingId),
                 getRecruitingtEntity(recruitingId)));
 
         CommentCreation.ResponseDto response = new CommentCreation.ResponseDto();
-        response.setId(save.getId());
+        response.setId(savedComment.getId());
         return response;
     }
 
