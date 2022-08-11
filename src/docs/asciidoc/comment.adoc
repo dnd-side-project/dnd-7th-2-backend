@@ -1,0 +1,14 @@
+= Comment (댓글 및 답글)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+[[comment-create]]
+== 댓글 생성
+
+operation::comment-create[snippets='http-request,request-fields,http-response,response-fields-data']
