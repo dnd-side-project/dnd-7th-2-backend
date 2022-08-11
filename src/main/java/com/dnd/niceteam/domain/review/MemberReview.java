@@ -29,8 +29,8 @@ public class MemberReview extends BaseEntity {
     @Column(name = "participation_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
     private Integer participationScore;
 
-    @Column(name = "hope_to_reunion_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
-    private Integer hopeToReunionScore;
+    @Column(name = "team_again_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
+    private Integer teamAgainScore;
 
     @Column(name = "skipped", nullable = false)
     private Boolean skipped;
@@ -49,13 +49,13 @@ public class MemberReview extends BaseEntity {
     @Builder
     private MemberReview(
             Integer participationScore,
-            Integer hopeToReunionScore,
+            Integer teamAgainScore,
             ProjectMember reviewer,
             ProjectMember reviewee,
             Set<MemberReviewTag> memberReviewTags
     ) {
         this.participationScore = participationScore;
-        this.hopeToReunionScore = hopeToReunionScore;
+        this.teamAgainScore = teamAgainScore;
         this.reviewer = reviewer;
         this.reviewee = reviewee;
         this.memberReviewTags = memberReviewTags;

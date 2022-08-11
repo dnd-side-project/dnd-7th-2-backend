@@ -24,7 +24,7 @@ public interface MemberReviewRequest {
         @Positive
         @Max(5)
         @NotNull
-        private Integer hopeToReunionScore;
+        private Integer teamAgainScore;
 
         @NotNull
         private List<String> tagNames;
@@ -37,7 +37,7 @@ public interface MemberReviewRequest {
         public MemberReview toEntity(ProjectMember reviewer, ProjectMember reviewee, Set<MemberReviewTag> memberReviewTags) {
             return MemberReview.builder()
                     .participationScore(participationScore)
-                    .hopeToReunionScore(hopeToReunionScore)
+                    .teamAgainScore(teamAgainScore)
                     .reviewer(reviewer)
                     .reviewee(reviewee)
                     .memberReviewTags(memberReviewTags)

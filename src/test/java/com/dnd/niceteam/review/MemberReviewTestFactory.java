@@ -13,7 +13,7 @@ public class MemberReviewTestFactory {
         List<String> tagNames = new ArrayList<>(List.of(MemberReviewTagName.책임감_굿.getKor(), MemberReviewTagName.마감을_칼같이.getKor()));
 
         request.setParticipationScore(5);
-        request.setHopeToReunionScore(4);
+        request.setTeamAgainScore(4);
         request.setProjectId(1L);
         request.setRevieweeId(revieweeId);
         request.setTagNames(tagNames);
