@@ -26,10 +26,10 @@ public class MemberReview extends BaseEntity {
     @Column(name = "member_review_id")
     private Long id;
 
-    @Column(name = "participation_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
+    @Column(name = "participation_score", columnDefinition = "TINYINT", nullable = false)
     private Integer participationScore;
 
-    @Column(name = "hope_to_reunion_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
+    @Column(name = "hope_to_reunion_score", columnDefinition = "TINYINT", nullable = false)
     private Integer hopeToReunionScore;
 
     @Column(name = "skipped", nullable = false)
