@@ -61,6 +61,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
