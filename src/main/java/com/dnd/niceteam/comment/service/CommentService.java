@@ -1,7 +1,7 @@
 package com.dnd.niceteam.comment.service;
 
 import com.dnd.niceteam.comment.dto.CommentCreation;
-import com.dnd.niceteam.comment.exception.RecruitingNotFoundException;
+import com.dnd.niceteam.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.domain.comment.Comment;
 import com.dnd.niceteam.domain.comment.CommentRepository;
 import com.dnd.niceteam.domain.member.Member;
@@ -23,13 +23,21 @@ public class CommentService {
 
     @Transactional
     public CommentCreation.ResponseDto addComment(Long recruitingId, CommentCreation.RequestDto commentDto) {
-        Comment savedComment = commentRepository.save(commentDto.toEntity(getMemberEntity(recruitingId),
-                getRecruitingtEntity(recruitingId)));
+        Recruiting recruiting = getRecruitingtEntity(recruitingId);
+        recruiting.plusCommentCount();
+
+        Comment savedComment = commentRepository.save(
+                commentDto.toEntity(
+                        getMemberEntity(recruitingId),
+                        recruiting
+                )
+        );
 
         CommentCreation.ResponseDto response = new CommentCreation.ResponseDto();
         response.setId(savedComment.getId());
         return response;
     }
+
 
     private Recruiting getRecruitingtEntity(Long recruitingId) {
         return recruitingRepository.findById(recruitingId)
