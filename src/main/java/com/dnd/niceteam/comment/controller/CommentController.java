@@ -18,10 +18,11 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<ApiResult<CommentCreation.ResponseDto>> commentAdd(@PathVariable Long recruitingId,
-                                                                             @RequestBody @Valid CommentCreation.RequestDto commentDto) {
-        CommentCreation.ResponseDto responseDto = commentService.addComment(recruitingId, commentDto);
+                                                                             @RequestBody @Valid CommentCreation.RequestDto requestDto) {
+        CommentCreation.ResponseDto responseDto = commentService.addComment(recruitingId, requestDto);
 
         ApiResult<CommentCreation.ResponseDto> apiResult = ApiResult.success(responseDto);
         return new ResponseEntity<>(apiResult, HttpStatus.CREATED);
     }
+
 }
