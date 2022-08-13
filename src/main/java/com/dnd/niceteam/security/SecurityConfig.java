@@ -30,7 +30,8 @@ public class SecurityConfig {
     private static final String[] GET_PERMITTED_URLS = {
             "/members/dup-check/email",
             "/members/dup-check/nickname",
-            "/universities"
+            "/universities",
+            "/code"
     };
 
     private static final String[] POST_PERMITTED_URLS = {
