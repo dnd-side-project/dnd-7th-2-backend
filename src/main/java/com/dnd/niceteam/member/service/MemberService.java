@@ -80,7 +80,7 @@ public class MemberService {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
+                .totalParticipationScore(0)
                 .rematchingSum(0)
                 .build());
         Member member = memberRepository.save(Member.builder()

@@ -35,8 +35,8 @@ public class MemberScore extends BaseEntity {
     @Column(name = "review_num", nullable = false)
     private Integer reviewNum;
 
-    @Column(name = "participation_sum", nullable = false)
-    private Integer participationSum;
+    @Column(name = "total_participation_score≠", nullable = false)
+    private Integer totalParticipationScore;
 
     @Column(name = "rematching_sum", nullable = false)
     private Integer rematchingSum;
@@ -53,9 +53,9 @@ public class MemberScore extends BaseEntity {
     );
 
     public Double participationPct() {
-        if (isNull(participationSum) || isNull(reviewNum)) {
+        if (isNull(totalParticipationScore) || isNull(reviewNum)) {
             return null;
         }
-        return (double) participationSum / reviewNum * 20;
+        return (double) totalParticipationScore / reviewNum * 20;
     }
 }

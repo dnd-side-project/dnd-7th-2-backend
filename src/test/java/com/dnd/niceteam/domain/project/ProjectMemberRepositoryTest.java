@@ -74,7 +74,7 @@ class ProjectMemberRepositoryTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
+                .totalParticipationScore(0)
                 .rematchingSum(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
