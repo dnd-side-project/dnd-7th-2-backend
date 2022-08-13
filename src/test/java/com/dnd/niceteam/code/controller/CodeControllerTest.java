@@ -87,6 +87,7 @@ class CodeControllerTest {
                                 beneathPath("data").withSubsectionId("data"),
                                 subsectionWithPath("DayOfWeek").description("요일"),
                                 subsectionWithPath("Field").description("분야"),
+                                subsectionWithPath("FieldCategory").description("분야 카테고리"),
                                 subsectionWithPath("PersonalityAdjective").description("성향 형용사"),
                                 subsectionWithPath("PersonalityNoun").description("성향 명사")
                         )
