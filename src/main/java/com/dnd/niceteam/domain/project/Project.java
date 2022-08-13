@@ -44,7 +44,7 @@ public abstract class Project extends BaseEntity {
     private ProjectStatus status = ProjectStatus.NOT_STARTED;
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "project")
     private Set<ProjectMember> projectMembers = new HashSet<>();
 
     protected Project(String name, LocalDate startDate, LocalDate endDate) {
