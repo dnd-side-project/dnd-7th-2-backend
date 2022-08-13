@@ -154,7 +154,7 @@ public class MemberService {
         responseDto.setIntroductionUrl(member.getIntroductionUrl());
         responseDto.setLevel(memberScore.getLevel());
         responseDto.setParticipationPct(memberScore.participationPct());
-        responseDto.setTagReviewToNums(memberScore.getTagReviewToNums());
+        responseDto.setReviewTagToNums(memberScore.getReviewTagToNums());
         responseDto.setNumTotalEndProject(projectMembers.size());
         responseDto.setNumCompleteProject((int) projectMembers.stream()
                 .filter(projectMember -> !projectMember.getExpelled())

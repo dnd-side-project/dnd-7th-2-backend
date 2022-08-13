@@ -1,6 +1,6 @@
 package com.dnd.niceteam.domain.memberscore;
 
-import com.dnd.niceteam.domain.code.TagReview;
+import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -42,14 +42,14 @@ public class MemberScore extends BaseEntity {
     private Integer rematchingSum;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "tag_review_num", joinColumns = @JoinColumn(name = "member_score_id", nullable = false))
-    @MapKeyColumn(name = "tag_review", length = 45)
+    @CollectionTable(name = "review_tag_num", joinColumns = @JoinColumn(name = "member_score_id", nullable = false))
+    @MapKeyColumn(name = "review_tag", length = 45)
     @MapKeyEnumerated(EnumType.STRING)
     @Column(name = "num", nullable = false)
     @Builder.Default
-    private Map<TagReview, Integer> tagReviewToNums = new HashMap<>(
-            IntStream.range(0, TagReview.values().length).boxed()
-                    .collect(Collectors.toMap(i -> TagReview.values()[i], i -> 0))
+    private Map<ReviewTag, Integer> reviewTagToNums = new HashMap<>(
+            IntStream.range(0, ReviewTag.values().length).boxed()
+                    .collect(Collectors.toMap(i -> ReviewTag.values()[i], i -> 0))
     );
 
     public Double participationPct() {

@@ -2,7 +2,7 @@ package com.dnd.niceteam.member.dto;
 
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
-import com.dnd.niceteam.domain.code.TagReview;
+import com.dnd.niceteam.domain.code.ReviewTag;
 import lombok.Data;
 
 import java.util.Map;
@@ -33,7 +33,7 @@ public interface MemberDetail {
 
         private Double participationPct;
 
-        private Map<TagReview, Integer> tagReviewToNums;
+        private Map<ReviewTag, Integer> reviewTagToNums;
 
         private Integer numTotalEndProject;
 
