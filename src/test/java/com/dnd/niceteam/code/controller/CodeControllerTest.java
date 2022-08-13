@@ -79,9 +79,12 @@ class CodeControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.DayOfWeek").isNotEmpty())
                 .andDo(document("code-api-get-all",
                         responseFields(
-                                beneathPath("data").withSubsectionId("data")
+                                beneathPath("data").withSubsectionId("data"),
+                                subsectionWithPath("DayOfWeek").description("요일")
                         )
                 ));
     }
