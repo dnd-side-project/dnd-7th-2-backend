@@ -36,7 +36,7 @@ public class Pagination<T> {
 
         // 연산된 값
         int pageWithFullContent = totalCount / perSize;
-        int pageWithLackContent = totalCount % perSize == 0 ? 1 : 0;
+        int pageWithLackContent = totalCount % perSize == 0 ? 0 : 1;
         this.totalPages = pageWithFullContent + pageWithLackContent;
 
         this.prev = page > 1;

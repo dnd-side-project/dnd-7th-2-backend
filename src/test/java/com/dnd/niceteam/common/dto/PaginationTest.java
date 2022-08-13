@@ -18,7 +18,7 @@ class PaginationTest {
         int perSize = 5;
         int totalCount = 113;
 
-        int totalPages = totalCount / perSize + (totalCount % perSize == 0 ? 1 : 0);
+        int totalPages = totalCount / perSize + 1;
 
         String content1 = "테스트 내용 1";
         String content2 = "테스트 내용 2";
