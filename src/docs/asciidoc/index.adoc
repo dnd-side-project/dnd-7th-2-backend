@@ -9,6 +9,7 @@
 :operation-http-response-title: Example response
 
 == API Domain
+- xref:code.adoc[Code]
 - xref:auth.adoc[Authentication]
 - xref:email-auth.adoc[Email Authentication]
 - xref:university.adoc[University (대학교)]
