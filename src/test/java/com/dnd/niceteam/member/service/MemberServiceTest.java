@@ -512,7 +512,7 @@ class MemberServiceTest {
         assertThat(responseDto.getIntroductionUrl()).isEqualTo(member.getIntroductionUrl());
         assertThat(responseDto.getLevel()).isEqualTo(memberScore.getLevel());
         assertThat(responseDto.getParticipationPct()).isEqualTo(memberScore.participationPct());
-        assertThat(responseDto.getTagReviewToNums()).isEqualTo(memberScore.getTagReviewToNums());
+        assertThat(responseDto.getReviewTagToNums()).isEqualTo(memberScore.getReviewTagToNums());
         assertThat(responseDto.getNumTotalEndProject()).isEqualTo(projectMembers.size());
         assertThat(responseDto.getNumCompleteProject()).isEqualTo(
                 (int) projectMembers.stream().filter(projectMember -> !projectMember.getExpelled()).count());
