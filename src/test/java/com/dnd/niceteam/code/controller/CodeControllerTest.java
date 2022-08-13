@@ -81,10 +81,12 @@ class CodeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.DayOfWeek").isNotEmpty())
+                .andExpect(jsonPath("$.data.Field").isNotEmpty())
                 .andDo(document("code-api-get-all",
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                subsectionWithPath("DayOfWeek").description("요일")
+                                subsectionWithPath("DayOfWeek").description("요일"),
+                                subsectionWithPath("Field").description("분야")
                         )
                 ));
     }
