@@ -1,0 +1,21 @@
+= Member Review (팀원 후기)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[add-member-review]]
+== 팀원 후기 등록
+
+operation::skip-member-review[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[skip-member-review]]
+== 팀원 후기 건너뛰기
+
+operation::skip-member-review[snippets='http-request,request-parameters,http-response,response-fields-data']
