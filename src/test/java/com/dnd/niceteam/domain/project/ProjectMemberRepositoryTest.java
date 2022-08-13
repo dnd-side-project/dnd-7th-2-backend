@@ -75,7 +75,7 @@ class ProjectMemberRepositoryTest {
                 .level(1)
                 .reviewNum(0)
                 .totalParticipationScore(0)
-                .rematchingSum(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")

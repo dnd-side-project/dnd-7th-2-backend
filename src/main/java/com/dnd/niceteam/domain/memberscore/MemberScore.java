@@ -7,7 +7,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,11 +34,11 @@ public class MemberScore extends BaseEntity {
     @Column(name = "review_num", nullable = false)
     private Integer reviewNum;
 
-    @Column(name = "total_participation_score≠", nullable = false)
+    @Column(name = "total_participation_score", nullable = false)
     private Integer totalParticipationScore;
 
-    @Column(name = "rematching_sum", nullable = false)
-    private Integer rematchingSum;
+    @Column(name = "total_team_again_score", nullable = false)
+    private Integer totalTeamAgainScore;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "review_tag_num", joinColumns = @JoinColumn(name = "member_score_id", nullable = false))
@@ -47,10 +46,8 @@ public class MemberScore extends BaseEntity {
     @MapKeyEnumerated(EnumType.STRING)
     @Column(name = "num", nullable = false)
     @Builder.Default
-    private Map<ReviewTag, Integer> reviewTagToNums = new HashMap<>(
-            IntStream.range(0, ReviewTag.values().length).boxed()
-                    .collect(Collectors.toMap(i -> ReviewTag.values()[i], i -> 0))
-    );
+    private Map<ReviewTag, Integer> reviewTagToNums = IntStream.range(0, ReviewTag.values().length).boxed()
+                    .collect(Collectors.toMap(i -> ReviewTag.values()[i], i -> 0));
 
     public Double participationPct() {
         if (isNull(totalParticipationScore) || isNull(reviewNum)) {

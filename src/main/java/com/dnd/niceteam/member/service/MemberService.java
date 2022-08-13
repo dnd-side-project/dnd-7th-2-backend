@@ -81,7 +81,7 @@ public class MemberService {
                 .level(1)
                 .reviewNum(0)
                 .totalParticipationScore(0)
-                .rematchingSum(0)
+                .totalTeamAgainScore(0)
                 .build());
         Member member = memberRepository.save(Member.builder()
                 .account(account)
