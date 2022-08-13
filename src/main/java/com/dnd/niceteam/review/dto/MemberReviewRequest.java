@@ -13,8 +13,12 @@ import java.util.Set;
 
 public interface MemberReviewRequest {
 
+    Long getProjectId();
+
+    Long getRevieweeId();
+
     @Data
-    class Add {
+    class Add implements MemberReviewRequest {
 
         @Positive
         @Max(5)
@@ -43,6 +47,17 @@ public interface MemberReviewRequest {
                     .memberReviewTags(memberReviewTags)
                     .build();
         }
+
+    }
+
+    @Data
+    class Skip implements MemberReviewRequest {
+
+        @NotNull
+        private Long projectId;
+
+        @NotNull
+        private Long revieweeId;
 
     }
 }

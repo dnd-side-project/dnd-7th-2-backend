@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,9 +24,18 @@ public class MemberReviewController {
 
     @PostMapping
     public ResponseEntity<ApiResult<Void>> memberReviewAdd(
-            MemberReviewRequest.Add request,
-            @CurrentUser User currentMember) {
-        memberReviewService.addMemberReview(request, currentMember);
+            @RequestBody MemberReviewRequest.Add request,
+            @CurrentUser User currentUser) {
+        memberReviewService.addMemberReview(request, currentUser);
+        ApiResult<Void> apiResult = ApiResult.<Void>success().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResult);
+    }
+
+    @PostMapping("/skip")
+    public ResponseEntity<ApiResult<Void>> memberReviewSkip(
+            @RequestBody MemberReviewRequest.Skip request,
+            @CurrentUser User currentUser) {
+        memberReviewService.skipMemberReview(request, currentUser);
         ApiResult<Void> apiResult = ApiResult.<Void>success().build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResult);
     }
