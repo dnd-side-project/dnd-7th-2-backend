@@ -1,5 +1,6 @@
 package com.dnd.niceteam.domain.recruiting;
 
+import com.dnd.niceteam.domain.code.DayOfWeek;
 import com.dnd.niceteam.domain.common.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.sql.Time;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -27,15 +28,14 @@ public class ActivityDayTime extends BaseTimeEntity {
     @JoinColumn(name = "recruiting_id", nullable = false)
     private Recruiting recruiting;
 
-    //'월'~'금'
-    @Column(name = "`day`", nullable = false)
-    private Character day;
+    @Column(name = "day_of_week", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
 
     @Column(name = "start_time", nullable = false)
-    private Time startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time", nullable = false)
-    private Time endTime;
-
+    private LocalTime endTime;
 }
 
