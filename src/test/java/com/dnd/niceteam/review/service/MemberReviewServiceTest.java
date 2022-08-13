@@ -1,27 +1,29 @@
 package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.member.MemberRepositoryCustom;
-import com.dnd.niceteam.domain.project.LectureProject;
-import com.dnd.niceteam.domain.project.LectureProjectRepository;
+import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectMember;
-import com.dnd.niceteam.domain.project.ProjectMemberRepository;
+import com.dnd.niceteam.domain.project.ProjectRepository;
+import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.review.MemberReviewTestFactory;
 import com.dnd.niceteam.review.dto.MemberReviewRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.User;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -35,39 +37,53 @@ class MemberReviewServiceTest {
     @Mock
     MemberReviewRepository memberReviewRepository;
     @Mock
-    MemberRepositoryCustom memberRepositoryCustom;
+    MemberRepository memberRepository;
     @Mock
-    LectureProjectRepository lectureProjectRepository;
-    @Mock
-    ProjectMemberRepository projectMemberRepository;
+    ProjectRepository<Project> projectRepository;
+
+    static final long reviwerId = 1L;
+    static final long revieweeId = 2L;
+    static final String email = "tester@gmail.com";
+
+    User currentUser;
+    Member reviewerMember;
+    Member revieweeMember;
+    ProjectMember reviewer;
+
+    ProjectMember reviewee;
+
+    @BeforeEach
+    void setUp() {
+        currentUser = mock(User.class);
+        when(currentUser.getUsername()).thenReturn(email);
+
+        reviewerMember = mock(Member.class, RETURNS_DEEP_STUBS);
+        when(reviewerMember.getId()).thenReturn(reviwerId);
+
+        revieweeMember = mock(Member.class, RETURNS_DEEP_STUBS);
+        when(revieweeMember.getId()).thenReturn(revieweeId);
+
+        reviewer = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
+        when(reviewer.getMember().getId()).thenReturn(reviwerId);
+
+        reviewee = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
+        when(reviewee.getMember().getId()).thenReturn(revieweeId);
+    }
 
     @DisplayName("팀원 후기 등록")
     @Test
     void addMemberReview() {
         // given
-        Long currentMemberId = 1L;
-        Long revieweeId = 2L;
-        String email = "tester@gmail.com";
-        MemberReviewRequest.Add request = MemberReviewTestFactory.getMemberReviewRequest(revieweeId);
+        MemberReviewRequest.Add request = MemberReviewTestFactory.getAddRequest(revieweeId);
 
-        User currentUser = mock(User.class);
-        when(currentUser.getUsername()).thenReturn(email);
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(reviewerMember));
+        when(memberRepository.findById(revieweeId)).thenReturn(Optional.of(revieweeMember));
 
-        Member currentMember = mock(Member.class);
-        when(currentMember.getId()).thenReturn(currentMemberId);
-        when(memberRepositoryCustom.findByEmail(anyString())).thenReturn(Optional.of(currentMember));
+        SideProject project = mock(SideProject.class);
+        when(projectRepository.findById(anyLong())).thenReturn(Optional.of(project));
 
-        LectureProject lectureProject = mock(LectureProject.class);
-        when(lectureProjectRepository.findById(anyLong())).thenReturn(Optional.of(lectureProject));
-
-        ProjectMember reviewer = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
-        when(reviewer.getMember().getId()).thenReturn(currentMemberId);
-
-        ProjectMember reviewee = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
-        when(reviewee.getMember().getId()).thenReturn(revieweeId);
-
-        List<ProjectMember> projectMembers = new ArrayList<>(List.of(reviewer, reviewee));
-        when(projectMemberRepository.findByProject(lectureProject)).thenReturn(projectMembers);
+        Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
+        when(project.getProjectMembers()).thenReturn(projectMembers);
 
         // when
         memberReviewService.addMemberReview(request, currentUser);
@@ -76,12 +92,33 @@ class MemberReviewServiceTest {
         verify(memberReviewRepository).save(any(MemberReview.class));
     }
 
-    private List<ProjectMember> getMockProjectMembers(List<Long> ids) {
-        return ids.stream().map(id -> {
-            ProjectMember projectMember = mock(ProjectMember.class, RETURNS_DEEP_STUBS);
-            when(projectMember.getMember().getId()).thenReturn(id);
-            return projectMember;
-        }).collect(Collectors.toList());
+    @DisplayName("팀원 후기 건너뛰기")
+    @Test
+    void skipMemberReview() {
+        try (MockedStatic<MemberReview> mockedMemberReview = mockStatic(MemberReview.class)) {
+            // given
+            MemberReviewRequest.Skip request = MemberReviewTestFactory.getSkipRequest(revieweeId);
+
+            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(reviewerMember));
+            when(memberRepository.findById(anyLong())).thenReturn(Optional.of(revieweeMember));
+
+            Project project = mock(Project.class);
+            when(projectRepository.findById(request.getProjectId())).thenReturn(Optional.of(project));
+
+            Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
+            when(project.getProjectMembers()).thenReturn(projectMembers);
+
+            MemberReview memberReview = mock(MemberReview.class);
+            mockedMemberReview.when(() -> MemberReview.skip(reviewer, reviewee)).thenReturn(memberReview);
+
+            // when
+            memberReviewService.skipMemberReview(request, currentUser);
+
+            //then
+            verify(memberReviewRepository).save(memberReview);
+            mockedMemberReview.verify(() -> MemberReview.skip(reviewer, reviewee));
+        }
+
     }
 
 }
