@@ -82,6 +82,10 @@ class CodeControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.DayOfWeek").isNotEmpty())
                 .andExpect(jsonPath("$.data.Field").isNotEmpty())
+                .andExpect(jsonPath("$.data.FieldCategory").isNotEmpty())
+                .andExpect(jsonPath("$.data.PersonalityAdjective").isNotEmpty())
+                .andExpect(jsonPath("$.data.PersonalityNoun").isNotEmpty())
+                .andExpect(jsonPath("$.data.ReviewTag").isNotEmpty())
                 .andDo(document("code-api-get-all",
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
@@ -89,7 +93,8 @@ class CodeControllerTest {
                                 subsectionWithPath("Field").description("분야"),
                                 subsectionWithPath("FieldCategory").description("분야 카테고리"),
                                 subsectionWithPath("PersonalityAdjective").description("성향 형용사"),
-                                subsectionWithPath("PersonalityNoun").description("성향 명사")
+                                subsectionWithPath("PersonalityNoun").description("성향 명사"),
+                                subsectionWithPath("ReviewTag").description("리뷰 태그")
                         )
                 ));
     }

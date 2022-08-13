@@ -1,9 +1,6 @@
 package com.dnd.niceteam.code.config;
 
-import com.dnd.niceteam.domain.code.DayOfWeek;
-import com.dnd.niceteam.domain.code.Field;
-import com.dnd.niceteam.domain.code.FieldCategory;
-import com.dnd.niceteam.domain.code.Personality;
+import com.dnd.niceteam.domain.code.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +15,7 @@ public class EnumMapperConfig {
         enumMapperFactory.put(FieldCategory.class.getSimpleName(), FieldCategory.class);
         enumMapperFactory.put("PersonalityAdjective", Personality.Adjective.class);
         enumMapperFactory.put("PersonalityNoun", Personality.Noun.class);
+        enumMapperFactory.put(ReviewTag.class.getSimpleName(), ReviewTag.class);
         return enumMapperFactory;
     }
 }
