@@ -24,12 +24,12 @@ public class CodeController {
 
     @GetMapping
     public ResponseEntity<ApiResult<Map<String, List<EnumMapperValue>>>> codeList(
-            @RequestParam(required = false) List<String> codeType) {
-        if (isNull(codeType)) {
+            @RequestParam(required = false) List<String> codeTypes) {
+        if (isNull(codeTypes)) {
             ApiResult<Map<String, List<EnumMapperValue>>> apiResult = ApiResult.success(enumMapperFactory.getAll());
             return ResponseEntity.ok(apiResult);
         }
-        ApiResult<Map<String, List<EnumMapperValue>>> apiResult = ApiResult.success(enumMapperFactory.get(codeType));
+        ApiResult<Map<String, List<EnumMapperValue>>> apiResult = ApiResult.success(enumMapperFactory.get(codeTypes));
         return ResponseEntity.ok(apiResult);
     }
 }
