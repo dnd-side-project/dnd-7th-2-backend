@@ -3,10 +3,7 @@ package com.dnd.niceteam.code.config;
 import com.dnd.niceteam.code.dto.EnumMapperValue;
 import com.dnd.niceteam.domain.common.EnumMapperType;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,7 +22,7 @@ public class EnumMapperFactory {
     }
 
     public List<EnumMapperValue> get(String key){
-        return factory.get(key);
+        return factory.getOrDefault(key, Collections.emptyList());
     }
 
     public Map<String, List<EnumMapperValue>> get(List<String> keys) {
@@ -33,7 +30,7 @@ public class EnumMapperFactory {
             return new LinkedHashMap<>();
         }
         return keys.stream()
-                .collect(Collectors.toMap(Function.identity(), factory::get));
+                .collect(Collectors.toMap(Function.identity(), this::get));
     }
 
     public Map<String, List<EnumMapperValue>> getAll() {
