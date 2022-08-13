@@ -51,7 +51,7 @@ class MemberReviewControllerTest {
     @DisplayName("팀원 후기 등록")
     void addMemberReview() throws Exception {
         // given
-        MemberReviewRequest.Add request = MemberReviewTestFactory.getMemberReviewRequest();
+        MemberReviewRequest.Add request = MemberReviewTestFactory.getAddRequest();
 
         // then
         mockMvc.perform(
@@ -67,11 +67,38 @@ class MemberReviewControllerTest {
                         document("add-member-review",
                             requestFields(
                                     fieldWithPath("participationScore").description("참여도 점수"),
-                                    fieldWithPath("hopeToReunionScore").description("재팀원 희망 점수"),
+                                    fieldWithPath("teamAgainScore").description("재팀원 희망 점수"),
                                     fieldWithPath("tagNames").description("후기 태그 목록"),
                                     fieldWithPath("projectId").description("프로젝트 식별자"),
                                     fieldWithPath("revieweeId").description("피평가자 아이디")
                             )
+                        )
+                );
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("팀원 후기 건너뛰기")
+    void skipMemberReview() throws Exception {
+        // given
+        MemberReviewRequest.Skip request = MemberReviewTestFactory.getSkipRequest();
+
+        // then
+        mockMvc.perform(
+                        post("/member-reviews/skip")
+                                .with(csrf())
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(
+                        document("skip-member-review",
+                                requestFields(
+                                        fieldWithPath("projectId").description("프로젝트 식별자"),
+                                        fieldWithPath("revieweeId").description("피평가자 아이디")
+                                )
                         )
                 );
     }

@@ -1,17 +1,19 @@
 package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
-import com.dnd.niceteam.domain.project.LectureProjectRepository;
+import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectMember;
-import com.dnd.niceteam.domain.project.ProjectMemberRepository;
+import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.domain.review.MemberReviewTag;
+import com.dnd.niceteam.member.util.MemberUtils;
 import com.dnd.niceteam.project.exception.ProjectMemberNotFoundException;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
 import com.dnd.niceteam.review.dto.MemberReviewRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,36 +28,89 @@ import java.util.stream.Collectors;
 public class MemberReviewService {
 
     private final MemberReviewRepository memberReviewRepository;
-    private final LectureProjectRepository lectureProjectRepository;
-    private final ProjectMemberRepository projectMemberRepository;
+    private final MemberRepository memberRepository;
+    private final ProjectRepository<Project> projectRepository;
 
     @Transactional
-    public MemberReview addMemberReview(MemberReviewRequest.Add request, Member currentMember) {
-        Project project = findProject(request.getProjectId());
-        List<ProjectMember> projectMembers = projectMemberRepository.findByProject(project);
+    public void addMemberReview(MemberReviewRequest.Add request, User currentUser) {
+        ReviewerAndReviewee projectMember = getReviewerAndReviewee(request, currentUser);
 
-        ProjectMember reviewer = findProjectMemberFrom(projectMembers, currentMember.getId());
-        ProjectMember reviewee = findProjectMemberFrom(projectMembers, request.getRevieweeId());
         Set<MemberReviewTag> tags = getMemberReviewTags(request.getTagNames());
 
-        MemberReview newMemberReview = request.toEntity(reviewer, reviewee, tags);
-        return memberReviewRepository.save(newMemberReview);
+        MemberReview newMemberReview = request.toEntity(
+                projectMember.reviewer,
+                projectMember.reviewee,
+                tags
+        );
+        memberReviewRepository.save(newMemberReview);
     }
 
-    private Project findProject(Long projectId) {
-        return lectureProjectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
+    @Transactional
+    public void skipMemberReview(MemberReviewRequest.Skip request, User currentUser) {
+        ReviewerAndReviewee projectMember = getReviewerAndReviewee(request, currentUser);
+
+        MemberReview newMemberReview = MemberReview.skip(
+                projectMember.reviewer,
+                projectMember.reviewee
+        );
+        memberReviewRepository.save(newMemberReview);
     }
 
-    private ProjectMember findProjectMemberFrom(List<ProjectMember> projectMembers, Long memberId) {
-        return projectMembers.stream()
-                .filter(projectMember -> Objects.equals(projectMember.getMember().getId(), memberId))
-                .findAny()
-                .orElseThrow(() -> new ProjectMemberNotFoundException("memberId = " + memberId));
+    /* private 메서드 */
+    private ReviewerAndReviewee getReviewerAndReviewee(MemberReviewRequest request, User currentUser) {
+        // 요청 data
+        Long projectId = request.getProjectId();
+        Long revieweeId = request.getRevieweeId();
+
+        String reviewerEmail = currentUser.getUsername();
+
+        // DB 조회
+        Project project = findProjectById(projectId);
+
+        ProjectMember reviewer = findProjectMemberFrom(project, reviewerEmail);
+        ProjectMember reviewee = findProjectMemberFrom(project, revieweeId);
+
+        return new ReviewerAndReviewee(reviewer, reviewee);
     }
 
     private Set<MemberReviewTag> getMemberReviewTags(List<String> tagNames) {
         return tagNames.stream().map(MemberReviewTag::new).collect(Collectors.toSet());
+    }
+
+    /* DB 조회 메서드 */
+    // DB 조회 : Project
+    private Project findProjectById(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
+    }
+
+    // DB 조회 : ProjectMember
+    private ProjectMember findProjectMemberFrom(Project project, Long id) {
+        Member member = MemberUtils.findMemberById(id, memberRepository);
+        return findProjectMemberFrom(project, member);
+    }
+
+    private ProjectMember findProjectMemberFrom(Project project, String email) {
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
+        return findProjectMemberFrom(project, member);
+    }
+
+    private ProjectMember findProjectMemberFrom(Project project, Member member) {
+        return project.getProjectMembers().stream()
+                .filter(projectMember -> Objects.equals(projectMember.getMember().getId(), member.getId()))
+                .findAny()
+                .orElseThrow(() -> new ProjectMemberNotFoundException("memberId = " + member.getId()));
+    }
+
+    /* 내부 클래스 */
+    private class ReviewerAndReviewee {
+        ProjectMember reviewer;
+        ProjectMember reviewee;
+
+        ReviewerAndReviewee(ProjectMember reviewer, ProjectMember reviewee) {
+            this.reviewer = reviewer;
+            this.reviewee = reviewee;
+        }
     }
 
 }

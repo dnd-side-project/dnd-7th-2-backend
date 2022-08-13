@@ -6,6 +6,7 @@ import io.jsonwebtoken.lang.Assert;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -42,6 +43,7 @@ public abstract class Project extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status = ProjectStatus.NOT_STARTED;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "project")
     private Set<ProjectMember> projectMembers = new HashSet<>();
 

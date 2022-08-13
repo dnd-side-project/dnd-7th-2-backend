@@ -2,6 +2,7 @@ package com.dnd.niceteam.domain.review;
 
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.project.ProjectMember;
+import io.jsonwebtoken.lang.Assert;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,14 +27,14 @@ public class MemberReview extends BaseEntity {
     @Column(name = "member_review_id")
     private Long id;
 
-    @Column(name = "participation_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
+    @Column(name = "participation_score")
     private Integer participationScore;
 
-    @Column(name = "hope_to_reunion_score", columnDefinition = "TINYINT UNSIGNED", nullable = false)
-    private Integer hopeToReunionScore;
+    @Column(name = "team_again_score")
+    private Integer teamAgainScore;
 
     @Column(name = "skipped", nullable = false)
-    private Boolean skipped;
+    private Boolean skipped = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "reviewer_id", nullable = false)
@@ -49,16 +50,36 @@ public class MemberReview extends BaseEntity {
     @Builder
     private MemberReview(
             Integer participationScore,
-            Integer hopeToReunionScore,
+            Integer teamAgainScore,
             ProjectMember reviewer,
             ProjectMember reviewee,
             Set<MemberReviewTag> memberReviewTags
     ) {
+
+        Assert.notNull(reviewer, "reviewer는 필수 값입니다.");
+        Assert.notNull(reviewee, "reviewee는 필수 값입니다.");
+
+
         this.participationScore = participationScore;
-        this.hopeToReunionScore = hopeToReunionScore;
+        this.teamAgainScore = teamAgainScore;
         this.reviewer = reviewer;
         this.reviewee = reviewee;
         this.memberReviewTags = memberReviewTags;
+    }
+
+    public static MemberReview skip(ProjectMember reviewer, ProjectMember reviewee) {
+        MemberReview memberReview = MemberReview.builder()
+                .reviewer(reviewer)
+                .reviewee(reviewee)
+                .build();
+
+        memberReview.setSkipped(true);
+
+        return memberReview;
+    }
+
+    private void setSkipped(Boolean skipped) {
+        this.skipped = skipped;
     }
 
 }

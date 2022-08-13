@@ -4,7 +4,7 @@ import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.department.exception.DepartmentNotFoundException;
 import com.dnd.niceteam.domain.project.LectureProject;
-import com.dnd.niceteam.domain.project.LectureProjectRepository;
+import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.project.LectureTime;
 import com.dnd.niceteam.project.dto.LectureProjectRequest;
 import com.dnd.niceteam.project.dto.LectureProjectResponse;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class LectureProjectService {
 
-    private final LectureProjectRepository lectureProjectRepository;
+    private final ProjectRepository<LectureProject> projectRepository;
     private final DepartmentRepository departmentRepository;
     
     // TODO: 기획 논의 후 startDate, endDate에 @Past, @Future 등의 유효성검사 어노테이션 붙이기
@@ -42,7 +42,7 @@ public class LectureProjectService {
 
         Set<LectureTime> lectureTimes = mapLectureTimeFromRequest(request.getLectureTimes());
 
-        LectureProject newLectureProject = lectureProjectRepository.save(
+        LectureProject newLectureProject = projectRepository.save(
                 request.toEntity(department, lectureTimes)
         );
         return LectureProjectResponse.Detail.from(newLectureProject);

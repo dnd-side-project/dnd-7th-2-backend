@@ -3,7 +3,7 @@ package com.dnd.niceteam.project.service;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.project.LectureProject;
-import com.dnd.niceteam.domain.project.LectureProjectRepository;
+import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.error.exception.ErrorCode;
 import com.dnd.niceteam.project.LectureProjectTestFactory;
 import com.dnd.niceteam.project.dto.LectureProjectRequest;
@@ -32,7 +32,7 @@ class LectureProjectServiceTest {
     LectureProjectService lectureProjectService;
 
     @Mock
-    LectureProjectRepository lectureProjectRepository;
+    ProjectRepository projectRepository;
     @Mock
     DepartmentRepository departmentRepository;
 
@@ -47,7 +47,7 @@ class LectureProjectServiceTest {
         when(departmentRepository.findById(anyLong())).thenReturn(Optional.of(department));
 
         // when
-        when(lectureProjectRepository.save(any(LectureProject.class))).thenReturn(newLectureProject);
+        when(projectRepository.save(any(LectureProject.class))).thenReturn(newLectureProject);
         LectureProjectResponse.Detail response = lectureProjectService.registerLectureProject(request);
 
         // then
