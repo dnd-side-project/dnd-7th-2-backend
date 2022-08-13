@@ -2,7 +2,7 @@ package com.dnd.niceteam.comment.controller;
 
 import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.comment.service.CommentService;
-import com.dnd.niceteam.comment.service.CommentTestFactory;
+import com.dnd.niceteam.comment.CommentTestFactory;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.dnd.niceteam.comment.service.CommentTestFactory.RECRUITING_ID;
+import static com.dnd.niceteam.comment.CommentTestFactory.RECRUITING_ID;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -50,22 +50,22 @@ class CommentControllerTest {
 
         //then
         mockMvc.perform(
-                        post("/recruiting/{recruitingId}/comment", RECRUITING_ID)
-                                .with(csrf())
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
+                post("/recruiting/{recruitingId}/comment", RECRUITING_ID)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
                 ).andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(
                         document("comment-create",
                                 requestFields(
-                                        fieldWithPath("memberId").description("회원 ID"),
+                                        fieldWithPath("memberId").description("회원 식별자 ID"),
                                         fieldWithPath("content").description("댓글 내용")
                                                 .attributes(key("constraint").value("최대 255자")),
                                         fieldWithPath("parentId").description("모댓글 ID")
-                                                .attributes(key("constraint").value("모댓글인 경우 0으로 처리"))
+                                                .attributes(key("constraint").value("모댓글인 경우 0으로 요청"))
                                         ),
                                 responseFields(
                                         beneathPath("data").withSubsectionId("data"),
