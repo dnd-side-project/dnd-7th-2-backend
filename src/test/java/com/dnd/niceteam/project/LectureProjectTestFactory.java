@@ -1,5 +1,6 @@
 package com.dnd.niceteam.project;
 
+import com.dnd.niceteam.domain.code.DayOfWeek;
 import com.dnd.niceteam.project.dto.LectureProjectRequest;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 
@@ -18,7 +19,7 @@ public class LectureProjectTestFactory {
 
     public static LectureProjectRequest.Register createRegisterRequest() {
         LectureTimeRequest lectureTimeRequest = new LectureTimeRequest();
-        lectureTimeRequest.setDay('월');
+        lectureTimeRequest.setDayOfWeek(DayOfWeek.MON);
         lectureTimeRequest.setStartTime(LocalTime.of(8, 0));
 
         LectureProjectRequest.Register request = new LectureProjectRequest.Register();

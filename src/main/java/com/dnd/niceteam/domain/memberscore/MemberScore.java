@@ -1,13 +1,12 @@
 package com.dnd.niceteam.domain.memberscore;
 
-import com.dnd.niceteam.domain.code.TagReview;
+import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,27 +34,25 @@ public class MemberScore extends BaseEntity {
     @Column(name = "review_num", nullable = false)
     private Integer reviewNum;
 
-    @Column(name = "participation_sum", nullable = false)
-    private Integer participationSum;
+    @Column(name = "total_participation_score", nullable = false)
+    private Integer totalParticipationScore;
 
-    @Column(name = "rematching_sum", nullable = false)
-    private Integer rematchingSum;
+    @Column(name = "total_team_again_score", nullable = false)
+    private Integer totalTeamAgainScore;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "tag_review_num", joinColumns = @JoinColumn(name = "member_score_id", nullable = false))
-    @MapKeyColumn(name = "tag_review", length = 45)
+    @CollectionTable(name = "review_tag_num", joinColumns = @JoinColumn(name = "member_score_id", nullable = false))
+    @MapKeyColumn(name = "review_tag", length = 45)
     @MapKeyEnumerated(EnumType.STRING)
     @Column(name = "num", nullable = false)
     @Builder.Default
-    private Map<TagReview, Integer> tagReviewToNums = new HashMap<>(
-            IntStream.range(0, TagReview.values().length).boxed()
-                    .collect(Collectors.toMap(i -> TagReview.values()[i], i -> 0))
-    );
+    private Map<ReviewTag, Integer> reviewTagToNums = IntStream.range(0, ReviewTag.values().length).boxed()
+                    .collect(Collectors.toMap(i -> ReviewTag.values()[i], i -> 0));
 
     public Double participationPct() {
-        if (isNull(participationSum) || isNull(reviewNum)) {
+        if (isNull(totalParticipationScore) || isNull(reviewNum)) {
             return null;
         }
-        return (double) participationSum / reviewNum * 20;
+        return (double) totalParticipationScore / reviewNum * 20;
     }
 }

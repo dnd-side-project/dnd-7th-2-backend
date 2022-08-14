@@ -4,11 +4,11 @@ import com.dnd.niceteam.domain.common.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum FieldCategory implements EnumMapperType {
-    CONTEST("공모전"),
-    EXTRA_ACTIVITY("대외활동"),
-    STUDY("스터디"),
-    CLUB("동아리"),
+public enum ReviewTag implements EnumMapperType {
+    RESPONSIBILITY("책임감 굿"),
+    DEAD_LINE("마감을 칼같이"),
+    MOOD_MAKER("분위기 메이커"),
+    TIME_MANNERS("시간매너 끝판왕"),
     ;
 
     private final String title;

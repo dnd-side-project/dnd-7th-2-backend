@@ -3,7 +3,7 @@ package com.dnd.niceteam.member.controller;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.Personality;
-import com.dnd.niceteam.domain.code.TagReview;
+import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.member.dto.DupCheck;
 import com.dnd.niceteam.member.dto.MemberCreation;
 import com.dnd.niceteam.member.dto.MemberDetail;
@@ -239,9 +239,9 @@ class MemberControllerTest {
         responseDto.setIntroductionUrl("test.com");
         responseDto.setLevel(1);
         responseDto.setParticipationPct(100.0);
-        responseDto.setTagReviewToNums(new HashMap<>(
-                IntStream.range(0, TagReview.values().length).boxed()
-                        .collect(Collectors.toMap(i -> TagReview.values()[i], i -> 0))
+        responseDto.setReviewTagToNums(new HashMap<>(
+                IntStream.range(0, ReviewTag.values().length).boxed()
+                        .collect(Collectors.toMap(i -> ReviewTag.values()[i], i -> 0))
         ));
         responseDto.setNumTotalEndProject(0);
         responseDto.setNumCompleteProject(0);
@@ -271,7 +271,7 @@ class MemberControllerTest {
                                 fieldWithPath("introductionUrl").description("자기소개 링크"),
                                 fieldWithPath("level").description("레벨"),
                                 fieldWithPath("participationPct").description("참여율"),
-                                subsectionWithPath("tagReviewToNums").description("리뷰 개수"),
+                                subsectionWithPath("reviewTagToNums").description("리뷰 개수"),
                                 fieldWithPath("numTotalEndProject").description("전체 종료된 프로젝트 수"),
                                 fieldWithPath("numCompleteProject").description("완주한 프로젝트 수")
                         )

@@ -127,8 +127,8 @@ class MemberServiceTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
@@ -277,8 +277,8 @@ class MemberServiceTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
@@ -338,8 +338,8 @@ class MemberServiceTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("notduplicate@email.com")
@@ -394,8 +394,8 @@ class MemberServiceTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
@@ -474,8 +474,8 @@ class MemberServiceTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
@@ -512,7 +512,7 @@ class MemberServiceTest {
         assertThat(responseDto.getIntroductionUrl()).isEqualTo(member.getIntroductionUrl());
         assertThat(responseDto.getLevel()).isEqualTo(memberScore.getLevel());
         assertThat(responseDto.getParticipationPct()).isEqualTo(memberScore.participationPct());
-        assertThat(responseDto.getTagReviewToNums()).isEqualTo(memberScore.getTagReviewToNums());
+        assertThat(responseDto.getReviewTagToNums()).isEqualTo(memberScore.getReviewTagToNums());
         assertThat(responseDto.getNumTotalEndProject()).isEqualTo(projectMembers.size());
         assertThat(responseDto.getNumCompleteProject()).isEqualTo(
                 (int) projectMembers.stream().filter(projectMember -> !projectMember.getExpelled()).count());

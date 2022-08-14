@@ -80,8 +80,8 @@ public class MemberService {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Member member = memberRepository.save(Member.builder()
                 .account(account)
@@ -154,7 +154,7 @@ public class MemberService {
         responseDto.setIntroductionUrl(member.getIntroductionUrl());
         responseDto.setLevel(memberScore.getLevel());
         responseDto.setParticipationPct(memberScore.participationPct());
-        responseDto.setTagReviewToNums(memberScore.getTagReviewToNums());
+        responseDto.setReviewTagToNums(memberScore.getReviewTagToNums());
         responseDto.setNumTotalEndProject(projectMembers.size());
         responseDto.setNumCompleteProject((int) projectMembers.stream()
                 .filter(projectMember -> !projectMember.getExpelled())

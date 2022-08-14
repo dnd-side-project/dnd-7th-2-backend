@@ -3,6 +3,7 @@ package com.dnd.niceteam.domain.project;
 import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
+import com.dnd.niceteam.domain.code.DayOfWeek;
 import com.dnd.niceteam.domain.code.Personality;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
@@ -73,8 +74,8 @@ class ProjectMemberRepositoryTest {
         MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         Account account = accountRepository.save(Account.builder()
                 .email("test@email.com")
@@ -98,7 +99,7 @@ class ProjectMemberRepositoryTest {
                 .department(department)
                 .professor("교수1")
                 .lectureTimes(Set.of(LectureTime.builder()
-                        .day('월')
+                        .dayOfWeek(DayOfWeek.MON)
                         .startTime(LocalTime.of(1, 30))
                         .build()))
                 .build());
@@ -114,7 +115,7 @@ class ProjectMemberRepositoryTest {
                 .department(department)
                 .professor("교수1")
                 .lectureTimes(Set.of(LectureTime.builder()
-                        .day('월')
+                        .dayOfWeek(DayOfWeek.MON)
                         .startTime(LocalTime.of(1, 30))
                         .build()))
                 .build());

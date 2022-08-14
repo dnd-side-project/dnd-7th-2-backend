@@ -4,11 +4,15 @@ import com.dnd.niceteam.domain.common.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum FieldCategory implements EnumMapperType {
-    CONTEST("공모전"),
-    EXTRA_ACTIVITY("대외활동"),
-    STUDY("스터디"),
-    CLUB("동아리"),
+public enum DayOfWeek implements EnumMapperType {
+
+    MON("월"),
+    TUE("화"),
+    WED("수"),
+    THUR("목"),
+    FRI("금"),
+    SAT("토"),
+    SUN("일"),
     ;
 
     private final String title;
