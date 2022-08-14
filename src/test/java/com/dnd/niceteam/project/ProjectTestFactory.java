@@ -1,14 +1,17 @@
 package com.dnd.niceteam.project;
 
 import com.dnd.niceteam.domain.code.DayOfWeek;
-import com.dnd.niceteam.project.dto.LectureProjectRequest;
+import com.dnd.niceteam.domain.code.Field;
+import com.dnd.niceteam.domain.code.FieldCategory;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
+import com.dnd.niceteam.project.dto.ProjectRequest;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-public class LectureProjectTestFactory {
+public class ProjectTestFactory {
 
     private static final Long ID = 1L;
     private static final String NAME = "테스트 강의 프로젝트";
@@ -17,19 +20,27 @@ public class LectureProjectTestFactory {
     
     private static final String PROFESSOR = "양경호 교수";
 
-    public static LectureProjectRequest.Register createRegisterRequest() {
+    public static ProjectRequest.Register createRegisterRequest(Type type) {
         LectureTimeRequest lectureTimeRequest = new LectureTimeRequest();
         lectureTimeRequest.setDayOfWeek(DayOfWeek.MON);
         lectureTimeRequest.setStartTime(LocalTime.of(8, 0));
 
-        LectureProjectRequest.Register request = new LectureProjectRequest.Register();
+        ProjectRequest.Register request = new ProjectRequest.Register();
 
         request.setName(NAME);
+        request.setType(type);
         request.setStartDate(START_DATE);
         request.setEndDate(END_DATE);
-        request.setProfessor(PROFESSOR);
-        request.setDepartmentId(1L);
-        request.setLectureTimes(List.of(lectureTimeRequest));
+
+        if (type == Type.LECTURE) {
+            request.setProfessor(PROFESSOR);
+            request.setDepartmentId(1L);
+            request.setLectureTimes(List.of(lectureTimeRequest));
+        } else {
+            request.setField(Field.AD_MARKETING);
+            request.setFieldCategory(FieldCategory.STUDY);
+        }
+
         return request;
     }
 
