@@ -1,14 +1,13 @@
 package com.dnd.niceteam.review.dto;
 
+import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.domain.project.ProjectMember;
 import com.dnd.niceteam.domain.review.MemberReview;
-import com.dnd.niceteam.domain.review.MemberReviewTag;
 import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import java.util.List;
 import java.util.Set;
 
 public interface MemberReviewRequest {
@@ -31,22 +30,23 @@ public interface MemberReviewRequest {
         private Integer teamAgainScore;
 
         @NotNull
-        private List<String> tagNames;
+        private Set<ReviewTag> reviewTags;
 
         @NotNull
         private Long projectId;
         @NotNull
         private Long revieweeId;
 
-        public MemberReview toEntity(ProjectMember reviewer, ProjectMember reviewee, Set<MemberReviewTag> memberReviewTags) {
+        public MemberReview toEntity(ProjectMember reviewer, ProjectMember reviewee) {
             return MemberReview.builder()
                     .participationScore(participationScore)
                     .teamAgainScore(teamAgainScore)
                     .reviewer(reviewer)
                     .reviewee(reviewee)
-                    .memberReviewTags(memberReviewTags)
+                    .reviewTags(reviewTags)
                     .build();
         }
+
 
     }
 
