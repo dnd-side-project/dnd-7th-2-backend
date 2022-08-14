@@ -1,5 +1,6 @@
 package com.dnd.niceteam.domain.review;
 
+import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.project.ProjectMember;
 import io.jsonwebtoken.lang.Assert;
@@ -13,6 +14,7 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -44,7 +46,7 @@ public class MemberReview extends BaseEntity {
     @JoinColumn(name = "reviewee_id", nullable = false)
     private ProjectMember reviewee;
 
-    @OneToMany(mappedBy = "memberReview", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "memberReview", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<MemberReviewTag> memberReviewTags = new HashSet<>();
 
     @Builder
@@ -53,12 +55,18 @@ public class MemberReview extends BaseEntity {
             Integer teamAgainScore,
             ProjectMember reviewer,
             ProjectMember reviewee,
-            Set<MemberReviewTag> memberReviewTags
+            Set<ReviewTag> reviewTags
     ) {
 
         Assert.notNull(reviewer, "reviewer는 필수 값입니다.");
         Assert.notNull(reviewee, "reviewee는 필수 값입니다.");
 
+        Set<MemberReviewTag> memberReviewTags = null;
+
+        if (reviewTags != null) {
+            memberReviewTags = reviewTags.stream().map(tag ->
+                    new MemberReviewTag(tag, this)).collect(Collectors.toSet());
+        }
 
         this.participationScore = participationScore;
         this.teamAgainScore = teamAgainScore;

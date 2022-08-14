@@ -7,7 +7,6 @@ import com.dnd.niceteam.domain.project.ProjectMember;
 import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
-import com.dnd.niceteam.domain.review.MemberReviewTag;
 import com.dnd.niceteam.member.util.MemberUtils;
 import com.dnd.niceteam.project.exception.ProjectMemberNotFoundException;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
@@ -17,10 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +31,9 @@ public class MemberReviewService {
     public void addMemberReview(MemberReviewRequest.Add request, User currentUser) {
         ReviewerAndReviewee projectMember = getReviewerAndReviewee(request, currentUser);
 
-        Set<MemberReviewTag> tags = getMemberReviewTags(request.getTagNames());
-
         MemberReview newMemberReview = request.toEntity(
                 projectMember.reviewer,
-                projectMember.reviewee,
-                tags
+                projectMember.reviewee
         );
         memberReviewRepository.save(newMemberReview);
     }
@@ -71,10 +64,6 @@ public class MemberReviewService {
         ProjectMember reviewee = findProjectMemberFrom(project, revieweeId);
 
         return new ReviewerAndReviewee(reviewer, reviewee);
-    }
-
-    private Set<MemberReviewTag> getMemberReviewTags(List<String> tagNames) {
-        return tagNames.stream().map(MemberReviewTag::new).collect(Collectors.toSet());
     }
 
     /* DB 조회 메서드 */
