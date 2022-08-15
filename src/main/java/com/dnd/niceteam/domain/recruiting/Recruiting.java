@@ -6,10 +6,8 @@ import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.member.Member;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.dnd.niceteam.domain.project.Project;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -20,6 +18,7 @@ import java.util.Set;
 
 @Entity
 @Builder
+@Getter
 @SQLDelete(sql = "UPDATE recruiting SET use_yn = false WHERE recruiting_id = ?")
 @Where(clause = "use_yn = true")
 @AllArgsConstructor
@@ -32,9 +31,9 @@ public class Recruiting extends BaseEntity {
     @Column(name = "recruiting_id")
     private Long id;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "project_id", nullable = false)
-//    private Project project;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
@@ -73,8 +72,12 @@ public class Recruiting extends BaseEntity {
     @Column(name = "intro_link")
     private String introLink;
 
+    @Builder.Default
     @ElementCollection
     @CollectionTable(name="recruiting_personality", joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
     private Set<Personality> personalities = new HashSet<>();
 
+    public void plusCommentCount() {
+        this.commentCount += 1;
+    }
 }
