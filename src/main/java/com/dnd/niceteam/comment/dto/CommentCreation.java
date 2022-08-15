@@ -12,8 +12,6 @@ import javax.validation.constraints.Size;
 public interface CommentCreation {
     @Data
     class RequestDto {
-        @NotNull
-        private Long memberId;
         @Size(max = 255)
         @NotNull
         private String content;
