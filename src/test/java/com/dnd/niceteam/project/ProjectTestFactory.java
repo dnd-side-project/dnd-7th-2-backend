@@ -21,9 +21,7 @@ public class ProjectTestFactory {
     private static final String PROFESSOR = "양경호 교수";
 
     public static ProjectRequest.Register createRegisterRequest(Type type) {
-        LectureTimeRequest lectureTimeRequest = new LectureTimeRequest();
-        lectureTimeRequest.setDayOfWeek(DayOfWeek.MON);
-        lectureTimeRequest.setStartTime(LocalTime.of(8, 0));
+        LectureTimeRequest lectureTimeRequest = createLectureTimeRequest(DayOfWeek.MON, LocalTime.of(8, 0));
 
         ProjectRequest.Register request = new ProjectRequest.Register();
 
@@ -40,6 +38,14 @@ public class ProjectTestFactory {
             request.setField(Field.AD_MARKETING);
             request.setFieldCategory(FieldCategory.STUDY);
         }
+
+        return request;
+    }
+
+    public static LectureTimeRequest createLectureTimeRequest(DayOfWeek dayOfWeek, LocalTime startTime) {
+        LectureTimeRequest request = new LectureTimeRequest();
+        request.setDayOfWeek(dayOfWeek);
+        request.setStartTime(startTime);
 
         return request;
     }

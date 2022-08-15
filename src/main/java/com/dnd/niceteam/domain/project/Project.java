@@ -1,11 +1,9 @@
 package com.dnd.niceteam.domain.project;
 
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.member.Member;
-import io.jsonwebtoken.lang.Assert;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -23,6 +21,7 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type")
+@ToString
 public abstract class Project extends BaseEntity {
 
     @Id
@@ -32,6 +31,10 @@ public abstract class Project extends BaseEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Type type;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -47,11 +50,7 @@ public abstract class Project extends BaseEntity {
     @OneToMany(mappedBy = "project")
     private Set<ProjectMember> projectMembers = new HashSet<>();
 
-    protected Project(String name, LocalDate startDate, LocalDate endDate) {
-        Assert.hasText(name, "name은 필수 값입니다.");
-        Assert.notNull(startDate, "startDate는 필수 값입니다.");
-        Assert.notNull(endDate, "endDate는 필수 값입니다.");
-
+    protected Project(@NonNull String name, @NonNull LocalDate startDate, @NonNull LocalDate endDate) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -65,6 +64,18 @@ public abstract class Project extends BaseEntity {
         projectMembers.add(projectMember);
     }
 
+    public void setName(String name) {
+        if (name != null) this.name = name;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        if (startDate != null) this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        if (endDate != null) this.endDate = endDate;
+    }
+
     public void start() {
         this.status = ProjectStatus.IN_PROGRESS;
     }
@@ -72,4 +83,5 @@ public abstract class Project extends BaseEntity {
     public void end() {
         this.status = ProjectStatus.DONE;
     }
+
 }
