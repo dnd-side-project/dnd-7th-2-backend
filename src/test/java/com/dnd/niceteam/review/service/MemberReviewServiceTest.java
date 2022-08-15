@@ -2,10 +2,7 @@ package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
-import com.dnd.niceteam.domain.project.Project;
-import com.dnd.niceteam.domain.project.ProjectMember;
-import com.dnd.niceteam.domain.project.SideProjectRepository;
-import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.project.*;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.review.MemberReviewTestFactory;
@@ -39,7 +36,7 @@ class MemberReviewServiceTest {
     @Mock
     MemberRepository memberRepository;
     @Mock
-    SideProjectRepository sideProjectRepository;
+    ProjectRepository projectRepository;
 
     static final long reviwerId = 1L;
     static final long revieweeId = 2L;
@@ -80,7 +77,7 @@ class MemberReviewServiceTest {
         when(memberRepository.findById(revieweeId)).thenReturn(Optional.of(revieweeMember));
 
         SideProject project = mock(SideProject.class);
-        when(sideProjectRepository.findById(anyLong())).thenReturn(Optional.of(project));
+        when(projectRepository.findById(anyLong())).thenReturn(Optional.of(project));
 
         Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
         when(project.getProjectMembers()).thenReturn(projectMembers);
@@ -103,7 +100,7 @@ class MemberReviewServiceTest {
             when(memberRepository.findById(anyLong())).thenReturn(Optional.of(revieweeMember));
 
             SideProject sideProject = mock(SideProject.class);
-            when(sideProjectRepository.findById(request.getProjectId())).thenReturn(Optional.of(sideProject));
+            when(projectRepository.findById(request.getProjectId())).thenReturn(Optional.of(sideProject));
 
             Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
             when(sideProject.getProjectMembers()).thenReturn(projectMembers);
