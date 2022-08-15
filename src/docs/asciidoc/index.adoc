@@ -15,6 +15,7 @@
 - xref:university.adoc[University (대학교)]
 - xref:member.adoc[Member (회원)]
 - xref:comment.adoc[Comment (댓글 및 답글)]
+- xref:bookmark.adoc[Bookmark (북마크)]
 
 
 == HTTP Method
