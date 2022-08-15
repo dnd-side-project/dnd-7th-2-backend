@@ -66,8 +66,6 @@ public interface ProjectRequest {
     @Data
     class Update {
 
-        private Type type;
-
         private String name;
         private LocalDate startDate;
         private LocalDate endDate;

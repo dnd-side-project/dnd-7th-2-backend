@@ -1,10 +1,7 @@
 package com.dnd.niceteam.domain.project;
 
 import com.dnd.niceteam.domain.department.Department;
-import io.jsonwebtoken.lang.Assert;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -16,6 +13,7 @@ import java.util.Set;
 @Table(name = "lecture_project")
 @NoArgsConstructor
 @DiscriminatorValue("LECTURE")
+@ToString(callSuper = true)
 public class LectureProject extends Project {
 
     @Column(length = 50, nullable = false)
@@ -37,17 +35,26 @@ public class LectureProject extends Project {
             String name,
             LocalDate startDate,
             LocalDate endDate,
-            String professor,
-            Department department,
-            Set<LectureTime> lectureTimes
+            @NonNull String professor,
+            @NonNull Department department,
+            @NonNull Set<LectureTime> lectureTimes
     ) {
         super(name, startDate, endDate);
-        Assert.hasText(professor, "professor은 필수 값입니다.");
-        Assert.notNull(department, "department는 필수 값입니다.");
-        Assert.notEmpty(lectureTimes, "lectureTimes는 필수 값입니다.");
 
         this.professor = professor;
         this.department = department;
         this.lectureTimes = lectureTimes;
+    }
+
+    public void setProfessor(String professor) {
+        if (professor != null) this.professor = professor;
+    }
+
+    public void setDepartment(Department department) {
+        if (department != null) this.department = department;
+    }
+
+    public void setLectureTimes(Set<LectureTime> lectureTimes) {
+        if (lectureTimes != null) this.lectureTimes = lectureTimes;
     }
 }

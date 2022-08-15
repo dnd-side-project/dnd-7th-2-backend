@@ -2,9 +2,7 @@ package com.dnd.niceteam.domain.project;
 
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,6 +12,7 @@ import java.time.LocalDate;
 @Table(name = "side_project")
 @NoArgsConstructor
 @DiscriminatorValue("SIDE")
+@ToString(callSuper = true)
 public class SideProject extends Project {
 
     @Column(name = "field", length = 25, nullable = false)
@@ -29,12 +28,20 @@ public class SideProject extends Project {
             String name,
             LocalDate startDate,
             LocalDate endDate,
-            Field field,
-            FieldCategory fieldCategory
+            @NonNull Field field,
+            @NonNull FieldCategory fieldCategory
     ) {
         super(name, startDate, endDate);
         this.field = field;
         this.fieldCategory = fieldCategory;
+    }
+
+    public void setField(Field field) {
+        if (field != null) this.field = field;
+    }
+
+    public void setFieldCategory(FieldCategory fieldCategory) {
+        if (fieldCategory != null) this.fieldCategory = fieldCategory;
     }
 
 }
