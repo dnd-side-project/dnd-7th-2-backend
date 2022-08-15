@@ -17,6 +17,7 @@
 - xref:recruiting.adoc[Recruiting (모집글)]
 - xref:applicant.adoc[Applicant (지원자)]
 - xref:comment.adoc[Comment (댓글 및 답글)]
+- xref:bookmark.adoc[Bookmark (북마크)]
 
 
 == HTTP Method
