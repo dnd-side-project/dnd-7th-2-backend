@@ -13,6 +13,8 @@ public enum Domain {
     PROJECT,
     PROJECT_MEMBER,
 
-    RECRUITING
-    ;
+    RECRUITING,
+    COMMENT,
+    APPLICANT
+
 }
