@@ -17,6 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.dnd.niceteam.comment.CommentTestFactory.RECRUITING_ID;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -46,7 +47,7 @@ class CommentControllerTest {
         //given
         CommentCreation.RequestDto request = CommentTestFactory.createCommentRequest();
         CommentCreation.ResponseDto response = CommentTestFactory.createCommentResponse();
-        when(commentService.addComment(RECRUITING_ID, request)).thenReturn(response);
+        when(commentService.addComment(anyLong(), anyString(), eq(request))).thenReturn(response);
 
         //then
         mockMvc.perform(
@@ -61,7 +62,6 @@ class CommentControllerTest {
                 .andDo(
                         document("comment-create",
                                 requestFields(
-                                        fieldWithPath("memberId").description("회원 식별자 ID"),
                                         fieldWithPath("content").description("댓글 내용")
                                                 .attributes(key("constraint").value("최대 255자")),
                                         fieldWithPath("parentId").description("모댓글 ID")
