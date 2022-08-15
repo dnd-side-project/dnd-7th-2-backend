@@ -2,6 +2,7 @@ package com.dnd.niceteam.project.dto;
 
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectStatus;
@@ -10,6 +11,8 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public interface ProjectResponse {
 
@@ -20,14 +23,17 @@ public interface ProjectResponse {
 
         // Project 상태
         private String name;
-        private ProjectStatus status;
+        private Type type;
 
         private LocalDate startDate;
         private LocalDate endDate;
 
+        private ProjectStatus status;
+
         // Lecture Project 상태
         private String professor;
         private DepartmentResponse department;
+        private List<LectureTimeResponse> lectureTimes;
 
         // Side Project
         private Field field;
@@ -39,18 +45,26 @@ public interface ProjectResponse {
         private String createdBy;
         private String lastModifiedBy;
 
-        public static ProjectResponse.Detail from(LectureProject lecture) {
-            ProjectResponse.Detail dto = setProjectCommonDetails(lecture);
+        public static Detail from(LectureProject lecture) {
+            Detail dto = new Detail();
+
+            List<LectureTimeResponse> lectureTimes = lecture.getLectureTimes().stream()
+                    .map(LectureTimeResponse::from).collect(Collectors.toList());
+
+            setProjectCommonDetails(lecture, dto);
 
             // Lecture Project 상태
             dto.setProfessor(lecture.getProfessor());
             dto.setDepartment(DepartmentResponse.from(lecture.getDepartment()));
+            dto.setLectureTimes(lectureTimes);
 
             return dto;
         }
 
-        public static ProjectResponse.Detail from(SideProject side) {
-            ProjectResponse.Detail dto = setProjectCommonDetails(side);
+        public static Detail from(SideProject side) {
+            Detail dto = new Detail();
+
+            setProjectCommonDetails(side, dto);
 
             // Side Project 상태
             dto.setField(side.getField());
@@ -59,12 +73,12 @@ public interface ProjectResponse {
             return dto;
         }
 
-        private static ProjectResponse.Detail setProjectCommonDetails(Project project) {
-            ProjectResponse.Detail dto = new ProjectResponse.Detail();
+        private static void setProjectCommonDetails(Project project, Detail dto) {
             dto.setId(project.getId());
 
             // Project 상태
             dto.setName(project.getName());
+            dto.setType(project.getType());
             dto.setStatus(project.getStatus());
 
             dto.setStartDate(project.getStartDate());
@@ -75,8 +89,74 @@ public interface ProjectResponse {
             dto.setLastModifiedDate(project.getLastModifiedDate());
             dto.setCreatedBy(project.getCreatedBy());
             dto.setLastModifiedBy(project.getLastModifiedBy());
+        }
+
+    }
+
+    @Data
+    class ListItem {
+
+        private Long id;
+
+        // Project 상태
+        private String name;
+        private Type type;
+
+        private LocalDate startDate;
+        private LocalDate endDate;
+
+        private ProjectStatus status;
+
+        private Integer memberCount;
+
+        // Lecture Project 상태
+        private String professor;
+        private DepartmentResponse department;
+        private List<LectureTimeResponse> lectureTimes;
+
+        // Side Project
+        private Field field;
+        private FieldCategory fieldCategory;
+
+        public static ListItem of(Project project) {
+            ListItem dto = new ListItem();
+
+            dto.setId(project.getId());
+
+            // Project 상태
+            dto.setName(project.getName());
+            dto.setType(project.getType());
+            dto.setStatus(project.getStatus());
+
+            dto.setStartDate(project.getStartDate());
+            dto.setEndDate(project.getEndDate());
+
+            // 계산된 값
+            dto.setMemberCount(project.getMemberCount());
+
+            if (project.getType() == Type.LECTURE) {
+                setLectureDetails((LectureProject) project, dto);
+            } else {
+                setSideDetails((SideProject) project, dto);
+            }
 
             return dto;
+        }
+
+        public static void setLectureDetails(LectureProject lecture, ListItem dto) {
+            List<LectureTimeResponse> lectureTimes = lecture.getLectureTimes().stream()
+                    .map(LectureTimeResponse::from).collect(Collectors.toList());
+
+            // Lecture Project 상태
+            dto.setProfessor(lecture.getProfessor());
+            dto.setDepartment(DepartmentResponse.from(lecture.getDepartment()));
+            dto.setLectureTimes(lectureTimes);
+        }
+
+        public static void setSideDetails(SideProject side, ListItem dto) {
+            // Side Project 상태
+            dto.setField(side.getField());
+            dto.setFieldCategory(side.getFieldCategory());
         }
 
     }

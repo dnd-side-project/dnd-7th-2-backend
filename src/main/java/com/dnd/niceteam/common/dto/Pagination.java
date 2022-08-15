@@ -16,9 +16,9 @@ public class Pagination<T> {
 
     private final int perSize;
 
-    private final int totalCount;
+    private final long totalCount;
 
-    private final int totalPages;
+    private final long totalPages;
 
     private final boolean prev;
 
@@ -27,7 +27,7 @@ public class Pagination<T> {
     private final List<T> contents;
 
     @Builder
-    private Pagination(int page, int perSize, int totalCount, List<T> contents) {
+    private Pagination(int page, int perSize, long totalCount, List<T> contents) {
         this.page = page;
         this.perSize = perSize;
         this.totalCount = totalCount;
@@ -35,8 +35,8 @@ public class Pagination<T> {
         this.contents = Objects.requireNonNullElseGet(contents, ArrayList::new);
 
         // 연산된 값
-        int pageWithFullContent = totalCount / perSize;
-        int pageWithLackContent = totalCount % perSize == 0 ? 0 : 1;
+        long pageWithFullContent = totalCount / perSize;
+        long pageWithLackContent = totalCount % perSize == 0 ? 0 : 1;
         this.totalPages = pageWithFullContent + pageWithLackContent;
 
         this.prev = page > 1;

@@ -46,9 +46,12 @@ public abstract class Project extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status = ProjectStatus.NOT_STARTED;
 
+    @Column(name = "member_count", nullable = false)
+    private Integer memberCount = 0;
+
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "project")
-    private Set<ProjectMember> projectMembers = new HashSet<>();
+    private final Set<ProjectMember> projectMembers = new HashSet<>();
 
     protected Project(@NonNull String name, @NonNull LocalDate startDate, @NonNull LocalDate endDate) {
         this.name = name;
@@ -62,6 +65,7 @@ public abstract class Project extends BaseEntity {
                 .member(member)
                 .build();
         projectMembers.add(projectMember);
+        memberCount += 1;
     }
 
     public void setName(String name) {
