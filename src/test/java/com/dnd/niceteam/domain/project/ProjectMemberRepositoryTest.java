@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectMemberRepositoryTest {
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private LectureProjectRepository lectureProjectRepository;
 
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
@@ -92,7 +92,7 @@ class ProjectMemberRepositoryTest {
                 .introduction("")
                 .introductionUrl("")
                 .build());
-        LectureProject doneProject = (LectureProject) projectRepository.save(LectureProject.builder()
+        LectureProject doneProject = lectureProjectRepository.save(LectureProject.builder()
                 .name("테스트 프로젝트 1")
                 .startDate(LocalDate.of(2022, 3, 2))
                 .endDate(LocalDate.of(2022, 6, 30))
@@ -108,7 +108,7 @@ class ProjectMemberRepositoryTest {
                 .project(doneProject)
                 .member(member)
                 .build());
-        LectureProject notStartedProject = (LectureProject) projectRepository.save(LectureProject.builder()
+        LectureProject notStartedProject = lectureProjectRepository.save(LectureProject.builder()
                 .name("테스트 프로젝트 2")
                 .startDate(LocalDate.of(2022, 3, 2))
                 .endDate(LocalDate.of(2022, 6, 30))

@@ -4,7 +4,7 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectMember;
-import com.dnd.niceteam.domain.project.ProjectRepository;
+import com.dnd.niceteam.domain.project.SideProjectRepository;
 import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
@@ -39,7 +39,7 @@ class MemberReviewServiceTest {
     @Mock
     MemberRepository memberRepository;
     @Mock
-    ProjectRepository<Project> projectRepository;
+    SideProjectRepository sideProjectRepository;
 
     static final long reviwerId = 1L;
     static final long revieweeId = 2L;
@@ -80,7 +80,7 @@ class MemberReviewServiceTest {
         when(memberRepository.findById(revieweeId)).thenReturn(Optional.of(revieweeMember));
 
         SideProject project = mock(SideProject.class);
-        when(projectRepository.findById(anyLong())).thenReturn(Optional.of(project));
+        when(sideProjectRepository.findById(anyLong())).thenReturn(Optional.of(project));
 
         Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
         when(project.getProjectMembers()).thenReturn(projectMembers);
@@ -102,11 +102,11 @@ class MemberReviewServiceTest {
             when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(reviewerMember));
             when(memberRepository.findById(anyLong())).thenReturn(Optional.of(revieweeMember));
 
-            Project project = mock(Project.class);
-            when(projectRepository.findById(request.getProjectId())).thenReturn(Optional.of(project));
+            SideProject sideProject = mock(SideProject.class);
+            when(sideProjectRepository.findById(request.getProjectId())).thenReturn(Optional.of(sideProject));
 
             Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
-            when(project.getProjectMembers()).thenReturn(projectMembers);
+            when(sideProject.getProjectMembers()).thenReturn(projectMembers);
 
             MemberReview memberReview = mock(MemberReview.class);
             mockedMemberReview.when(() -> MemberReview.skip(reviewer, reviewee)).thenReturn(memberReview);
