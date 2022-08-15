@@ -1,4 +1,4 @@
-package com.dnd.niceteam.comment.service;
+package com.dnd.niceteam.comment;
 
 import com.dnd.niceteam.comment.dto.CommentCreation;
 
@@ -22,4 +22,5 @@ public class CommentTestFactory {
         dto.setId(COMMENT_ID);
         return dto;
     }
+
 }

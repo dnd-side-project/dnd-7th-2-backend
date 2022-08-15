@@ -68,7 +68,7 @@ class MemberReviewControllerTest {
                             requestFields(
                                     fieldWithPath("participationScore").description("참여도 점수"),
                                     fieldWithPath("teamAgainScore").description("재팀원 희망 점수"),
-                                    fieldWithPath("tagNames").description("후기 태그 목록"),
+                                    fieldWithPath("reviewTags").description("후기 태그 목록"),
                                     fieldWithPath("projectId").description("프로젝트 식별자"),
                                     fieldWithPath("revieweeId").description("피평가자 아이디")
                             )

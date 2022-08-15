@@ -1,5 +1,6 @@
 package com.dnd.niceteam.domain.review;
 
+import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,18 +28,15 @@ public class MemberReviewTag extends BaseEntity {
 
     @Column(name = "tag", nullable = false)
     @Enumerated(EnumType.STRING)
-    private MemberReviewTagName tag;
+    private ReviewTag tag;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_review_id", nullable = false)
     private MemberReview memberReview;
 
-    public MemberReviewTag(String tagName) {
-        this.tag = MemberReviewTagName.getByKor(tagName);
-    }
-
-    public MemberReviewTag(MemberReviewTagName tag) {
+    public MemberReviewTag(ReviewTag tag, MemberReview memberReview) {
         this.tag = tag;
+        this.memberReview = memberReview;
     }
 
     @Override
