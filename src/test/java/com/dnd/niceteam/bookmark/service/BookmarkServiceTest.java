@@ -5,6 +5,7 @@ import com.dnd.niceteam.comment.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
+import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -102,5 +104,23 @@ class BookmarkServiceTest {
         // expected
         assertThatThrownBy(() -> bookmarkService.createBookmark("test@email.com", 1L))
                 .isInstanceOf(RecruitingNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("북마크 생성 - 이미 존재하는 북마크")
+    void createBookmark_BookmarkExisting() {
+        // given
+        given(mockMemberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(mock(Member.class)));
+
+        given(mockRecruitingRepository.findById(anyLong()))
+                .willReturn(Optional.of(mock(Recruiting.class)));
+
+        given(mockBookmarkRepository.existsByMemberAndRecruiting(any(Member.class), any(Recruiting.class)))
+                .willReturn(true);
+
+        // expected
+        assertThatThrownBy(() -> bookmarkService.createBookmark("test@email.com", 1L))
+                .isInstanceOf(BookmarkExistingException.class);
     }
 }
