@@ -6,6 +6,7 @@ import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.LectureTime;
+import com.dnd.niceteam.domain.project.ProjectStatus;
 import com.dnd.niceteam.domain.project.SideProject;
 import lombok.Data;
 
@@ -61,5 +62,26 @@ public interface ProjectRequest {
         }
     }
 
+
+    @Data
+    class Update {
+
+        private Type type;
+
+        private String name;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private ProjectStatus status;
+
+        // Lecture Project
+        private String professor;
+        private Long departmentId;
+        private List<LectureTimeRequest> lectureTimes;
+
+        // Side Project
+        private Field field;
+        private FieldCategory fieldCategory;
+
+    }
 
 }
