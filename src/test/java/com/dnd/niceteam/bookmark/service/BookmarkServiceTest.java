@@ -16,6 +16,7 @@ import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 
@@ -155,5 +157,21 @@ class BookmarkServiceTest {
         // expected
         assertThatThrownBy(() -> bookmarkService.deleteBookmark(1L))
                 .isInstanceOf(BookmarkNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("북마크 소유 여부 확인")
+    void isBookmarkOwnedByMember() {
+        // given
+        ArgumentCaptor<Long> bookmarkIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+
+        // when
+        bookmarkService.isBookmarkOwnedByMember(1L, "test@email.com");
+
+        // then
+        then(mockBookmarkRepository).should().existsByIdAndEmail(bookmarkIdCaptor.capture(), emailCaptor.capture());
+        assertThat(bookmarkIdCaptor.getValue()).isEqualTo(1L);
+        assertThat(emailCaptor.getValue()).isEqualTo("test@email.com");
     }
 }
