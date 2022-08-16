@@ -1,10 +1,12 @@
 package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
+import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
+import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
@@ -123,5 +125,35 @@ class BookmarkServiceTest {
         // expected
         assertThatThrownBy(() -> bookmarkService.createBookmark("test@email.com", 1L))
                 .isInstanceOf(BookmarkExistingException.class);
+    }
+
+    @Test
+    @DisplayName("북마크 삭제")
+    void deleteBookmark() {
+        // given
+        Bookmark mockBookmark = mock(Bookmark.class);
+        long givenBookmarkId = 1L;
+        given(mockBookmark.getId()).willReturn(givenBookmarkId);
+
+        given(mockBookmarkRepository.findById(givenBookmarkId))
+                .willReturn(Optional.of(mockBookmark));
+
+        // when
+        BookmarkDeletion.ResponseDto responseDto = bookmarkService.deleteBookmark(givenBookmarkId);
+
+        // then
+        assertThat(responseDto.getId()).isEqualTo(givenBookmarkId);
+    }
+
+    @Test
+    @DisplayName("북마크 삭제 - 존재하지 않는 북마크")
+    void deleteBookmark_BookmarkNotFound() {
+        // given
+        given(mockBookmarkRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // expected
+        assertThatThrownBy(() -> bookmarkService.deleteBookmark(1L))
+                .isInstanceOf(BookmarkNotFoundException.class);
     }
 }
