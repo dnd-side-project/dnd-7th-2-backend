@@ -37,6 +37,7 @@ public class BookmarkService {
                 .member(member)
                 .recruiting(recruiting)
                 .build());
+        recruiting.plusBookmarkCount();
         BookmarkCreation.ResponseDto responseDto = new BookmarkCreation.ResponseDto();
         responseDto.setId(bookmark.getId());
         return responseDto;

@@ -54,7 +54,7 @@ class BookmarkServiceTest {
                 .willReturn(Optional.of(givenMember));
 
         long givenRecruitingId = 1L;
-        Recruiting givenRecruiting = Recruiting.builder().id(givenRecruitingId).build();
+        Recruiting givenRecruiting = Recruiting.builder().id(givenRecruitingId).bookmarkCount(0).build();
         given(mockRecruitingRepository.findById(givenRecruitingId))
                 .willReturn(Optional.of(givenRecruiting));
 
@@ -73,6 +73,7 @@ class BookmarkServiceTest {
 
         // then
         assertThat(responseDto.getId()).isEqualTo(givenBookmarkId);
+        assertThat(givenRecruiting.getBookmarkCount()).isEqualTo(1);
     }
 
     @Test
