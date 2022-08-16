@@ -1,9 +1,11 @@
 package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
+import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
+import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
@@ -43,6 +45,15 @@ public class BookmarkService {
         return responseDto;
     }
 
+    @Transactional
+    public BookmarkDeletion.ResponseDto deleteBookmark(long bookmarkId) {
+        Bookmark bookmark = getBookmarkById(bookmarkId);
+        bookmarkRepository.delete(bookmark);
+        BookmarkDeletion.ResponseDto responseDto = new BookmarkDeletion.ResponseDto();
+        responseDto.setId(bookmark.getId());
+        return responseDto;
+    }
+
     private Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberNotFoundException("email = " + email));
@@ -51,5 +62,10 @@ public class BookmarkService {
     private Recruiting getRecruitingById(long recruitingId) {
         return recruitingRepository.findById(recruitingId)
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+    }
+
+    private Bookmark getBookmarkById(long bookmarkId) {
+        return bookmarkRepository.findById(bookmarkId)
+                .orElseThrow(() -> new BookmarkNotFoundException("bookmarkId = " + bookmarkId));
     }
 }
