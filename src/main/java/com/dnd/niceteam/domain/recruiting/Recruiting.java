@@ -13,6 +13,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class Recruiting extends BaseEntity {
     private String content;
 
     @Column(name = "recruiting_member_count", nullable = false)
-    private int recruitingMemberCount;
+    private Integer recruitingMemberCount;
 
     @Column(name = "recruiting_type", nullable = false)
     private Type recruitingType;
@@ -54,8 +55,12 @@ public class Recruiting extends BaseEntity {
     @Column(name = "activity_area", length = 10, nullable = false)
     private ActivityArea activityArea;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private ProgressStatus status;
+    private ProgressStatus status = ProgressStatus.IN_PROGRESS;
+
+    @Column(name = "recruiting_end_date")
+    private LocalDate recruitingEndDate;
 
     @Column(name = "comment_count", nullable = false)
     private Integer commentCount;
@@ -67,14 +72,16 @@ public class Recruiting extends BaseEntity {
     private Integer poolUpCount;
 
     @Column(name = "pool_up_date")
-    private LocalDate poolUpDate;
+    private LocalDateTime poolUpDate;
 
     @Column(name = "intro_link")
     private String introLink;
 
     @Builder.Default
     @ElementCollection
-    @CollectionTable(name="recruiting_personality", joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
+    @CollectionTable(
+            name="recruiting_personality",
+            joinColumns = @JoinColumn(name= "recruiting_id"))
     private Set<Personality> personalities = new HashSet<>();
 
     public void plusCommentCount() {
