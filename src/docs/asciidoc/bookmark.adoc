@@ -1,0 +1,15 @@
+= Bookmark
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[bookmark-create]]
+== 북마크 생성 API
+
+operation::bookmark-create[snippets='http-request,path-parameters,http-response,response-fields-data']
