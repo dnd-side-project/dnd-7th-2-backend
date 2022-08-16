@@ -4,10 +4,7 @@ import com.dnd.niceteam.applicant.dto.ApplicantCreation;
 import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
-import com.dnd.niceteam.domain.code.ActivityArea;
-import com.dnd.niceteam.domain.code.Personality;
-import com.dnd.niceteam.domain.code.ProgressStatus;
-import com.dnd.niceteam.domain.code.Type;
+import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.member.Member;
@@ -96,8 +93,8 @@ class ApplicantServiceTest {
         memberScore = memberScoreRepository.save(MemberScore.builder()
                 .level(1)
                 .reviewNum(0)
-                .participationSum(0)
-                .rematchingSum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
                 .build());
         account = accountRepository.save(Account.builder()
                 .email("test@email.com")
@@ -120,7 +117,7 @@ class ApplicantServiceTest {
                 .department(department)
                 .startDate(LocalDate.of(2022, 7, 4))
                 .endDate(LocalDate.of(2022, 8, 28))
-                .lectureTimes(Set.of(LectureTime.builder().day('월').startTime(LocalTime.of(9, 0)).build()))
+                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9, 0)).build()))
                 .professor("test-professor")
                 .build()
         );

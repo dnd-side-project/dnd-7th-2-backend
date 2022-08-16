@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
 @Builder
 @Getter
 @SQLDelete(sql = "UPDATE recruiting SET use_yn = false WHERE recruiting_id = ?")
