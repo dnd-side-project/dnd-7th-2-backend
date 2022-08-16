@@ -54,6 +54,10 @@ public class BookmarkService {
         return responseDto;
     }
 
+    public boolean isBookmarkOwnedByMember(long bookmarkId, String username) {
+        return bookmarkRepository.existsByIdAndEmail(bookmarkId, username);
+    }
+
     private Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberNotFoundException("email = " + email));
