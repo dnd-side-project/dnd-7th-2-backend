@@ -9,8 +9,8 @@ import com.dnd.niceteam.domain.recruiting.Applicant;
 import com.dnd.niceteam.domain.recruiting.ApplicantRepository;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
-import com.dnd.niceteam.recruiting.exception.ApplyImpossibleRecruitingStatusException;
-import com.dnd.niceteam.recruiting.exception.RecruitingNotFoundException;
+import com.dnd.niceteam.domain.recruiting.exception.ApplyImpossibleRecruitingException;
+import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class ApplicantService {
         Recruiting recruiting = getRecruitingtEntity(recruitingId);
 
         if (isApplyImpossible(recruiting.getStatus())) {
-            throw new ApplyImpossibleRecruitingStatusException("Recruiting Status = " + recruiting.getStatus());
+            throw new ApplyImpossibleRecruitingException("Recruiting Status = " + recruiting.getStatus());
         }
 
         Applicant savedApplicant = applicantRepository.save(Applicant.builder()
