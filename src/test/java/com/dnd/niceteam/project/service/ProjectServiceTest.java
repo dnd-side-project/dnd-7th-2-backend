@@ -5,15 +5,14 @@ import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.LectureProjectRepository;
-import com.dnd.niceteam.domain.project.SideProjectRepository;
 import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.project.SideProjectRepository;
 import com.dnd.niceteam.error.exception.ErrorCode;
 import com.dnd.niceteam.project.ProjectTestFactory;
 import com.dnd.niceteam.project.dto.DepartmentResponse;
 import com.dnd.niceteam.project.dto.ProjectRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.exception.InvalidProjectSchedule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,16 +37,11 @@ class ProjectServiceTest {
     ProjectService projectService;
 
     @Mock
-    LectureProjectRepository lectureSideProjectRepository;
+    LectureProjectRepository lectureProjectRepository;
     @Mock
     SideProjectRepository sideProjectRepository;
     @Mock
     DepartmentRepository departmentRepository;
-
-    @BeforeEach
-    void setUp() {
-
-    }
 
     @DisplayName("신규 강의 프로젝트 등록")
     @Test
@@ -59,7 +53,7 @@ class ProjectServiceTest {
         when(departmentRepository.findById(anyLong())).thenReturn(Optional.of(department));
 
         LectureProject newLectureProject = request.toLectureProject(department);
-        when(lectureSideProjectRepository.save(any(LectureProject.class))).thenReturn(newLectureProject);
+        when(lectureProjectRepository.save(any(LectureProject.class))).thenReturn(newLectureProject);
 
         try (MockedStatic<DepartmentResponse> mockedDepartmentResponse = mockStatic(DepartmentResponse.class, RETURNS_DEEP_STUBS)) {
             DepartmentResponse departmentResponse = mock(DepartmentResponse.class, RETURNS_DEEP_STUBS);

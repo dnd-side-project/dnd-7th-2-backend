@@ -4,24 +4,26 @@ import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.department.exception.DepartmentNotFoundException;
-import com.dnd.niceteam.domain.project.LectureProject;
-import com.dnd.niceteam.domain.project.LectureProjectRepository;
-import com.dnd.niceteam.domain.project.SideProject;
-import com.dnd.niceteam.domain.project.SideProjectRepository;
+import com.dnd.niceteam.domain.project.*;
+import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import com.dnd.niceteam.project.dto.ProjectRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.exception.InvalidProjectSchedule;
+import com.dnd.niceteam.project.exception.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService {
 
+    private final ProjectRepository projectRepository;
     private final LectureProjectRepository lectureSideProjectRepository;
     private final SideProjectRepository sideProjectRepository;
     private final DepartmentRepository departmentRepository;
@@ -39,6 +41,13 @@ public class ProjectService {
         return saveProject(request);
     }
 
+    @Transactional
+    public void modifyProject(Long projectId, ProjectRequest.Update request) {
+        Project project = findProject(projectId);
+
+        modifyProject(project, request);
+    }
+
     /* private 메서드 */
     private ProjectResponse.Detail saveProject(ProjectRequest.Register request) {
         if (request.getType() == Type.LECTURE) {
@@ -46,6 +55,30 @@ public class ProjectService {
         } else {
             return ProjectResponse.Detail.from(saveSideProject(request));
         }
+    }
+
+    private void modifyProject(Project project, ProjectRequest.Update request) {
+        project.setName(request.getName());
+        project.setStartDate(request.getStartDate());
+        project.setEndDate(request.getEndDate());
+
+        if (project.getType() == Type.LECTURE)      modifyLectureProject((LectureProject) project, request);
+        else                                        modifySideProject((SideProject) project, request);
+    }
+
+    private void modifyLectureProject(LectureProject lectureProject, ProjectRequest.Update request) {
+        Department newDepartment =          departmentRepository.getReferenceById(request.getDepartmentId());
+        Set<LectureTime> lectureTimeSet =   request.getLectureTimes().stream()
+                                                .map(LectureTimeRequest::toEntity).collect(Collectors.toSet());
+
+        lectureProject.setDepartment(newDepartment);
+        lectureProject.setProfessor(request.getProfessor());
+        lectureProject.setLectureTimes(lectureTimeSet);
+    }
+
+    private void modifySideProject(SideProject sideProject, ProjectRequest.Update request) {
+        sideProject.setField(request.getField());
+        sideProject.setFieldCategory(request.getFieldCategory());
     }
 
     /* JPA 메서드 */
@@ -60,6 +93,11 @@ public class ProjectService {
     private SideProject saveSideProject(ProjectRequest.Register request) {
         SideProject sideProject = request.toSideProject();
         return sideProjectRepository.save(sideProject);
+    }
+
+    private Project findProject(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
     }
 
 }

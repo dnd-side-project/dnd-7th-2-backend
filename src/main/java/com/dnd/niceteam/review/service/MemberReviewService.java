@@ -4,7 +4,7 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectMember;
-import com.dnd.niceteam.domain.project.SideProjectRepository;
+import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
 import com.dnd.niceteam.member.util.MemberUtils;
@@ -25,7 +25,7 @@ public class MemberReviewService {
 
     private final MemberReviewRepository memberReviewRepository;
     private final MemberRepository memberRepository;
-    private final SideProjectRepository sideProjectRepository;
+    private final ProjectRepository projectRepository;
 
     @Transactional
     public void addMemberReview(MemberReviewRequest.Add request, User currentUser) {
@@ -69,7 +69,7 @@ public class MemberReviewService {
     /* DB 조회 메서드 */
     // DB 조회 : Project
     private Project findProjectById(Long projectId) {
-        return sideProjectRepository.findById(projectId)
+        return projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
     }
 

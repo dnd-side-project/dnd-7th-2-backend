@@ -42,11 +42,14 @@ public enum ErrorCode {
     // Recruiting
     INVALID_RECRUITING_TYPE(RECRUITING, SC_BAD_REQUEST, "모집글 타입이 유효하지 않습니다."),
     RECRUITING_NOT_FOUND(RECRUITING, SC_NOT_FOUND, "존재하지 않는 모집글입니다."),
-    APPLY_IMPOSSIBLE_RECRUITING_STATUS(RECRUITING, SC_BAD_REQUEST, "지원 불가능한 모집글입니다."),
+    APPLY_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "지원 불가능한 모집글입니다."),
+    APPLY_CANCEL_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "지원 취소가 불가능한 모집글입니다."),
 
     COMMENT_NOT_FOUND(COMMENT, SC_NOT_FOUND, "존재하지 않는 댓글입니다."),
     
     BOOKMARK_EXISTING(BOOKMARK, SC_BAD_REQUEST, "이미 존재하는 북마크입니다."),
+
+    APPLY_ALREADY_ACCEPTED(APPLICANT, SC_BAD_REQUEST, "이미 수락된 지원입니다."),
     ;
 
     private final Domain domain;
