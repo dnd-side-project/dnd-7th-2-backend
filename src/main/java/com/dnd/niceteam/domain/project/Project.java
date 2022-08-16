@@ -32,7 +32,7 @@ public abstract class Project extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private Type type;
 
