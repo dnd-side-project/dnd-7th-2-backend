@@ -84,4 +84,8 @@ public class Recruiting extends BaseEntity {
     public void plusBookmarkCount() {
         this.bookmarkCount += 1;
     }
+
+    public void minusBookmarkCount() {
+        this.bookmarkCount -= 1;
+    }
 }

@@ -134,17 +134,21 @@ class BookmarkServiceTest {
     void deleteBookmark() {
         // given
         Bookmark mockBookmark = mock(Bookmark.class);
+        Recruiting mockRecruiting = mock(Recruiting.class);
         long givenBookmarkId = 1L;
         given(mockBookmark.getId()).willReturn(givenBookmarkId);
+        given(mockBookmark.getRecruiting()).willReturn(mockRecruiting);
 
         given(mockBookmarkRepository.findById(givenBookmarkId))
                 .willReturn(Optional.of(mockBookmark));
+
 
         // when
         BookmarkDeletion.ResponseDto responseDto = bookmarkService.deleteBookmark(givenBookmarkId);
 
         // then
         assertThat(responseDto.getId()).isEqualTo(givenBookmarkId);
+        then(mockRecruiting).should().minusBookmarkCount();
     }
 
     @Test

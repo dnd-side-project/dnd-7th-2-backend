@@ -48,6 +48,8 @@ public class BookmarkService {
     @Transactional
     public BookmarkDeletion.ResponseDto deleteBookmark(long bookmarkId) {
         Bookmark bookmark = getBookmarkById(bookmarkId);
+        Recruiting recruiting = bookmark.getRecruiting();
+        recruiting.minusBookmarkCount();
         bookmarkRepository.delete(bookmark);
         BookmarkDeletion.ResponseDto responseDto = new BookmarkDeletion.ResponseDto();
         responseDto.setId(bookmark.getId());
