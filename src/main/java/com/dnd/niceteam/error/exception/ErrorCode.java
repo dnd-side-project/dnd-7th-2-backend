@@ -49,6 +49,7 @@ public enum ErrorCode {
 
     BOOKMARK_NOT_FOUND(BOOKMARK, SC_NOT_FOUND, "존재하지 않는 북마크입니다."),
     BOOKMARK_EXISTING(BOOKMARK, SC_BAD_REQUEST, "이미 존재하는 북마크입니다."),
+    BOOKMARK_NOT_OWNED(BOOKMARK, SC_BAD_REQUEST, "소유하지 않은 북마크입니다."),
 
     APPLY_ALREADY_ACCEPTED(APPLICANT, SC_BAD_REQUEST, "이미 수락된 지원입니다."),
     ;
