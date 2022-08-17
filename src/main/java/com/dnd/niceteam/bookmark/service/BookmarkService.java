@@ -4,6 +4,7 @@ import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.comment.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
+import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
@@ -28,6 +29,10 @@ public class BookmarkService {
     public BookmarkCreation.ResponseDto createBookmark(String username, long recruitingId) {
         Member member = getMemberByEmail(username);
         Recruiting recruiting = getRecruitingById(recruitingId);
+        if (bookmarkRepository.existsByMemberAndRecruiting(member, recruiting)) {
+            throw new BookmarkExistingException(String.format(
+                    "memberId = %d, recruitingId = %d", member.getId(), recruiting.getId()));
+        }
         Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
                 .member(member)
                 .recruiting(recruiting)

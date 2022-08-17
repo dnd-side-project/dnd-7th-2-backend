@@ -15,6 +15,8 @@ public enum Domain {
 
     RECRUITING,
     COMMENT,
-    APPLICANT
+    APPLICANT,
 
+    BOOKMARK,
+    ;
 }
