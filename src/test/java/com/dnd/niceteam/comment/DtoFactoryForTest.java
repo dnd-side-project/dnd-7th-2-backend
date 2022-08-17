@@ -3,7 +3,9 @@ package com.dnd.niceteam.comment;
 import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
+import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
+import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,7 +38,6 @@ public class DtoFactoryForTest {
         dto.setTitle("모집글 제목 테스트");
         dto.setContent("모집글 내용 테스트");
         dto.setRecruitingType(Type.LECTURE);
-//        dto.setStatus(ProgressStatus.IN_PROGRESS);
         dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
         dto.setActivityArea(ActivityArea.ONLINE);
         dto.setRecruitingMemberCount(3);
@@ -69,6 +70,60 @@ public class DtoFactoryForTest {
         RecruitingCreation.ResponseDto dto = new RecruitingCreation.ResponseDto();
         dto.setRecruitingId(RECRUITING_ID);
         dto.setProjectId(PROJECT_ID);
+        return dto;
+    }
+
+    public static RecruitingFind.DetailResponseDto createDetailSideRecruitingResponse() {
+        RecruitingFind.DetailResponseDto dto = new RecruitingFind.DetailResponseDto();
+        dto.setTitle("모집글 제목 테스트");
+        dto.setContent("모집글 내용 테스트");
+        dto.setRecruitingType(Type.SIDE);
+        dto.setRecruitingStatus(ProgressStatus.IN_PROGRESS);
+        dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
+        dto.setActivityArea(ActivityArea.ONLINE);
+        dto.setRecruitingMemberCount(3);
+        dto.setIntroLink("test-intro");
+        // TODO: 2022-08-17 Personality 수정 예정
+        dto.setPersonalities(Set.of(new Personality(Personality.Adjective.PRECISE, Personality.Noun.INVENTOR),
+                new Personality(Personality.Adjective.CHEERFUL, Personality.Noun.JACK_OF_ALL_TRADES)
+        ));
+
+        ProjectResponse.Detail detailProject = new ProjectResponse.Detail();
+        detailProject.setStartDate(LocalDate.of(2022, 7, 4));
+        detailProject.setEndDate(LocalDate.of(2022, 8, 28));
+        detailProject.setName("project-name");
+        detailProject.setField(Field.IT_SW_GAME);
+        detailProject.setFieldCategory(FieldCategory.STUDY);
+
+        dto.setProjectResponse(detailProject);
+        return dto;
+    }
+
+    public static RecruitingFind.ListResponseDto createListLectureRecruitingResponse() {
+        RecruitingFind.ListResponseDto dto = new RecruitingFind.ListResponseDto();
+        dto.setId(RECRUITING_ID);
+        dto.setTitle("모집글 제목 테스트");
+        dto.setContent("모집글 내용 테스트");
+        dto.setRecruitingType(Type.LECTURE);
+        dto.setRecruitingStatus(ProgressStatus.IN_PROGRESS);
+        dto.setCommentCount(0);
+        dto.setBookmarkCount(0);
+        dto.setProjectName("test-lecture-project-name");
+        dto.setProfessor("test-professor-name");
+        return dto;
+    }
+
+    public static RecruitingFind.RecommendedListResponseDto createRecommendedSideRecruitingListResponse() {
+        RecruitingFind.RecommendedListResponseDto dto = new RecruitingFind.RecommendedListResponseDto();
+        dto.setRecruitingId(RECRUITING_ID);
+        dto.setTitle("모집글 제목 테스트");
+        dto.setRecruitingMemberCount(4);
+        dto.setProjectStartDate(LocalDate.of(2022,7,4));
+        dto.setProjectEndDate(LocalDate.of(2022,8,27));
+        dto.setRecruitingEndDate(LocalDate.of(2022,7,3));
+
+        dto.setField(Field.AD_MARKETING);
+        dto.setFieldCategory(FieldCategory.CONTEST);
         return dto;
     }
 }
