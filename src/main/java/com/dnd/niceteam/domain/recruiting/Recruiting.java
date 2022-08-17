@@ -88,6 +88,10 @@ public class Recruiting extends BaseEntity {
         this.commentCount += 1;
     }
 
+    public void updateStatus(ProgressStatus status) {
+        this.status = status;
+    }
+
     public void plusBookmarkCount() {
         this.bookmarkCount += 1;
     }
