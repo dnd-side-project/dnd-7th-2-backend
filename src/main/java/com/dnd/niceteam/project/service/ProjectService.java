@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,8 +44,8 @@ public class ProjectService {
     // TODO: 기획 논의 후 startDate, endDate에 @Past, @Future 등의 유효성검사 어노테이션 붙이기
     @Transactional
     public ProjectResponse.Detail registerProject(ProjectRequest.Register request) {
-        LocalDate startDate = request.getStartDate();
-        LocalDate endDate = request.getEndDate();
+        LocalDate startDate =           request.getStartDate();
+        LocalDate endDate =             request.getEndDate();
 
         if (endDate.isBefore(startDate)) {
             throw new InvalidProjectSchedule("startDate = " + startDate + ", endDate = " + endDate);
@@ -54,22 +55,22 @@ public class ProjectService {
     }
 
     @Transactional
-    public void modifyProject(Long projectId, ProjectRequest.Update request) {
-        Project project = findProject(projectId);
-
+    public void modifyProject(Long projectId, Long memberId, ProjectRequest.Update request) {
+        Project project =               findProject(projectId, memberId);
         modifyProject(project, request);
     }
 
     public Pagination<ProjectResponse.ListItem> getProjectList(int page, int perSize, ProjectStatus status, User currentUser) {
-        Member currentMember = MemberUtils.findMemberByEmail(currentUser.getUsername(), memberRepository);
-
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdDate");
-        Pageable pageable = PageRequest.of(page - 1, perSize, sort);
-
-        Specification<Project> spec = getProjectListSearchSpecs(currentMember.getId(), status);
-
-        Page<Project> projectPages = projectRepository.findAll(spec, pageable);
+        Member currentMember =          MemberUtils.findMemberByEmail(currentUser.getUsername(), memberRepository);
+        Page<Project> projectPages =    findProjectPages(currentMember.getId(), status, page, perSize);
         return mapProjectPagination(projectPages);
+    }
+
+    public ProjectResponse.Detail getProject(Long projectId, User currentUser) {
+        Member currentMember =          MemberUtils.findMemberByEmail(currentUser.getUsername(), memberRepository);
+
+        Project project = findProject(projectId, currentMember.getId());
+        return ProjectResponse.Detail.from(project);
     }
 
     /* private 메서드 */
@@ -109,9 +110,8 @@ public class ProjectService {
 
     // 프로젝트 목록 조회 관련
     private Specification<Project> getProjectListSearchSpecs(Long memberId, ProjectStatus status) {
-        Specification<Project> spec = (root, query, criteriaBuilder) -> null;
-        spec = spec.and(ProjectSpecification.equalMemberId(memberId));
-        if (status != null)  spec = spec.and(ProjectSpecification.equalStatus(status));
+        Specification<Project> spec =       ProjectSpecification.equalMemberId(memberId);
+        if (status != null) spec = spec.and(ProjectSpecification.equalStatus(status));
 
         return spec;
     }
@@ -144,8 +144,29 @@ public class ProjectService {
         return sideProjectRepository.save(sideProject);
     }
 
-    private Project findProject(Long projectId) {
-        return projectRepository.findById(projectId)
+    // DB : 팀플 조회
+    private Project findProject(Long projectId, Long memberId) {
+        return findOptionalProject(projectId, memberId)
                 .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
     }
+
+    private Optional<Project> findOptionalProject(Long projectId, Long memberId) {
+        if (memberId != null) {
+            Specification<Project> spec = ProjectSpecification.equalProjectId(projectId)
+                                     .and(ProjectSpecification.equalMemberId(memberId));
+            return projectRepository.findOne(spec);
+        } else {
+            return projectRepository.findById(projectId);
+        }
+    }
+
+    private Page<Project> findProjectPages(Long memberId, ProjectStatus status, int page, int perSize) {
+        Specification<Project> spec =   getProjectListSearchSpecs(memberId, status);
+        Pageable pageable =             PageRequest.of(
+                                            page - 1, perSize,
+                                            Sort.by(Sort.Direction.DESC, "createdDate"));
+
+        return projectRepository.findAll(spec, pageable);
+    }
+
 }

@@ -9,10 +9,7 @@ import com.dnd.niceteam.security.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/projects")
@@ -30,6 +27,16 @@ public class ProjectController {
     ) {
         Pagination<ProjectResponse.ListItem> projects = projectService.getProjectList(page, perSize, status, currentUser);
         ApiResult<Pagination<ProjectResponse.ListItem>> apiResult = ApiResult.success(projects);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ApiResult<ProjectResponse.Detail>> projectDetails(
+            @PathVariable Long projectId,
+            @CurrentUser User currentUser
+    ) {
+        ProjectResponse.Detail response = projectService.getProject(projectId, currentUser);
+        ApiResult<ProjectResponse.Detail> apiResult = ApiResult.success(response);
         return ResponseEntity.ok(apiResult);
     }
 

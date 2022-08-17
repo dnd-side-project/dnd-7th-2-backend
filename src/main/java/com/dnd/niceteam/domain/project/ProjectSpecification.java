@@ -15,4 +15,7 @@ public class ProjectSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), status);
     }
 
+    public static Specification<Project> equalProjectId(Long projectId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), projectId);
+    }
 }
