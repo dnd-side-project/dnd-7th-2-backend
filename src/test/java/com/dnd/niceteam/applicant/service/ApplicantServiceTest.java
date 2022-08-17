@@ -1,10 +1,11 @@
 package com.dnd.niceteam.applicant.service;
 
-import com.dnd.niceteam.applicant.dto.ApplicantCreation;
 import static com.dnd.niceteam.comment.EntityFactoryForTest.*;
+import com.dnd.niceteam.applicant.dto.ApplicantCreation;
 import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.member.Member;
@@ -72,6 +73,7 @@ class ApplicantServiceTest {
     LectureProject project;
     Recruiting recruiting;
 
+    // TODO: 2022-08-13 중복 제거 리팩토링 가능할지
     @BeforeEach
     void init() {
         //given
@@ -81,7 +83,7 @@ class ApplicantServiceTest {
         account = accountRepository.save(createAccount());
         member = memberRepository.save(createMember(account, university, department, memberScore));
         project = projectRepository.save(createLectureProject(department));
-        recruiting = recruitingRepository.save(createRecruiting(member, project));
+        recruiting = recruitingRepository.save(createRecruiting(member, project, Type.LECTURE));
 
         em.flush();
         em.clear();
