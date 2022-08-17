@@ -1,10 +1,10 @@
 package com.dnd.niceteam.applicant.service;
 
 import com.dnd.niceteam.applicant.dto.ApplicantCreation;
+import static com.dnd.niceteam.comment.EntityFactoryForTest.*;
 import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
-import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.member.Member;
@@ -27,9 +27,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -75,68 +72,16 @@ class ApplicantServiceTest {
     LectureProject project;
     Recruiting recruiting;
 
-    // TODO: 2022-08-13 중복 제거 리팩토링 가능할지
     @BeforeEach
     void init() {
         //given
-        university = universityRepository.save(University.builder()
-                .name("테스트대학교")
-                .emailDomain("email.com")
-                .build());
-        department = departmentRepository.save(Department.builder()
-                .university(university)
-                .collegeName("단과대학")
-                .name("학과")
-                .region("서울")
-                .mainBranchType("본교")
-                .build());
-        memberScore = memberScoreRepository.save(MemberScore.builder()
-                .level(1)
-                .reviewNum(0)
-                .totalParticipationScore(0)
-                .totalTeamAgainScore(0)
-                .build());
-        account = accountRepository.save(Account.builder()
-                .email("test@email.com")
-                .password("testPassword123!@#")
-                .build());
-        member = memberRepository.save(Member.builder()
-                .account(account)
-                .university(university)
-                .department(department)
-                .memberScore(memberScore)
-                .nickname("테스트닉네임")
-                .admissionYear(2017)
-                .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
-                .introduction("")
-                .introductionUrl("")
-                .build());
-
-        project = projectRepository.save(LectureProject.builder()
-                .name("project-name")
-                .department(department)
-                .startDate(LocalDate.of(2022, 7, 4))
-                .endDate(LocalDate.of(2022, 8, 28))
-                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9, 0)).build()))
-                .professor("test-professor")
-                .build()
-        );
-
-        recruiting = recruitingRepository.save(Recruiting.builder()
-                .member(member)
-                .project(project)
-                .title("test-title")
-                .content("test-content")
-                .recruitingMemberCount(4)
-                .recruitingType(Type.LECTURE)
-                .activityArea(ActivityArea.ONLINE)
-                .status(ProgressStatus.IN_PROGRESS)
-                .commentCount(0)
-                .bookmarkCount(0)
-                .poolUpCount(0)
-                .introLink("test-introLink")
-                .build()
-        );
+        university = universityRepository.save(createUniversity());
+        department = departmentRepository.save(createDepartment(university));
+        memberScore = memberScoreRepository.save(createMemberScore());
+        account = accountRepository.save(createAccount());
+        member = memberRepository.save(createMember(account, university, department, memberScore));
+        project = projectRepository.save(createLectureProject(department));
+        recruiting = recruitingRepository.save(createRecruiting(member, project));
 
         em.flush();
         em.clear();

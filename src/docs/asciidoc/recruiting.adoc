@@ -1,0 +1,15 @@
+= Recruiting (모집글)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[recruiting-creat]]
+== 모집글 등록
+
+operation::recruiting-creat[snippets='http-request,request-parameters,http-response,response-fields-data']

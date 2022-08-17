@@ -14,6 +14,7 @@
 - xref:email-auth.adoc[Email Authentication]
 - xref:university.adoc[University (대학교)]
 - xref:member.adoc[Member (회원)]
+- xref:recruiting.adoc[Recruiting (모집글)]
 - xref:applicant.adoc[Applicant (지원자)]
 - xref:comment.adoc[Comment (댓글 및 답글)]
 - xref:bookmark.adoc[Bookmark (북마크)]
