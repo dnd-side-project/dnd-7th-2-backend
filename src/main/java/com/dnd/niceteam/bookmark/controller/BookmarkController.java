@@ -5,6 +5,7 @@ import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
 import com.dnd.niceteam.bookmark.service.BookmarkService;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotOwnedException;
+import com.dnd.niceteam.security.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,8 @@ public class BookmarkController {
     }
 
     @DeleteMapping("/{bookmarkId}")
-    public ResponseEntity<ApiResult<BookmarkDeletion.ResponseDto>> bookmarkDelete(@PathVariable long bookmarkId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<ApiResult<BookmarkDeletion.ResponseDto>> bookmarkDelete(
+            @PathVariable long bookmarkId, @CurrentUsername String username) {
         if (!bookmarkService.isBookmarkOwnedByMember(bookmarkId, username)) {
             throw new BookmarkNotOwnedException(String.format(
                     "bookmarkId = %d, username = %s", bookmarkId, username));
