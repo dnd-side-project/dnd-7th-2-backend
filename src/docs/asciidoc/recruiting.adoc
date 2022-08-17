@@ -13,3 +13,19 @@
 == 모집글 등록
 
 operation::recruiting-creat[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[recruiting-detail]]
+== 모집글 상세 조회
+
+operation::recruiting-detail[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+[[my-recruiting-list]]
+== 내가 쓴 글 목록 조회
+
+operation::my-recruiting-list[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+[[recruiting-recommend-side]]
+== 사이드 모집글 추천 목록 조회
+
+operation::recruiting-recommend-side[snippets='http-request,request-parameters,http-response,response-fields-data']
