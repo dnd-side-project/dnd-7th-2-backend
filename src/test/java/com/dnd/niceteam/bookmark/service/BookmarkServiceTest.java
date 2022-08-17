@@ -1,10 +1,12 @@
 package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
+import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
+import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
@@ -14,6 +16,7 @@ import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 
@@ -54,7 +58,7 @@ class BookmarkServiceTest {
                 .willReturn(Optional.of(givenMember));
 
         long givenRecruitingId = 1L;
-        Recruiting givenRecruiting = Recruiting.builder().id(givenRecruitingId).build();
+        Recruiting givenRecruiting = Recruiting.builder().id(givenRecruitingId).bookmarkCount(0).build();
         given(mockRecruitingRepository.findById(givenRecruitingId))
                 .willReturn(Optional.of(givenRecruiting));
 
@@ -73,6 +77,7 @@ class BookmarkServiceTest {
 
         // then
         assertThat(responseDto.getId()).isEqualTo(givenBookmarkId);
+        assertThat(givenRecruiting.getBookmarkCount()).isEqualTo(1);
     }
 
     @Test
@@ -122,5 +127,55 @@ class BookmarkServiceTest {
         // expected
         assertThatThrownBy(() -> bookmarkService.createBookmark("test@email.com", 1L))
                 .isInstanceOf(BookmarkExistingException.class);
+    }
+
+    @Test
+    @DisplayName("북마크 삭제")
+    void deleteBookmark() {
+        // given
+        Bookmark mockBookmark = mock(Bookmark.class);
+        Recruiting mockRecruiting = mock(Recruiting.class);
+        long givenBookmarkId = 1L;
+        given(mockBookmark.getId()).willReturn(givenBookmarkId);
+        given(mockBookmark.getRecruiting()).willReturn(mockRecruiting);
+
+        given(mockBookmarkRepository.findById(givenBookmarkId))
+                .willReturn(Optional.of(mockBookmark));
+
+
+        // when
+        BookmarkDeletion.ResponseDto responseDto = bookmarkService.deleteBookmark(givenBookmarkId);
+
+        // then
+        assertThat(responseDto.getId()).isEqualTo(givenBookmarkId);
+        then(mockRecruiting).should().minusBookmarkCount();
+    }
+
+    @Test
+    @DisplayName("북마크 삭제 - 존재하지 않는 북마크")
+    void deleteBookmark_BookmarkNotFound() {
+        // given
+        given(mockBookmarkRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // expected
+        assertThatThrownBy(() -> bookmarkService.deleteBookmark(1L))
+                .isInstanceOf(BookmarkNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("북마크 소유 여부 확인")
+    void isBookmarkOwnedByMember() {
+        // given
+        ArgumentCaptor<Long> bookmarkIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+
+        // when
+        bookmarkService.isBookmarkOwnedByMember(1L, "test@email.com");
+
+        // then
+        then(mockBookmarkRepository).should().existsByIdAndEmail(bookmarkIdCaptor.capture(), emailCaptor.capture());
+        assertThat(bookmarkIdCaptor.getValue()).isEqualTo(1L);
+        assertThat(emailCaptor.getValue()).isEqualTo("test@email.com");
     }
 }

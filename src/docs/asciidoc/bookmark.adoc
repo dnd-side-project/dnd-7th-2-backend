@@ -13,3 +13,9 @@
 == 북마크 생성 API
 
 operation::bookmark-create[snippets='http-request,path-parameters,http-response,response-fields-data']
+
+
+[[bookmark-delete]]
+== 북마크 삭제
+
+operation::bookmark-delete[snippets='http-request,path-parameters,http-response,response-fields-data']
