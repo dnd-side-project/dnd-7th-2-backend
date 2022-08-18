@@ -54,10 +54,10 @@ public interface RecruitingFind {
             // Project
             ProjectResponse.Detail projectDto;
             // TODO: 2022-08-16 DTO 구분을 위한 메서드 (리팩터링)?
-            switch (recruiting.getRecruitingType()) {
+            switch (recruiting.getProject().getType()) {
                 case LECTURE: projectDto = ProjectResponse.Detail.from((LectureProject) recruiting.getProject()); break;
                 case SIDE: projectDto = ProjectResponse.Detail.from((SideProject) recruiting.getProject()); break;
-                default: throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getRecruitingType());
+                default: throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getProject().getType());
             }
             dto.setProjectResponse(projectDto);
 
@@ -93,7 +93,7 @@ public interface RecruitingFind {
             dto.setProjectName(recruiting.getProject().getName());
 
             // TODO: 2022-08-16 Factory 클래스에 구분 메서드 (리팩토링)?
-            switch (recruiting.getRecruitingType()) {
+            switch (recruiting.getProject().getType()) {
                 case SIDE:
                     SideProject sideProject = (SideProject) recruiting.getProject();
                     dto.setField(sideProject.getField());
@@ -104,7 +104,7 @@ public interface RecruitingFind {
                     dto.setProfessor(lectureProject.getProfessor());
                     break;
                 default:
-                    throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getRecruitingType());
+                    throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getProject().getType());
             }
             return dto;
         }
