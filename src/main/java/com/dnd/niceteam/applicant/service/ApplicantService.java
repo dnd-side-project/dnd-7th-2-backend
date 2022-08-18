@@ -4,13 +4,15 @@ import com.dnd.niceteam.applicant.dto.ApplicantCreation;
 import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
-import com.dnd.niceteam.domain.member.exception.MemberNotFoundException;
 import com.dnd.niceteam.domain.recruiting.Applicant;
 import com.dnd.niceteam.domain.recruiting.ApplicantRepository;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
+import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
+import com.dnd.niceteam.domain.recruiting.exception.ApplyCancelImpossibleRecruitingException;
 import com.dnd.niceteam.domain.recruiting.exception.ApplyImpossibleRecruitingException;
 import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
+import com.dnd.niceteam.member.util.MemberUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +26,8 @@ public class ApplicantService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public ApplicantCreation.ResponseDto addApplicant(Long recruitingId, Long memberId) {
-        Member member = getMemberEntity(memberId);
+    public ApplicantCreation.ResponseDto addApplicant(Long recruitingId, String username) {
+        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         Recruiting recruiting = getRecruitingtEntity(recruitingId);
 
         if (isApplyImpossible(recruiting.getStatus())) {
@@ -36,7 +38,9 @@ public class ApplicantService {
                 .member(member)
                 .recruiting(recruiting)
                 .build());
-        return new ApplicantCreation.ResponseDto(savedApplicant.getId());
+        ApplicantCreation.ResponseDto responseDto = new ApplicantCreation.ResponseDto();
+        responseDto.setId(savedApplicant.getId());
+        return responseDto;
     }
 
     private boolean isApplyImpossible(ProgressStatus recruitingStatus) {
@@ -48,8 +52,19 @@ public class ApplicantService {
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
     }
 
-    private Member getMemberEntity(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException("memberId = " + memberId));
+    @Transactional
+    public void removeApplicant(Long recruitingId, String username) {
+        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
+        Applicant foundApplicant = applicantRepository.findByMemberIdAndRecruitingId(member.getId(), recruitingId)
+                .orElseThrow(() -> new ApplicantNotFoundException("memberId = " + member.getId() + ", recruitingId = " + recruitingId));
+
+        if (alreadyJoined(foundApplicant)) {
+            throw new ApplyCancelImpossibleRecruitingException(foundApplicant.getId() + "의 join 상태 : " + foundApplicant.getJoined());
+        }
+        applicantRepository.delete(foundApplicant);
+    }
+
+    private boolean alreadyJoined(Applicant applicant) {
+        return applicant.getJoined().equals(Boolean.TRUE);
     }
 }
