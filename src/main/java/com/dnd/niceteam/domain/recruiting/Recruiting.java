@@ -1,9 +1,6 @@
 package com.dnd.niceteam.domain.recruiting;
 
-import com.dnd.niceteam.domain.code.ActivityArea;
-import com.dnd.niceteam.domain.code.Personality;
-import com.dnd.niceteam.domain.code.ProgressStatus;
-import com.dnd.niceteam.domain.code.Type;
+import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.project.Project;
@@ -78,11 +75,22 @@ public class Recruiting extends BaseEntity {
     private String introLink;
 
     @Builder.Default
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
     @CollectionTable(
-            name="recruiting_personality",
-            joinColumns = @JoinColumn(name= "recruiting_id"))
-    private Set<Personality> personalities = new HashSet<>();
+            name="recruiting_personality_adjective",
+            joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
+    @Column(name = "adjective", length = 25, nullable = false)
+    private Set<Personality.Adjective> personalityAdjectives = new HashSet<>();
+
+    @Builder.Default
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(
+            name="recruiting_personality_noun",
+            joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
+    @Column(name = "noun", length = 25, nullable = false)
+    private Set<Personality.Noun> personalityNouns = new HashSet<>();
 
     public void plusCommentCount() {
         this.commentCount += 1;
