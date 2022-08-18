@@ -4,6 +4,7 @@ import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.project.ProjectStatus;
 import com.dnd.niceteam.project.dto.LectureTimeResponse;
+import com.dnd.niceteam.project.dto.ProjectMemberResponse;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.security.SecurityConfig;
@@ -31,8 +32,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,10 +55,10 @@ class ProjectControllerTest {
     @MockBean
     private ProjectService projectService;
 
+    @DisplayName("내 팀플 목록 조회")
     @Test
     @WithMockUser
-    @DisplayName("프로젝트 목록 조회")
-    void addMemberReview() throws Exception {
+    void getMyProjectList() throws Exception {
         // given
         ProjectResponse.ListItem projectListItem = mock(ProjectResponse.ListItem.class, RETURNS_DEEP_STUBS);
         when(projectListItem.getLectureTimes()).thenReturn(List.of(mock(LectureTimeResponse.class)));
@@ -118,6 +118,69 @@ class ProjectControllerTest {
                                         fieldWithPath("contents[].lectureTimes[].startTime").description("시작 시간"),
                                         fieldWithPath("contents[].field").description("관심 분야"),
                                         fieldWithPath("contents[].fieldCategory").description("관심 분야 카테고리")
+                                )
+                        )
+                );
+    }
+
+    @DisplayName("내 팀플 상세 조회")
+    @Test
+    @WithMockUser
+    void getProjectDetails() throws Exception {
+        // given
+        Long projectId = 1L;
+        ProjectResponse.Detail response = mock(ProjectResponse.Detail.class, RETURNS_DEEP_STUBS);
+        when(response.getMemberList()).thenReturn(List.of(mock(ProjectMemberResponse.Summary.class, RETURNS_DEEP_STUBS)));
+        when(response.getLectureTimes()).thenReturn(List.of(mock(LectureTimeResponse.class)));
+
+        given(projectService.getProject(anyLong(), any(User.class))).willReturn(response);
+
+        // then
+        mockMvc.perform(
+                        get("/projects/{projectId}", projectId)
+                                .accept(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").exists())
+                .andDo(
+                        document("get-my-project",
+                                pathParameters(
+                                        parameterWithName("projectId").description("팀플 식별자")
+                                ),
+                                responseFields(
+                                        beneathPath("data").withSubsectionId("data"),
+                                        fieldWithPath("id").description("프로젝트 식별자"),
+                                        fieldWithPath("name").description("프로젝트명"),
+                                        fieldWithPath("type").description("프로젝트 종류"),
+                                        fieldWithPath("startDate").description("프로젝트 시작일"),
+                                        fieldWithPath("endDate").description("프로젝트 종료일"),
+                                        fieldWithPath("status").description("프로젝트 진행 상태"),
+                                        fieldWithPath("memberCount").description("팀원 수"),
+                                        fieldWithPath("memberList[].memberId").description("회원 식별자"),
+                                        fieldWithPath("memberList[].nickname").description("프로젝트 멤버 닉네임"),
+                                        fieldWithPath("memberList[].admissionYear").description("학번"),
+                                        fieldWithPath("memberList[].personality.adjective").description("성향 형용사"),
+                                        fieldWithPath("memberList[].personality.noun").description("성향 명사"),
+                                        fieldWithPath("memberList[].personality.tag").description("성향 형용사 + 명사 태그"),
+                                        fieldWithPath("memberList[].expelled").description("내보내기 여부"),
+                                        fieldWithPath("professor").description("교수명"),
+                                        fieldWithPath("department.id").description("학과 식별자"),
+                                        fieldWithPath("department.collegeName").description("단과대학 이름"),
+                                        fieldWithPath("department.name").description("학과 이름"),
+                                        fieldWithPath("department.mainBranchType").description("주 캠퍼스 여부"),
+                                        fieldWithPath("department.region").description("지역"),
+                                        fieldWithPath("department.university.id").description("대학교 식별자"),
+                                        fieldWithPath("department.university.name").description("대학교 이름"),
+                                        fieldWithPath("department.university.emailDomain").description("대학교 이메일 도메인"),
+                                        fieldWithPath("lectureTimes[].dayOfWeek").description("활동 요일"),
+                                        fieldWithPath("lectureTimes[].startTime").description("시작 시간"),
+                                        fieldWithPath("field").description("관심 분야"),
+                                        fieldWithPath("fieldCategory").description("관심 분야 카테고리"),
+                                        fieldWithPath("createdDate").description("생성일시"),
+                                        fieldWithPath("lastModifiedDate").description("수정일시"),
+                                        fieldWithPath("createdBy").description("생성자"),
+                                        fieldWithPath("lastModifiedBy").description("수정자")
                                 )
                         )
                 );

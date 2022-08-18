@@ -29,6 +29,8 @@ public interface ProjectResponse {
         private LocalDate endDate;
 
         private ProjectStatus status;
+        private Integer memberCount;
+        private List<ProjectMemberResponse.Summary> memberList;
 
         // Lecture Project 상태
         private String professor;
@@ -44,6 +46,11 @@ public interface ProjectResponse {
         private LocalDateTime lastModifiedDate;
         private String createdBy;
         private String lastModifiedBy;
+
+        public static Detail from(Project project) {
+            return project.getType() == Type.LECTURE ?
+                    from((LectureProject) project) : from((SideProject) project);
+        }
 
         public static Detail from(LectureProject lecture) {
             Detail dto = new Detail();
@@ -74,6 +81,9 @@ public interface ProjectResponse {
         }
 
         private static void setProjectCommonDetails(Project project, Detail dto) {
+            List<ProjectMemberResponse.Summary> memberList = project.getProjectMembers().stream()
+                    .map(ProjectMemberResponse.Summary::from).collect(Collectors.toList());
+
             dto.setId(project.getId());
 
             // Project 상태
@@ -83,6 +93,9 @@ public interface ProjectResponse {
 
             dto.setStartDate(project.getStartDate());
             dto.setEndDate(project.getEndDate());
+
+            dto.setMemberCount(project.getMemberCount());
+            dto.setMemberList(memberList);
 
             // Auditing 정보
             dto.setCreatedDate(project.getCreatedDate());
