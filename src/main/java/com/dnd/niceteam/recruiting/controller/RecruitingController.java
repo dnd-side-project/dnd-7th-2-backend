@@ -52,7 +52,7 @@ public class RecruitingController {
     }
 
     //사이드 모집글 추천
-    @GetMapping("/recommendSide")
+    @GetMapping("/recommend-side")
     public ResponseEntity<ApiResult<Pagination<RecruitingFind.RecommendedListResponseDto>>> recommendedRecruitingList(
             @RequestParam(defaultValue = "1", required = false) Integer page,
             @RequestParam(defaultValue = "4", required = false) Integer perSize
