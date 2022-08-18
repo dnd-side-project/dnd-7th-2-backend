@@ -97,7 +97,6 @@ class RecruitingServiceTest {
     public void postRecruiting() {
         // given
         RecruitingCreation.RequestDto recruitingReqDto = DtoFactoryForTest.createLectureRecruitingRequest();
-
         //when
         RecruitingCreation.ResponseDto recruitingResDto = recruitingService.addProjectAndRecruiting(account.getEmail(), recruitingReqDto);
 
@@ -107,8 +106,7 @@ class RecruitingServiceTest {
         Project createdProject = projectRepository.findById(createdRecruiting.getProject().getId())
                 .orElseThrow(() -> new ProjectNotFoundException("projectId = " + createdRecruiting.getProject().getId()));
 
-        // TODO: 2022-08-18 Personality 분리 후 수정 예정
-        // assertThat(createdRecruiting.getPersonalities()).size().isEqualTo(4);
+        assertThat(createdRecruiting.getPersonalityAdjectives()).size().isEqualTo(2);
         assertThat(createdRecruiting.getId()).isEqualTo(recruitingResDto.getRecruitingId());
 
         assertThat(createdProject.getId()).isEqualTo(recruitingResDto.getProjectId());
@@ -127,13 +125,12 @@ class RecruitingServiceTest {
         //then
         Recruiting foundRecruiting = recruitingRepository.findById(savedRecruiting.getId())
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + savedRecruiting.getId()));
-        Project createdProject = projectRepository.findById(responseDto.getProjectResponse().getId())
+        Project foundProject = projectRepository.findById(responseDto.getProjectResponse().getId())
                 .orElseThrow(() -> new ProjectNotFoundException("projectId = " + responseDto.getProjectResponse().getId()));
 
-        // TODO: 2022-08-18 Personality 분리 후 수정 예정
-        // assertThat(createdRecruiting.getPersonalities()).size().isEqualTo(4);
+        assertThat(foundRecruiting.getPersonalityNouns()).size().isEqualTo(2);
         assertThat(foundRecruiting.getTitle()).isEqualTo(responseDto.getTitle());
-        assertThat(foundRecruiting.getProject().getType()).isEqualTo(createdProject.getType());
+        assertThat(foundRecruiting.getProject().getType()).isEqualTo(foundProject.getType());
     }
 
     @DisplayName("내가 쓴 글 전체 조회 서비스 테스트 코드")
