@@ -73,6 +73,7 @@ class ApplicantServiceTest {
     LectureProject project;
     Recruiting recruiting;
 
+    // TODO: 2022-08-13 중복 제거 리팩토링 가능할지
     @BeforeEach
     void init() {
         //given
