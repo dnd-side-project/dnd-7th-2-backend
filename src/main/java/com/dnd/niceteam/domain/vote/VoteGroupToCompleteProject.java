@@ -23,4 +23,12 @@ public class VoteGroupToCompleteProject extends VoteGroup {
         super(project);
     }
 
+    @Override
+    protected boolean isVoteCompleted() {
+        int numOfMembers = this.getProject().getProjectMembers().size();
+        int numOfVotes = this.getVotes().size();
+
+        return numOfMembers == numOfVotes;
+    }
+
 }

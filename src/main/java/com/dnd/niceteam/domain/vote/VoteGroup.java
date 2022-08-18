@@ -6,10 +6,13 @@ import io.jsonwebtoken.lang.Assert;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,10 +36,24 @@ public abstract class VoteGroup extends BaseEntity {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    public VoteGroup(Project project) {
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "voteGroup")
+    private final List<Vote> votes = new ArrayList<>();
+
+    protected VoteGroup(Project project) {
         Assert.notNull(project, "project는 필수 값입니다.");
 
         this.project = project;
     }
+
+    public void addVote(Vote vote) {
+        this.votes.add(vote);
+    }
+
+    public void checkComplete() {
+        if (isVoteCompleted()) complete = true;
+    }
+
+    protected abstract boolean isVoteCompleted();
 
 }
