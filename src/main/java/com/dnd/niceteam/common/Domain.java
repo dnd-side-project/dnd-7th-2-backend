@@ -12,6 +12,8 @@ public enum Domain {
 
     PROJECT,
     PROJECT_MEMBER,
+    VOTE_GROUP,
+    VOTE,
 
     RECRUITING,
     COMMENT,
