@@ -45,6 +45,7 @@ public enum ErrorCode {
 
     APPLY_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "지원 불가능한 모집글입니다."),
     APPLY_CANCEL_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "지원 취소가 불가능한 모집글입니다."),
+    APPLICANT_NOT_FOUND(APPLICANT, SC_NOT_FOUND, "존재하지 않는 지원자입니다."),
 
     COMMENT_NOT_FOUND(COMMENT, SC_NOT_FOUND, "존재하지 않는 댓글입니다."),
 
