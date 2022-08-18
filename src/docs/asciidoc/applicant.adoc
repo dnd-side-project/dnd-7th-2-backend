@@ -9,6 +9,11 @@
 :operation-http-response-title: Example response
 
 [[applicant-create]]
-== 지원자 생성
+== 지원 등록
 
 operation::applicant-create[snippets='http-request,request-fields,http-response,response-fields-data']
+
+[[applicant-delete]]
+== 지원 취소
+
+operation::applicant-delete[snippets='http-request,request-fields,http-response,response-fields-data']
