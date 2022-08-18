@@ -19,3 +19,9 @@ operation::bookmark-create[snippets='http-request,path-parameters,http-response,
 == 북마크 삭제
 
 operation::bookmark-delete[snippets='http-request,path-parameters,http-response,response-fields-data']
+
+
+[[bookmarks-page]]
+== 북마크 페이지 조회
+
+operation::bookmarks-page[snippets='http-request,request-parameters,http-response,response-fields-data']
