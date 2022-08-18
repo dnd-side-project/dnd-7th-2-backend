@@ -11,6 +11,6 @@ public enum VoteType {
     , EXPEL("내보내기 투표")
     ;
 
-    private final String kor;
+    private final String title;
 
 }

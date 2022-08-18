@@ -19,7 +19,7 @@ import javax.persistence.*;
 @OnDelete(action = OnDeleteAction.CASCADE)
 public class VoteGroupToExpel extends VoteGroup {
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "candidate_id", nullable = false)
     private ProjectMember candidate;
 
@@ -37,8 +37,6 @@ public class VoteGroupToExpel extends VoteGroup {
     protected boolean isVoteCompleted() {
         int numOfMembers = this.getProject().getProjectMembers().size();
         int numOfVotes = this.getVotes().size();
-
-        System.out.println("추방 : " + numOfMembers + " / " + numOfVotes);
 
         return numOfMembers - 1 == numOfVotes;
     }
