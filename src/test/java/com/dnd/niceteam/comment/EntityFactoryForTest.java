@@ -8,6 +8,7 @@ import com.dnd.niceteam.domain.memberscore.MemberScore;
 import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.LectureTime;
 import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.university.University;
 
@@ -59,6 +60,7 @@ public class EntityFactoryForTest {
                 .nickname("테스트닉네임")
                 .admissionYear(2017)
                 .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
+                .interestingFields(Set.of(Field.IT_SW_GAME, Field.DESIGN))
                 .introduction("")
                 .introductionUrl("")
                 .build();
@@ -67,23 +69,31 @@ public class EntityFactoryForTest {
         return LectureProject.builder()
                 .name("project-name")
                 .department(department)
-                .startDate(LocalDate.of(2022, 7, 4))
-                .endDate(LocalDate.of(2022, 8, 28))
                 .lectureTimes(Set.of(
                         LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9, 0)).build(),
                         LectureTime.builder().dayOfWeek(DayOfWeek.WED).startTime(LocalTime.of(9, 30)).build()))
                 .professor("test-professor")
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
                 .build();
     }
-
-    public static Recruiting createRecruiting(Member member, Project project) {
+    public static SideProject createSideProject() {
+        return SideProject.builder()
+                .name("project-name")
+                .field(Field.PLANNING_IDEA)
+                .fieldCategory(FieldCategory.CLUB)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build();
+    }
+    public static Recruiting createRecruiting(Member member, Project project, Type type) {
         return Recruiting.builder()
                 .member(member)
                 .project(project)
                 .title("test-title")
                 .content("test-content")
                 .recruitingMemberCount(4)
-                .recruitingType(Type.LECTURE)
+                .recruitingType(type)
                 .activityArea(ActivityArea.ONLINE)
                 .status(ProgressStatus.IN_PROGRESS)
                 .personalities(createPersonalities())
@@ -97,8 +107,8 @@ public class EntityFactoryForTest {
     // TODO: 2022-08-17 짝이 맞지 않게 들어오는 경우 생각 필요
     private static Set<Personality> createPersonalities() {
         Set<Personality> personalities = new HashSet<>();
-        personalities.add(Personality.builder().adjective(Personality.Adjective.LOGICAL).noun(Personality.Noun.PERFECTIONIST).build());
-        personalities.add(Personality.builder().adjective(Personality.Adjective.GOAL_ORIENTED).noun(Personality.Noun.INVENTOR).build());
+        personalities.add(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.PERFECTIONIST));
+        personalities.add(new Personality(Personality.Adjective.GOAL_ORIENTED, Personality.Noun.INVENTOR));
         return personalities;
     }
 

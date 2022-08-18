@@ -1,28 +1,26 @@
 package com.dnd.niceteam.recruiting.dto;
 
 import com.dnd.niceteam.domain.code.*;
-import com.dnd.niceteam.domain.department.Department;
+import com.dnd.niceteam.domain.member.Member;
+import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public interface RecruitingCreation {
     @Data
     class RequestDto {
         @NotNull
-        private Long memberId;
-        @NotNull
-        private Long projectId;
-        @NotNull
         private String title;
         @NotNull
         private String content;
-        @NotNull
-        private LocalDate projectStartDate;
-        @NotNull
-        private LocalDate projectEndDate;
         @NotNull
         private Integer recruitingMemberCount;
         @NotNull
@@ -33,23 +31,73 @@ public interface RecruitingCreation {
         private String introLink;
         @NotNull
         private ProgressStatus status;
+        @Nullable
+        private LocalDate recruitingEndDate;    // 기간이 정해져있지 않으면 null
+
+        @NotNull
+        private Set<Personality.Adjective> personalityAdjectives;
+        @NotNull
+        private Set<Personality.Noun> personalityNouns;
+
+        @NotNull
+        private LocalDate projectStartDate;
+        @NotNull
+        private LocalDate projectEndDate;
+        @NotNull
+        private String projectName;
 
         @Nullable
-        private String lectureName;
+        private List<LectureTimeRequest> lectureTimes;
         @Nullable
         private String professor;
         @Nullable
-        private Department department;
+        private Long departmentId;
 
         @Nullable
         private Field field;
         @Nullable
         private FieldCategory fieldCategory;
 
+        public Recruiting toEntity(Project project, Member member) {
+            return Recruiting.builder()
+                    .project(project)
+                    .member(member)
+                    .title(title)
+                    .content(content)
+                    .recruitingMemberCount(recruitingMemberCount)
+                    .recruitingType(recruitingType)
+                    .activityArea(activityArea)
+                    .recruitingEndDate(recruitingEndDate)
+                    .bookmarkCount(0)
+                    .commentCount(0)
+                    .poolUpCount(0)
+                    .poolUpDate(null)
+                    .introLink(introLink)
+                    .personalities(getPersonalities(personalityAdjectives, personalityNouns))
+                    .build();
+        }
+
+        // TODO: 2022-08-18 Personality 테이블 분리 후 수정 예정
+        private Set<Personality> getPersonalities(Set<Personality.Adjective> personalityAdjectives, Set<Personality.Noun> personalityNouns) {
+            Set<Personality> personalities = new HashSet<>();
+            return personalities;
+        }
     }
     @Data
     class ResponseDto {
         @NotNull
-        private Long id;
+        private Long recruitingId;
+
+        @NotNull
+        private Long projectId;
+
+        public static RecruitingCreation.ResponseDto from(Recruiting recruiting) {
+            ResponseDto dto = new ResponseDto();
+
+            dto.setRecruitingId(recruiting.getId());
+            dto.setProjectId(recruiting.getProject().getId());
+
+            return dto;
+        }
     }
 }
