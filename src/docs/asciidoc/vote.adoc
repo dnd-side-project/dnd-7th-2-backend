@@ -1,0 +1,15 @@
+= Vote (투표)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[vote]]
+== 투표 표 등록
+
+operation::vote[snippets='http-request,request-parameters,http-response,response-fields-data']
