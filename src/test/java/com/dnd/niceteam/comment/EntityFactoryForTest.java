@@ -96,20 +96,13 @@ public class EntityFactoryForTest {
                 .recruitingType(type)
                 .activityArea(ActivityArea.ONLINE)
                 .status(ProgressStatus.IN_PROGRESS)
-                .personalities(createPersonalities())
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
+                .personalityNouns(Set.of(Personality.Noun.PERFECTIONIST, Personality.Noun.INVENTOR))
                 .commentCount(0)
                 .bookmarkCount(0)
                 .poolUpCount(0)
                 .introLink("test-introLink")
                 .build();
-    }
-
-    // TODO: 2022-08-17 짝이 맞지 않게 들어오는 경우 생각 필요
-    private static Set<Personality> createPersonalities() {
-        Set<Personality> personalities = new HashSet<>();
-        personalities.add(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.PERFECTIONIST));
-        personalities.add(new Personality(Personality.Adjective.GOAL_ORIENTED, Personality.Noun.INVENTOR));
-        return personalities;
     }
 
 }

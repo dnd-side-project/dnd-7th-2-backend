@@ -40,6 +40,7 @@ public class DtoFactoryForTest {
         dto.setRecruitingType(Type.LECTURE);
         dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
         dto.setActivityArea(ActivityArea.ONLINE);
+        dto.setStatus(ProgressStatus.IN_PROGRESS);
         dto.setRecruitingMemberCount(3);
         dto.setIntroLink("test-intro");
         dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CREATIVE));
@@ -83,10 +84,8 @@ public class DtoFactoryForTest {
         dto.setActivityArea(ActivityArea.ONLINE);
         dto.setRecruitingMemberCount(3);
         dto.setIntroLink("test-intro");
-        // TODO: 2022-08-17 Personality 수정 예정
-        dto.setPersonalities(Set.of(new Personality(Personality.Adjective.PRECISE, Personality.Noun.INVENTOR),
-                new Personality(Personality.Adjective.CHEERFUL, Personality.Noun.JACK_OF_ALL_TRADES)
-        ));
+        dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CHEERFUL));
+        dto.setPersonalityNouns(Set.of(Personality.Noun.INVENTOR, Personality.Noun.JACK_OF_ALL_TRADES));
 
         ProjectResponse.Detail detailProject = new ProjectResponse.Detail();
         detailProject.setStartDate(LocalDate.of(2022, 7, 4));

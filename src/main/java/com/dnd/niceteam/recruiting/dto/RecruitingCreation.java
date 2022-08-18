@@ -10,7 +10,6 @@ import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -73,16 +72,12 @@ public interface RecruitingCreation {
                     .poolUpCount(0)
                     .poolUpDate(null)
                     .introLink(introLink)
-                    .personalities(getPersonalities(personalityAdjectives, personalityNouns))
+                    .personalityAdjectives(personalityAdjectives)
+                    .personalityNouns(personalityNouns)
                     .build();
         }
-
-        // TODO: 2022-08-18 Personality 테이블 분리 후 수정 예정
-        private Set<Personality> getPersonalities(Set<Personality.Adjective> personalityAdjectives, Set<Personality.Noun> personalityNouns) {
-            Set<Personality> personalities = new HashSet<>();
-            return personalities;
-        }
     }
+
     @Data
     class ResponseDto {
         @NotNull

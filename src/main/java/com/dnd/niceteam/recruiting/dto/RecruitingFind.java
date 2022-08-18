@@ -26,7 +26,8 @@ public interface RecruitingFind {
 
         private Integer recruitingMemberCount;
         private ActivityArea activityArea;
-        private Set<Personality> personalities;
+        private Set<Personality.Adjective> personalityAdjectives;
+        private Set<Personality.Noun> personalityNouns;
         private LocalDate RecruitingEndDate;    // 기간이 정해져있지 않으면 null
 
         private ProjectResponse.Detail projectResponse;
@@ -45,9 +46,9 @@ public interface RecruitingFind {
             dto.setBookmarkCount(recruiting.getBookmarkCount());
             dto.setCommentCount(recruiting.getCommentCount());
             dto.setActivityArea(recruiting.getActivityArea());
-            dto.setPersonalities(recruiting.getPersonalities());
+            dto.setPersonalityAdjectives(recruiting.getPersonalityAdjectives());
             dto.setRecruitingEndDate(recruiting.getRecruitingEndDate());
-            dto.setPersonalities(recruiting.getPersonalities());
+            dto.setPersonalityNouns(recruiting.getPersonalityNouns());
 
             dto.setRecruitingCreatedDate(recruiting.getCreatedDate());
 
