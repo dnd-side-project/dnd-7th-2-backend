@@ -2,6 +2,9 @@ package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
+import com.dnd.niceteam.bookmark.dto.BookmarkDto;
+import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.util.PaginationUtil;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
@@ -13,6 +16,8 @@ import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
 import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +59,13 @@ public class BookmarkService {
         BookmarkDeletion.ResponseDto responseDto = new BookmarkDeletion.ResponseDto();
         responseDto.setId(bookmark.getId());
         return responseDto;
+    }
+
+    public Pagination<BookmarkDto> getBookmarkPageByUsername(Pageable pageable, String username) {
+        Member member = getMemberByEmail(username);
+        Page<BookmarkDto> page = bookmarkRepository.findPageWithRecruitingByMember(pageable, member)
+                .map(BookmarkDto::of);
+        return PaginationUtil.pageToPagination(page);
     }
 
     public boolean isBookmarkOwnedByMember(long bookmarkId, String username) {
