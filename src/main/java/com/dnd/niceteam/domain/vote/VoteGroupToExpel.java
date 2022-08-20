@@ -19,17 +19,26 @@ import javax.persistence.*;
 @OnDelete(action = OnDeleteAction.CASCADE)
 public class VoteGroupToExpel extends VoteGroup {
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "project_member_id", nullable = false)
-    private ProjectMember projectMember;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "candidate_id", nullable = false)
+    private ProjectMember candidate;
 
     @Builder
-    public VoteGroupToExpel(Project project, ProjectMember projectMember) {
+    public VoteGroupToExpel(Project project, ProjectMember candidate) {
         super(project);
 
-        Assert.notNull(projectMember, "projectMember는 필수 값입니다.");
+        Assert.notNull(candidate, "projectMember는 필수 값입니다.");
 
-        this.projectMember = projectMember;
+        this.candidate = candidate;
+    }
+
+    /* @Override 메서드 */
+    @Override
+    protected boolean isVoteCompleted() {
+        int numOfMembers = this.getProject().getProjectMembers().size();
+        int numOfVotes = this.getVotes().size();
+
+        return numOfMembers - 1 == numOfVotes;
     }
 
 }

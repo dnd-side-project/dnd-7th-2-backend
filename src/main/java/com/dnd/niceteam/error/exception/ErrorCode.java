@@ -54,6 +54,12 @@ public enum ErrorCode {
     BOOKMARK_NOT_OWNED(BOOKMARK, SC_BAD_REQUEST, "소유하지 않은 북마크입니다."),
     
     APPLY_ALREADY_ACCEPTED(APPLICANT, SC_BAD_REQUEST, "이미 수락된 지원입니다."),
+    
+    // Vote
+    EXPIRED_VOTE_GROUP(VOTE_GROUP, SC_BAD_REQUEST, "내보내기 투표 기간이 만료되었습니다."),
+    ALREADY_VOTED(VOTE, SC_BAD_REQUEST, "이미 투표에 참여하셨습니다."),
+    NOT_ENOUGH_PROJECT_MEMBER(VOTE, SC_BAD_REQUEST, "투표를 하기 위해서는 팀원 수가 3명 이상이어야 합니다."),
+    SELF_VOTE(VOTE, SC_BAD_REQUEST, "자기자신에게는 투표할 수 없습니다."),
     ;
 
     private final Domain domain;

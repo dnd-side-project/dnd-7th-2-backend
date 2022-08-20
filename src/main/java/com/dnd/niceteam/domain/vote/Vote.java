@@ -11,7 +11,6 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@Builder
 @Table(name = "vote")
 @SQLDelete(sql = "UPDATE vote SET use_yn = false WHERE id = ?")
 @Where(clause = "use_yn = true")
@@ -33,6 +32,15 @@ public class Vote extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "project_member_id", nullable = false)
-    private ProjectMember projectMember;
+    private ProjectMember voter;
+
+    @Builder
+    private Vote(boolean choice, @NonNull VoteGroup voteGroup, @NonNull ProjectMember voter) {
+        this.choice = choice;
+        this.voteGroup = voteGroup;
+        this.voter = voter;
+
+        voteGroup.addVote(this);
+    }
 
 }
