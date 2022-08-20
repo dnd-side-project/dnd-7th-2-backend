@@ -1,6 +1,8 @@
 package com.dnd.niceteam.recruiting.service;
 
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.util.PaginationUtil;
+import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
@@ -16,14 +18,12 @@ import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 
 @Service
@@ -34,6 +34,7 @@ public class RecruitingService {
     private final MemberRepository memberRepository;
     private final ProjectService projectService;
     private final ProjectRepository projectRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional
     public RecruitingCreation.ResponseDto addProjectAndRecruiting(String username, RecruitingCreation.RequestDto recruitingReqDto) {
@@ -50,11 +51,14 @@ public class RecruitingService {
     }
 
     // 모집글 상세
-    public RecruitingFind.DetailResponseDto getRecruiting(Long recruitingId) {
+    public RecruitingFind.DetailResponseDto getRecruiting(Long recruitingId, String username) {
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+        // TODO: 2022-08-20 북마크 체크 테스트 추가 필요 
+        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
+        boolean isBookmarked = bookmarkRepository.existsByMemberAndRecruiting(member, recruiting);
 
-        return RecruitingFind.DetailResponseDto.from(recruiting);
+        return RecruitingFind.DetailResponseDto.from(recruiting, isBookmarked);
     }
 
     // 내가 쓴글
@@ -62,39 +66,24 @@ public class RecruitingService {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
 
         Pageable pageable = PageRequest.of(page - 1, perSize);
-        PageImpl<Recruiting> recruitingPages = findRecruitingsDependsOnStatus(pageable, progressStatus, member.getId());
-        List<RecruitingFind.ListResponseDto> pageContents = recruitingPages
-                .stream().map(RecruitingFind.ListResponseDto::from).collect(Collectors.toList());
 
-        pageable = recruitingPages.getPageable();
+        Page<RecruitingFind.ListResponseDto> recruitingPages = findRecruitingsDependsOnStatus(pageable, progressStatus, member)
+                .map(RecruitingFind.ListResponseDto::fromMyList);
 
-        return Pagination.<RecruitingFind.ListResponseDto>builder()
-                .page(pageable.getPageNumber() + 1)
-                .perSize(pageable.getPageSize())
-                .totalCount(recruitingPages.getTotalElements())
-                .contents(pageContents)
-                .build();
+        return PaginationUtil.pageToPagination(recruitingPages);
     }
 
-    // 추천 사이드 모집글 조회
-    public Pagination<RecruitingFind.RecommendedListResponseDto> getRecommendedRecruiting(int page, int perSize, String username) {
-        // 1. 사용자 조회
+    // 추천 사이드 모집글 목록 조회
+    public Pagination<RecruitingFind.RecommendedListResponseDto> getRecommendedRecruitings(int page, int perSize, String username) {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
 
-        // 2. Field로 필터링 & 해당 Recruiting의 모집자 레벨 순 정렬
+        // Field로 필터링 & 해당 Recruiting의 모집자 레벨 순 정렬
         Pageable pageable = PageRequest.of(page - 1, perSize);
-        PageImpl<Recruiting> recommendedRecruitings = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
-        List<RecruitingFind.RecommendedListResponseDto> pageContents = recommendedRecruitings
-                .stream().map(RecruitingFind.RecommendedListResponseDto::fromRecommendedRecruiting).collect(Collectors.toList());
+        Page<RecruitingFind.RecommendedListResponseDto> recommendedRecruitingPages = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable)
+                .map(RecruitingFind.RecommendedListResponseDto::fromRecommendedList);
 
-        pageable = recommendedRecruitings.getPageable();
-
-        return Pagination.<RecruitingFind.RecommendedListResponseDto>builder()
-                .page(pageable.getPageNumber() + 1)
-                .perSize(pageable.getPageSize())
-                .totalCount(recommendedRecruitings.getTotalElements())
-                .contents(pageContents)
-                .build();    }
+        return PaginationUtil.pageToPagination(recommendedRecruitingPages);
+    }
 
     private ProjectRequest.Register setProjectRequestDto(RecruitingCreation.RequestDto recruitingReqDto) {
         ProjectRequest.Register projectDto = new ProjectRequest.Register();
@@ -119,12 +108,11 @@ public class RecruitingService {
         return projectDto;
     }
 
-    private PageImpl<Recruiting> findRecruitingsDependsOnStatus(Pageable pageable, ProgressStatus progressStatus, Long memberId) {
+    private Page<Recruiting> findRecruitingsDependsOnStatus(Pageable pageable, ProgressStatus progressStatus, Member member) {
         if (isNull(progressStatus))
-            return recruitingRepository.findAllByMemberId(memberId, pageable);
+            return recruitingRepository.findPageByMemberOrderByCreatedDateDesc(pageable, member);
         else {
-            return recruitingRepository.findAllByMemberIdAndStatus(memberId, progressStatus, pageable);
+            return recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, progressStatus);
         }
     }
-
 }
