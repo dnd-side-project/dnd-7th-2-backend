@@ -9,12 +9,12 @@ import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.LectureTime;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.recruiting.ActivityDayTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.university.University;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashSet;
 import java.util.Set;
 
 // service test 시 필요한 Entity 생성 util (임시로 Comment 패키지에)
@@ -30,7 +30,7 @@ public class EntityFactoryForTest {
         return Department.builder()
                 .university(university)
                 .collegeName("단과대학")
-                .name("학과")
+                .name("컴퓨터공학과")
                 .region("서울")
                 .mainBranchType("본교")
                 .build();
@@ -79,7 +79,7 @@ public class EntityFactoryForTest {
     }
     public static SideProject createSideProject() {
         return SideProject.builder()
-                .name("project-name")
+                .name("side")
                 .field(Field.PLANNING_IDEA)
                 .fieldCategory(FieldCategory.CLUB)
                 .startDate(LocalDate.of(2022, 7, 4))
@@ -94,6 +94,7 @@ public class EntityFactoryForTest {
                 .content("test-content")
                 .recruitingMemberCount(4)
                 .recruitingType(type)
+                .activityDayTimes(createActivityDayTime())
                 .activityArea(ActivityArea.ONLINE)
                 .status(ProgressStatus.IN_PROGRESS)
                 .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
@@ -105,4 +106,12 @@ public class EntityFactoryForTest {
                 .build();
     }
 
+    // TODO: 2022-08-18 중복 제거 리팩토링 필요
+    public static Set<ActivityDayTime> createActivityDayTime() {
+        return Set.of(ActivityDayTime.builder()
+                .dayOfWeek(DayOfWeek.SAT)
+                .startTime(LocalTime.of(17, 30))
+                .endTime(LocalTime.of(20, 30))
+                .build());
+    }
 }

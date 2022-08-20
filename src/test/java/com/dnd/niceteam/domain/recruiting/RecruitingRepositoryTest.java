@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,7 +86,7 @@ class RecruitingRepositoryTest {
 
     @Test
     @DisplayName("내가 쓴글 - 전체 조회 Repository Test")
-    void findMyRecruiting_ByMemberId() {
+    void findMyRecruiting_ByMember() {
         // given
         project = projectRepository.save(createLectureProject(department));
         project2 = projectRepository.save(createLectureProject(department));
@@ -96,7 +96,7 @@ class RecruitingRepositoryTest {
         em.clear();
 
         // when
-        PageImpl<Recruiting> foundMyRecruitings = recruitingRepository.findAllByMemberId(1L, pageable);
+        Page<Recruiting> foundMyRecruitings = recruitingRepository.findPageByMemberOrderByCreatedDateDesc(pageable, member);
 
         assertThat(foundMyRecruitings.getTotalPages()).isEqualTo(1);
         assertThat(foundMyRecruitings.getTotalElements()).isEqualTo(2);
@@ -105,28 +105,30 @@ class RecruitingRepositoryTest {
         assertThat(foundMyRecruitings.getContent().get(0).getProject().getName()).isEqualTo("project-name");
     }
 
+    // TODO: 2022-08-20 내가 쓴글이 아닌 경우 목록 조회 테스트 추가 필요
     @Test
     @DisplayName("내가 쓴글 - 모집종료 상태 모집글 필터링 조회 Repository Test")
     void findMyRecruiting_ByMemberIdAndStatus() {
         // given
         project = projectRepository.save(createLectureProject(department));
         project2 = projectRepository.save(createLectureProject(department));
-        recruiting = createRecruiting(member, project, Type.LECTURE);
-        recruiting.updateStatus(ProgressStatus.DONE);
+        Recruiting doneRecruiting = createRecruiting(member, project, Type.LECTURE);
+        doneRecruiting.updateStatus(ProgressStatus.DONE);
+        recruiting = createRecruiting(member, project2, Type.LECTURE);
+        recruitingRepository.save(doneRecruiting);
         recruitingRepository.save(recruiting);
-        recruitingRepository.save(createRecruiting(member, project2, Type.LECTURE));
 
         em.flush();
         em.clear();
 
         // when
-        PageImpl<Recruiting> foundMyRecruitings = recruitingRepository.findAllByMemberIdAndStatus(1L, ProgressStatus.DONE, pageable);
+        Page<Recruiting> foundMyRecruitings = recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, ProgressStatus.DONE);
 
         assertThat(foundMyRecruitings.getTotalPages()).isEqualTo(1);
         assertThat(foundMyRecruitings.getTotalElements()).isEqualTo(1);
-        assertThat(foundMyRecruitings.getContent().get(0).getStatus()).isEqualTo(recruiting.getStatus());
+        assertThat(foundMyRecruitings.getContent().get(0).getStatus()).isEqualTo(doneRecruiting.getStatus());
         assertThat(foundMyRecruitings.getContent().size()).isEqualTo(1);
-        assertThat(foundMyRecruitings.getContent().get(0).getProject().getName()).isEqualTo("project-name");
+        assertThat(foundMyRecruitings.getContent().get(0).getTitle()).isEqualTo("test-title");
     }
 
     @Test
@@ -183,7 +185,7 @@ class RecruitingRepositoryTest {
 
         // when
         pageable = PageRequest.of(page - 1, 4);
-        PageImpl<Recruiting> foundRecommendedRecruitings = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
+        Page<Recruiting> foundRecommendedRecruitings = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
 
         // then
         assertThat(foundRecommendedRecruitings.getTotalElements()).isEqualTo(2);

@@ -3,38 +3,44 @@ package com.dnd.niceteam.recruiting.dto;
 import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.recruiting.ActivityDayTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.exception.InvalidRecruitingTypeException;
 import com.dnd.niceteam.project.dto.ProjectResponse;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface RecruitingFind {
     @Data
     class DetailResponseDto {  // 상세 조회
-        private String memberNickname;
-        private String title;
-        private String content;
-        private Type recruitingType;
-        private ProgressStatus recruitingStatus;
-        private Integer commentCount;
-        private Integer bookmarkCount;
-        private String introLink;
+        @NotNull private String memberNickname;
+        @NotNull private String title;
+        @NotNull private String content;
+        @NotNull private Type recruitingType;
+        @NotNull private ProgressStatus recruitingStatus;
+        @NotNull private Integer commentCount;
+        @NotNull private Integer bookmarkCount;
+        @NotNull private String introLink;
 
-        private Integer recruitingMemberCount;
-        private ActivityArea activityArea;
-        private Set<Personality.Adjective> personalityAdjectives;
-        private Set<Personality.Noun> personalityNouns;
-        private LocalDate RecruitingEndDate;    // 기간이 정해져있지 않으면 null
+        @NotNull private Integer recruitingMemberCount;
+        @NotNull private ActivityArea activityArea;
+        @NotNull private Set<Personality.Adjective> personalityAdjectives;
+        @NotNull private Set<Personality.Noun> personalityNouns;
+        private LocalDate recruitingEndDate;    // 기간이 정해져있지 않으면 null
+        @NotNull private Set<ActivityDayTimeDto> activityDayTimes;
+        @NotNull private Boolean isBookmarked;
+        @NotNull private LocalDateTime recruitingCreatedDate;
 
-        private ProjectResponse.Detail projectResponse;
+        @JsonIgnoreProperties(value = {"memberList", "memberCount"})
+        @NotNull private ProjectResponse.Detail projectResponse;
 
-        private LocalDateTime recruitingCreatedDate;
-
-        public static RecruitingFind.DetailResponseDto from(Recruiting recruiting) {
+        public static RecruitingFind.DetailResponseDto from(Recruiting recruiting, boolean isBookmarked) {
             RecruitingFind.DetailResponseDto dto = new RecruitingFind.DetailResponseDto();
             dto.setTitle(recruiting.getTitle());
             dto.setMemberNickname(recruiting.getMember().getNickname());
@@ -46,55 +52,68 @@ public interface RecruitingFind {
             dto.setBookmarkCount(recruiting.getBookmarkCount());
             dto.setCommentCount(recruiting.getCommentCount());
             dto.setActivityArea(recruiting.getActivityArea());
+            dto.setActivityDayTimes(convertToDto(recruiting.getActivityDayTimes()));
             dto.setPersonalityAdjectives(recruiting.getPersonalityAdjectives());
-            dto.setRecruitingEndDate(recruiting.getRecruitingEndDate());
             dto.setPersonalityNouns(recruiting.getPersonalityNouns());
-
+            dto.setRecruitingEndDate(recruiting.getRecruitingEndDate());
+            dto.setIsBookmarked(isBookmarked);
             dto.setRecruitingCreatedDate(recruiting.getCreatedDate());
 
-            // Project
             ProjectResponse.Detail projectDto;
             // TODO: 2022-08-16 DTO 구분을 위한 메서드 (리팩터링)?
-            switch (recruiting.getProject().getType()) {
+            switch (recruiting.getRecruitingType()) {
                 case LECTURE: projectDto = ProjectResponse.Detail.from((LectureProject) recruiting.getProject()); break;
                 case SIDE: projectDto = ProjectResponse.Detail.from((SideProject) recruiting.getProject()); break;
-                default: throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getProject().getType());
+                default: throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getRecruitingType());
             }
             dto.setProjectResponse(projectDto);
 
             return dto;
         }
+
+        private static Set<ActivityDayTimeDto> convertToDto(Set<ActivityDayTime> activityDayTimes) {
+            return activityDayTimes.stream()
+                    .map(ActivityDayTimeDto::from).collect(Collectors.toSet());
+        }
     }
 
     @Data
-    class ListResponseDto {    // 목록 조회
-        private Long id;
-        private String title;
-        private String content;
-        private Type recruitingType;
-        private ProgressStatus recruitingStatus;
-        private Integer commentCount;
-        private Integer bookmarkCount;
-        private String projectName;
+    class ListResponseDto {
+        // 목록 조회
+        @NotNull private Long id;
+        @NotNull private String title;
+        @NotNull private Type type;
+        @NotNull private ProgressStatus status;
+        @NotNull private Integer commentCount;
+        @NotNull private Integer bookmarkCount;
+        @NotNull private String projectName;
 
         private String professor;
 
         private Field field;
         private FieldCategory fieldCategory;
+        // 내가 쓴글 조회
+        private LocalDateTime createdDate;
 
-        public static ListResponseDto from(Recruiting recruiting) {
+        public static ListResponseDto fromMyList(Recruiting recruiting) {
+            ListResponseDto dto = createCommonListResponseDto(recruiting);
+
+            dto.setCreatedDate(recruiting.getCreatedDate());
+            return dto;
+        }
+
+        private static ListResponseDto createCommonListResponseDto(Recruiting recruiting) {
             ListResponseDto dto = new ListResponseDto();
             dto.setId(recruiting.getId());
             dto.setTitle(recruiting.getTitle());
-            dto.setContent(recruiting.getContent());
-            dto.setRecruitingType(recruiting.getRecruitingType());
-            dto.setRecruitingStatus(recruiting.getStatus());
+            dto.setType(recruiting.getRecruitingType());
+            dto.setStatus(recruiting.getStatus());
             dto.setCommentCount(recruiting.getCommentCount());
             dto.setBookmarkCount(recruiting.getBookmarkCount());
             dto.setProjectName(recruiting.getProject().getName());
 
             // TODO: 2022-08-16 Factory 클래스에 구분 메서드 (리팩토링)?
-            switch (recruiting.getProject().getType()) {
+            switch (recruiting.getRecruitingType()) {
                 case SIDE:
                     SideProject sideProject = (SideProject) recruiting.getProject();
                     dto.setField(sideProject.getField());
@@ -105,7 +124,7 @@ public interface RecruitingFind {
                     dto.setProfessor(lectureProject.getProfessor());
                     break;
                 default:
-                    throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getProject().getType());
+                    throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getRecruitingType());
             }
             return dto;
         }
@@ -121,7 +140,7 @@ public interface RecruitingFind {
         private LocalDate projectEndDate;
         private LocalDate recruitingEndDate;
 
-        public static RecommendedListResponseDto fromRecommendedRecruiting(Recruiting recruiting) {
+        public static RecommendedListResponseDto fromRecommendedList(Recruiting recruiting) {
             RecommendedListResponseDto dto = new RecommendedListResponseDto();
             dto.setRecruitingId(recruiting.getId());
             dto.setTitle(recruiting.getTitle());
