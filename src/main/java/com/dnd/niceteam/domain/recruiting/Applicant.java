@@ -2,6 +2,8 @@ package com.dnd.niceteam.domain.recruiting;
 
 import com.dnd.niceteam.domain.common.BaseTimeEntity;
 import com.dnd.niceteam.domain.member.Member;
+import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.domain.project.ProjectMember;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -32,5 +34,10 @@ public class Applicant extends BaseTimeEntity {
     @Builder.Default
     @Column(nullable = false)
     private Boolean joined = false;
+
+    public void join(Project project, ProjectMember projectMember) {
+        joined = true;
+        project.addMember(projectMember);
+    }
 
 }

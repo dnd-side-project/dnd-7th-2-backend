@@ -8,12 +8,21 @@ import com.dnd.niceteam.domain.department.exception.DepartmentNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.project.*;
+import com.dnd.niceteam.domain.recruiting.Applicant;
+import com.dnd.niceteam.domain.recruiting.ApplicantRepository;
+import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
+import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
+import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.member.util.MemberUtils;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
+import com.dnd.niceteam.project.dto.ProjectMemberRequest;
 import com.dnd.niceteam.project.dto.ProjectRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.exception.InvalidProjectSchedule;
+import com.dnd.niceteam.project.exception.ProjectMemberAlreadyJoinedException;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
+import com.dnd.niceteam.recruiting.exception.OnlyRecruiterAvailableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +50,8 @@ public class ProjectService {
     private final DepartmentRepository departmentRepository;
     private final MemberRepository memberRepository;
 
+    private final RecruitingRepository recruitingRepository;
+    private final ApplicantRepository applicantRepository;
     private final ProjectMemberRepository projectMemberRepository;
     
     // TODO: 기획 논의 후 startDate, endDate에 @Past, @Future 등의 유효성검사 어노테이션 붙이기
@@ -73,6 +84,26 @@ public class ProjectService {
 
         Project project = findProject(projectId, currentMember.getId());
         return ProjectResponse.Detail.from(project);
+    }
+
+    @Transactional
+    public void addProjectMember(ProjectMemberRequest.Add request, User user) {
+        Member currentMember =          MemberUtils.findMemberByEmail(user.getUsername(), memberRepository);
+        Recruiting recruiting =         findRecruiting(request.getRecruitingId());
+        Project project =               recruiting.getProject();
+
+        Long currentMemberId =          currentMember.getId();
+        Long recruitingId =             recruiting.getId();
+        Long applicantMemberId =        request.getApplicantMemberId();
+        Long projectId =                project.getId();
+
+        Applicant applicant =           findApplicant(applicantMemberId, recruitingId);
+
+        if (!recruiting.checkRecruiter(currentMember))      throw new OnlyRecruiterAvailableException(currentMemberId, recruitingId);
+        if (isApplicantJoined(project, applicant))   throw new ProjectMemberAlreadyJoinedException(projectId, applicantMemberId);
+
+        ProjectMember projectMember = saveProjectMember(project, applicant.getMember());
+        applicant.join(project, projectMember);
     }
 
     /* private 메서드 */
@@ -135,6 +166,11 @@ public class ProjectService {
                 .build();
     }
 
+    // 프로젝트 멤버 등록 관련
+    private boolean isApplicantJoined(Project project, Applicant applicant) {
+        return project.hasMember(applicant.getMember());
+    }
+
     /* JPA 메서드 */
     private LectureProject saveLectureProject(ProjectRequest.Register request) {
         Department department = departmentRepository.findById(request.getDepartmentId())
@@ -182,4 +218,13 @@ public class ProjectService {
         return projectRepository.findAll(spec, pageable);
     }
 
+    private Recruiting findRecruiting(Long recruitingId) {
+        return recruitingRepository.findById(recruitingId)
+                .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+    }
+
+    private Applicant findApplicant(Long applicantMemberId, Long recruitingId) {
+        return applicantRepository.findByMemberIdAndRecruitingId(applicantMemberId, recruitingId)
+                .orElseThrow(() -> new ApplicantNotFoundException("memberId = " + applicantMemberId));
+    }
 }
