@@ -3,7 +3,9 @@ package com.dnd.niceteam.project.controller;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.project.ProjectStatus;
+import com.dnd.niceteam.project.ProjectTestFactory;
 import com.dnd.niceteam.project.dto.LectureTimeResponse;
+import com.dnd.niceteam.project.dto.ProjectMemberRequest;
 import com.dnd.niceteam.project.dto.ProjectMemberResponse;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.service.ProjectService;
@@ -31,8 +33,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -181,6 +185,33 @@ class ProjectControllerTest {
                                         fieldWithPath("lastModifiedDate").description("수정일시"),
                                         fieldWithPath("createdBy").description("생성자"),
                                         fieldWithPath("lastModifiedBy").description("수정자")
+                                )
+                        )
+                );
+    }
+
+    @DisplayName("프로젝트 팀원 등록")
+    @Test
+    @WithMockUser
+    void addProjectMember() throws Exception {
+        // given
+        ProjectMemberRequest.Add request = ProjectTestFactory.createProjectMemberAddRequest();
+
+        // then
+        mockMvc.perform(
+                        post("/projects/project-members")
+                                .with(csrf())
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(
+                        document("add-project-member",
+                                requestFields(
+                                        fieldWithPath("applicantMemberId").description("지원자 회원 식별자"),
+                                        fieldWithPath("recruitingId").description("모집글 식별자")
                                 )
                         )
                 );

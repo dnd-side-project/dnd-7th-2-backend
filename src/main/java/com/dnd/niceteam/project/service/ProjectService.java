@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final LectureProjectRepository lectureSideProjectRepository;
+    private final LectureProjectRepository lectureProjectRepository;
     private final SideProjectRepository sideProjectRepository;
     private final DepartmentRepository departmentRepository;
     private final MemberRepository memberRepository;
@@ -177,7 +177,7 @@ public class ProjectService {
                 .orElseThrow(() -> new DepartmentNotFoundException("id = " + request.getDepartmentId()));
 
         LectureProject lectureProject = request.toLectureProject(department);
-        return lectureSideProjectRepository.save(lectureProject);
+        return lectureProjectRepository.save(lectureProject);
     }
 
     private SideProject saveSideProject(ProjectRequest.Register request) {

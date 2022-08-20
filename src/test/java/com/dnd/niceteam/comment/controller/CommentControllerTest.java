@@ -1,8 +1,8 @@
 package com.dnd.niceteam.comment.controller;
 
+import com.dnd.niceteam.comment.DtoFactoryForTest;
 import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.comment.service.CommentService;
-import com.dnd.niceteam.comment.CommentTestFactory;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.dnd.niceteam.comment.CommentTestFactory.RECRUITING_ID;
+import static com.dnd.niceteam.comment.DtoFactoryForTest.RECRUITING_ID;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -45,8 +45,8 @@ class CommentControllerTest {
     @DisplayName("댓글 등록 API를 요청합니다.")
     public void commentCreate() throws Exception {
         //given
-        CommentCreation.RequestDto request = CommentTestFactory.createCommentRequest();
-        CommentCreation.ResponseDto response = CommentTestFactory.createCommentResponse();
+        CommentCreation.RequestDto request = DtoFactoryForTest.createCommentRequest();
+        CommentCreation.ResponseDto response = DtoFactoryForTest.createCommentResponse();
         when(commentService.addComment(anyLong(), anyString(), eq(request))).thenReturn(response);
 
         //then
