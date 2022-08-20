@@ -3,6 +3,7 @@ package com.dnd.niceteam.recruiting.dto;
 import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.domain.recruiting.ActivityDayTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import lombok.Data;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface RecruitingCreation {
     @Data
@@ -32,6 +34,8 @@ public interface RecruitingCreation {
         private ProgressStatus status;
         @Nullable
         private LocalDate recruitingEndDate;    // 기간이 정해져있지 않으면 null
+        @NotNull
+        private Set<ActivityDayTimeDto> activityDayTimes;
 
         @NotNull
         private Set<Personality.Adjective> personalityAdjectives;
@@ -66,6 +70,7 @@ public interface RecruitingCreation {
                     .recruitingMemberCount(recruitingMemberCount)
                     .recruitingType(recruitingType)
                     .activityArea(activityArea)
+                    .activityDayTimes(convertToEntity(activityDayTimes))
                     .recruitingEndDate(recruitingEndDate)
                     .bookmarkCount(0)
                     .commentCount(0)
@@ -75,6 +80,11 @@ public interface RecruitingCreation {
                     .personalityAdjectives(personalityAdjectives)
                     .personalityNouns(personalityNouns)
                     .build();
+        }
+
+        private Set<ActivityDayTime> convertToEntity(Set<ActivityDayTimeDto> activityDayTimes) {
+            return activityDayTimes.stream()
+                    .map(ActivityDayTimeDto::toEntity).collect(Collectors.toSet());
         }
     }
 
