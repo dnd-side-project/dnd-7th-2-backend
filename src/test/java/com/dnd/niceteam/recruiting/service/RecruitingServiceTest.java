@@ -7,6 +7,7 @@ import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
+import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
@@ -30,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,7 +121,7 @@ class RecruitingServiceTest {
         Recruiting savedRecruiting = recruitingRepository.save(createRecruiting(member, savedProject, Type.LECTURE));
 
         //when
-        RecruitingFind.DetailResponseDto responseDto = recruitingService.getRecruiting(savedRecruiting.getId());
+        RecruitingFind.DetailResponseDto responseDto = recruitingService.getRecruiting(savedRecruiting.getId(), account.getEmail());
 
         //then
         Recruiting foundRecruiting = recruitingRepository.findById(savedRecruiting.getId())
@@ -133,26 +134,26 @@ class RecruitingServiceTest {
         assertThat(foundRecruiting.getProject().getType()).isEqualTo(foundProject.getType());
     }
 
-    @DisplayName("내가 쓴 글 전체 조회 서비스 테스트 코드")
+    @DisplayName("내가 쓴 글 전체 조회 및 상태 별 조회 서비스 테스트 코드")
     @Test
     public void getMyRecruitingsPage() {
         // given
         Project savedLectureProject = projectRepository.save(createLectureProject(department));
         Project savedSideProject = projectRepository.save(createSideProject());
-        Recruiting savedRecruiting1 = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
+        Recruiting savedRecruitingWithDone = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
+        savedRecruitingWithDone.updateStatus(ProgressStatus.DONE);
         Recruiting savedRecruiting2 = recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
 
-        //when
+        //when - 전체 조회
         Pagination<RecruitingFind.ListResponseDto> myRecruitings = recruitingService.getMyRecruitings(page, perSize, null, account.getEmail());
 
         // then
-        PageImpl<Recruiting> foundMyRecruitingsPage = recruitingRepository.findAllByMemberId(member.getId(), pageable);
+        Page<Recruiting> foundMyRecruitingsPage = recruitingRepository.findPageByMemberOrderByCreatedDateDesc(pageable, member);
 
         assertThat(myRecruitings.getTotalCount()).isEqualTo(foundMyRecruitingsPage.getTotalElements());
-        assertThat(myRecruitings.getPage()).isEqualTo(page);
+        assertThat(myRecruitings.getTotalPages()).isEqualTo(1);
         assertThat(myRecruitings.getPerSize()).isEqualTo(perSize);
-        assertThat(myRecruitings.getTotalPages()).isEqualTo(foundMyRecruitingsPage.getTotalPages());
-        assertThat(myRecruitings.getContents().get(0).getRecruitingType()).isEqualTo(savedRecruiting2.getRecruitingType());
+        assertThat(myRecruitings.getContents().get(0).getType()).isEqualTo(savedRecruiting2.getRecruitingType());
         assertThat(myRecruitings.getContents().get(1).getProfessor()).isEqualTo("test-professor");
     }
 
@@ -170,19 +171,20 @@ class RecruitingServiceTest {
                         .endDate(LocalDate.of(2022, 8, 30))
                         .build()
         );
-        Recruiting savedRecruiting1 = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
-        Recruiting savedRecruiting2 = recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
+        recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
         Recruiting savedRecommendedRecruiting = recruitingRepository.save(createRecruiting(member, savedRecommendedSideProject, Type.SIDE));
 
         //when
-        Pagination<RecruitingFind.RecommendedListResponseDto> recommendedRecruitings = recruitingService.getRecommendedRecruiting(page, perSize, account.getEmail());
+        Pagination<RecruitingFind.RecommendedListResponseDto> recommendedRecruitings = recruitingService.getRecommendedRecruitings(page, perSize, account.getEmail());
 
         // then
-        PageImpl<Recruiting> foundRecommendedRecruitingsPage = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
+        Page<Recruiting> foundRecommendedRecruitingsPage = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
 
         assertThat(recommendedRecruitings.getTotalCount()).isEqualTo(foundRecommendedRecruitingsPage.getTotalElements());
-        assertThat(recommendedRecruitings.getPage()).isEqualTo(page);
-        assertThat(recommendedRecruitings.getPerSize()).isEqualTo(perSize);
+        assertThat(recommendedRecruitings.getPage()).isEqualTo(0);
+        assertThat(recommendedRecruitings.getTotalPages()).isEqualTo(1);
+        assertThat(recommendedRecruitings.getPerSize()).isEqualTo(5);
         assertThat(recommendedRecruitings.getTotalPages()).isEqualTo(foundRecommendedRecruitingsPage.getTotalPages());
         assertThat(recommendedRecruitings.getContents().get(0).getRecruitingId()).isEqualTo(savedRecommendedRecruiting.getId());
         assertThat(recommendedRecruitings.getContents().size()).isEqualTo(1);
