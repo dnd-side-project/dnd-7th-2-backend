@@ -4,6 +4,7 @@ import com.dnd.niceteam.domain.code.DayOfWeek;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
 import com.dnd.niceteam.domain.code.Type;
+import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import com.dnd.niceteam.project.dto.ProjectRequest;
 
@@ -48,6 +49,12 @@ public class ProjectTestFactory {
         request.setStartTime(startTime);
 
         return request;
+    }
+
+    public static Member createMember() {
+        return Member.builder()
+                .id(1L)
+                .build();
     }
 
 }

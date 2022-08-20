@@ -40,10 +40,12 @@ public class ProjectService {
     private final SideProjectRepository sideProjectRepository;
     private final DepartmentRepository departmentRepository;
     private final MemberRepository memberRepository;
+
+    private final ProjectMemberRepository projectMemberRepository;
     
     // TODO: 기획 논의 후 startDate, endDate에 @Past, @Future 등의 유효성검사 어노테이션 붙이기
     @Transactional
-    public ProjectResponse.Detail registerProject(ProjectRequest.Register request) {
+    public ProjectResponse.Detail registerProject(ProjectRequest.Register request, Member currentMamber) {
         LocalDate startDate =           request.getStartDate();
         LocalDate endDate =             request.getEndDate();
 
@@ -51,7 +53,7 @@ public class ProjectService {
             throw new InvalidProjectSchedule("startDate = " + startDate + ", endDate = " + endDate);
         }
 
-        return saveProject(request);
+        return saveProject(request, currentMamber);
     }
 
     @Transactional
@@ -75,12 +77,15 @@ public class ProjectService {
 
     /* private 메서드 */
     // 프로젝트 등록 관련
-    private ProjectResponse.Detail saveProject(ProjectRequest.Register request) {
-        if (request.getType() == Type.LECTURE) {
-            return ProjectResponse.Detail.from(saveLectureProject(request));
-        } else {
-            return ProjectResponse.Detail.from(saveSideProject(request));
-        }
+    private ProjectResponse.Detail saveProject(ProjectRequest.Register request, Member currentMember) {
+        Project project;
+
+        if (request.getType() == Type.LECTURE)      project = saveLectureProject(request);
+        else                                        project = saveSideProject(request);
+
+        ProjectMember recruiter = saveProjectMember(project, currentMember);
+        project.addMember(recruiter);
+        return ProjectResponse.Detail.from(project);
     }
 
     // 프로젝트 수정 관련
@@ -142,6 +147,14 @@ public class ProjectService {
     private SideProject saveSideProject(ProjectRequest.Register request) {
         SideProject sideProject = request.toSideProject();
         return sideProjectRepository.save(sideProject);
+    }
+
+    private ProjectMember saveProjectMember(Project project, Member member) {
+        ProjectMember projectMember = ProjectMember.builder()
+                .project(project)
+                .member(member)
+                .build();
+        return projectMemberRepository.save(projectMember);
     }
 
     // DB : 팀플 조회

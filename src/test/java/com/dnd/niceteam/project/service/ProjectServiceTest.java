@@ -3,6 +3,7 @@ package com.dnd.niceteam.project.service;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
+import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.LectureProjectRepository;
 import com.dnd.niceteam.domain.project.SideProject;
@@ -48,6 +49,7 @@ class ProjectServiceTest {
     void registerLectureProject() {
         // given
         ProjectRequest.Register request = ProjectTestFactory.createRegisterRequest(Type.LECTURE);
+        Member member = ProjectTestFactory.createMember();
 
         Department department = mock(Department.class, RETURNS_DEEP_STUBS);
         when(departmentRepository.findById(anyLong())).thenReturn(Optional.of(department));
@@ -60,7 +62,7 @@ class ProjectServiceTest {
             mockedDepartmentResponse.when(() -> DepartmentResponse.from(any())).thenReturn(departmentResponse);
 
             // when
-            ProjectResponse.Detail response = projectService.registerProject(request);
+            ProjectResponse.Detail response = projectService.registerProject(request, member);
 
             // then
             assertAll(
@@ -84,11 +86,12 @@ class ProjectServiceTest {
     void registerSideProject() {
         // given
         ProjectRequest.Register request = ProjectTestFactory.createRegisterRequest(Type.SIDE);
+        Member member = ProjectTestFactory.createMember();
         SideProject newSideProject = request.toSideProject();
 
         // when
         when(sideProjectRepository.save(any(SideProject.class))).thenReturn(newSideProject);
-        ProjectResponse.Detail response = projectService.registerProject(request);
+        ProjectResponse.Detail response = projectService.registerProject(request, member);
 
         // then
         assertAll(
@@ -112,6 +115,7 @@ class ProjectServiceTest {
     void checkProjectScheduleWhenRegistering() {
         // given
         ProjectRequest.Register request = ProjectTestFactory.createRegisterRequest(Type.LECTURE);
+        Member member = ProjectTestFactory.createMember();
 
         LocalDate startDate = request.getStartDate();
         request.setEndDate(startDate.minusDays(1));
@@ -119,7 +123,7 @@ class ProjectServiceTest {
         // when
         InvalidProjectSchedule exception = assertThrows(
                 InvalidProjectSchedule.class,
-                () -> projectService.registerProject(request)
+                () -> projectService.registerProject(request, member)
         );
 
         // then
