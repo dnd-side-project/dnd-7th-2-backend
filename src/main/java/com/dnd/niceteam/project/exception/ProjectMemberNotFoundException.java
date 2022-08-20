@@ -5,7 +5,7 @@ import com.dnd.niceteam.error.exception.ErrorCode;
 
 public class ProjectMemberNotFoundException extends BusinessException {
 
-    public ProjectMemberNotFoundException(String message) {
-        super(ErrorCode.PROJECT_MEMBER_NOT_FOUND, message);
+    public ProjectMemberNotFoundException(Long memberId) {
+        super(ErrorCode.PROJECT_MEMBER_NOT_FOUND, "memberId = " + memberId);
     }
 }

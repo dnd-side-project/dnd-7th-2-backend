@@ -38,6 +38,7 @@ public enum ErrorCode {
     PROJECT_NOT_FOUND(PROJECT, SC_NOT_FOUND, "존재하지 않는 프로젝트입니다."),
 
     PROJECT_MEMBER_NOT_FOUND(PROJECT_MEMBER, SC_NOT_FOUND, "존재하지 않는 팀원입니다."),
+    PROJECT_ALREADY_DONE(VOTE_GROUP, SC_BAD_REQUEST, "팀플이 이미 완료되었습니다."),
 
     // Recruiting
     INVALID_RECRUITING_TYPE(RECRUITING, SC_BAD_REQUEST, "모집글 타입이 유효하지 않습니다."),

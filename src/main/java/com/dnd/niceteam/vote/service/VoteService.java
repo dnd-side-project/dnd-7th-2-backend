@@ -102,13 +102,13 @@ public class VoteService {
         return project.getProjectMembers().stream()
                 .filter(projectMember -> Objects.equals(projectMember.getMember().getId(), memberId))
                 .findAny()
-                .orElseThrow(() ->  new ProjectMemberNotFoundException("memberId = " + memberId));
+                .orElseThrow(() ->  new ProjectMemberNotFoundException(memberId));
     }
 
     /* JPA 메서드 */
     private Project findProject(Long projectId) {
         return projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
 }

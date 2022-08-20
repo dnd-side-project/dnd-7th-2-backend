@@ -104,7 +104,7 @@ class RecruitingServiceTest {
         Recruiting createdRecruiting = recruitingRepository.findById(recruitingResDto.getRecruitingId())
                         .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingResDto.getRecruitingId()));
         Project createdProject = projectRepository.findById(createdRecruiting.getProject().getId())
-                .orElseThrow(() -> new ProjectNotFoundException("projectId = " + createdRecruiting.getProject().getId()));
+                .orElseThrow(() -> new ProjectNotFoundException(createdRecruiting.getProject().getId()));
 
         assertThat(createdRecruiting.getPersonalityAdjectives()).size().isEqualTo(2);
         assertThat(createdRecruiting.getId()).isEqualTo(recruitingResDto.getRecruitingId());
@@ -126,7 +126,7 @@ class RecruitingServiceTest {
         Recruiting foundRecruiting = recruitingRepository.findById(savedRecruiting.getId())
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + savedRecruiting.getId()));
         Project foundProject = projectRepository.findById(responseDto.getProjectResponse().getId())
-                .orElseThrow(() -> new ProjectNotFoundException("projectId = " + responseDto.getProjectResponse().getId()));
+                .orElseThrow(() -> new ProjectNotFoundException(responseDto.getProjectResponse().getId()));
 
         assertThat(foundRecruiting.getPersonalityNouns()).size().isEqualTo(2);
         assertThat(foundRecruiting.getTitle()).isEqualTo(responseDto.getTitle());

@@ -147,7 +147,7 @@ public class ProjectService {
     // DB : 팀플 조회
     private Project findProject(Long projectId, Long memberId) {
         return findOptionalProject(projectId, memberId)
-                .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
     private Optional<Project> findOptionalProject(Long projectId, Long memberId) {
