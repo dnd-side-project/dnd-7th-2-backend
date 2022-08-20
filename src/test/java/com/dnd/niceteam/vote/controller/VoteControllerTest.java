@@ -1,15 +1,17 @@
 package com.dnd.niceteam.vote.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
-import com.dnd.niceteam.review.MemberReviewTestFactory;
-import com.dnd.niceteam.review.dto.MemberReviewRequest;
 import com.dnd.niceteam.security.SecurityConfig;
+import com.dnd.niceteam.vote.VoteTestFactory;
+import com.dnd.niceteam.vote.dto.VoteRequest;
+import com.dnd.niceteam.vote.service.VoteService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
@@ -36,17 +38,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VoteControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
+
+    @MockBean
+    VoteService voteService;
 
     @Test
     @WithMockUser
     @DisplayName("투표 표 등록")
     void addMemberReview() throws Exception {
         // given
-        MemberReviewRequest.Add request = MemberReviewTestFactory.getAddRequest();
+        VoteRequest.Add request = VoteTestFactory.createVoteToCompleteAddRequest();
 
         // then
         mockMvc.perform(
