@@ -4,6 +4,7 @@ import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
+import com.dnd.niceteam.recruiting.dto.ActivityDayTimeDto;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 
@@ -45,6 +46,7 @@ public class DtoFactoryForTest {
         dto.setIntroLink("test-intro");
         dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CREATIVE));
         dto.setPersonalityNouns(Set.of(Personality.Noun.INVENTOR, Personality.Noun.MEDIATOR));
+        dto.setActivityDayTimes(createActivityDayTimesDto());
 
         dto.setProjectStartDate(LocalDate.of(2022, 7, 4));
         dto.setProjectEndDate(LocalDate.of(2022, 8, 28));
@@ -86,6 +88,8 @@ public class DtoFactoryForTest {
         dto.setIntroLink("test-intro");
         dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CHEERFUL));
         dto.setPersonalityNouns(Set.of(Personality.Noun.INVENTOR, Personality.Noun.JACK_OF_ALL_TRADES));
+        dto.setActivityDayTimes(createActivityDayTimesDto());
+        dto.setIsBookmarked(Boolean.FALSE);
 
         ProjectResponse.Detail detailProject = new ProjectResponse.Detail();
         detailProject.setStartDate(LocalDate.of(2022, 7, 4));
@@ -102,9 +106,8 @@ public class DtoFactoryForTest {
         RecruitingFind.ListResponseDto dto = new RecruitingFind.ListResponseDto();
         dto.setId(RECRUITING_ID);
         dto.setTitle("모집글 제목 테스트");
-        dto.setContent("모집글 내용 테스트");
-        dto.setRecruitingType(Type.LECTURE);
-        dto.setRecruitingStatus(ProgressStatus.IN_PROGRESS);
+        dto.setType(Type.LECTURE);
+        dto.setStatus(ProgressStatus.IN_PROGRESS);
         dto.setCommentCount(0);
         dto.setBookmarkCount(0);
         dto.setProjectName("test-lecture-project-name");
@@ -124,5 +127,14 @@ public class DtoFactoryForTest {
         dto.setField(Field.AD_MARKETING);
         dto.setFieldCategory(FieldCategory.CONTEST);
         return dto;
+    }
+
+    public static Set<ActivityDayTimeDto> createActivityDayTimesDto() {
+        ActivityDayTimeDto dto = new ActivityDayTimeDto();
+        dto.setDayOfWeek(DayOfWeek.SAT);
+        dto.setStartTime(LocalTime.of(17, 30));
+        dto.setEndTime(LocalTime.of(20, 30));
+
+        return Set.of(dto);
     }
 }
