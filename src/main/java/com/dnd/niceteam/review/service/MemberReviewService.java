@@ -70,7 +70,7 @@ public class MemberReviewService {
     // DB 조회 : Project
     private Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("id = " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
     // DB 조회 : ProjectMember
@@ -88,7 +88,7 @@ public class MemberReviewService {
         return project.getProjectMembers().stream()
                 .filter(projectMember -> Objects.equals(projectMember.getMember().getId(), member.getId()))
                 .findAny()
-                .orElseThrow(() -> new ProjectMemberNotFoundException("memberId = " + member.getId()));
+                .orElseThrow(() -> new ProjectMemberNotFoundException(member.getId()));
     }
 
     /* 내부 클래스 */
