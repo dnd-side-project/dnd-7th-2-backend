@@ -57,6 +57,10 @@ dependencies {
 
     implementation 'io.awspring.cloud:spring-cloud-starter-aws-parameter-store-config'
 
+    // Firebase FCM
+    implementation 'com.google.firebase:firebase-admin:7.1.0'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'

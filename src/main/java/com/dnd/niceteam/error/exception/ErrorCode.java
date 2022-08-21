@@ -65,6 +65,9 @@ public enum ErrorCode {
     ALREADY_VOTED(VOTE, SC_BAD_REQUEST, "이미 투표에 참여하셨습니다."),
     NOT_ENOUGH_PROJECT_MEMBER(VOTE, SC_BAD_REQUEST, "투표를 하기 위해서는 팀원 수가 3명 이상이어야 합니다."),
     SELF_VOTE(VOTE, SC_BAD_REQUEST, "자기자신에게는 투표할 수 없습니다."),
+
+    // Firebase Notification
+    NOTIFICATION_PUSH_FAILED(NOTIFICATION, SC_INTERNAL_SERVER_ERROR, "푸쉬 알림 전송에 실패했습니다."),
     ;
 
     private final Domain domain;

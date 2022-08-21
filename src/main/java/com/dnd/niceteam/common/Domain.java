@@ -20,5 +20,7 @@ public enum Domain {
     APPLICANT,
 
     BOOKMARK,
+
+    NOTIFICATION,
     ;
 }

@@ -4,15 +4,14 @@ spring:
   profiles:
     active: local
     group:
-      local: db, jwt, mail
-      dev: db, jwt, mail
+      local: db, firebase, jwt, mail
+      dev: db, firebase, jwt, mail
 aws:
   paramstore:
     name: niceteam
     enabled: true
     prefix: /config
     profile-separator: _
-
 ---
 spring:
   config:
