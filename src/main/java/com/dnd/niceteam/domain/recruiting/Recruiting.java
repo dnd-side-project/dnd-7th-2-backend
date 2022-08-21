@@ -71,7 +71,7 @@ public class Recruiting extends BaseEntity {
     @Column(name = "pool_up_date")
     private LocalDateTime poolUpDate;
 
-    @Column(name = "intro_link")
+    @Column(name = "intro_link", nullable = false)
     private String introLink;
 
     @Builder.Default
@@ -91,6 +91,14 @@ public class Recruiting extends BaseEntity {
             joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
     @Column(name = "noun", length = 25, nullable = false)
     private Set<Personality.Noun> personalityNouns = new HashSet<>();
+
+    @Builder.Default
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name="recruiting_activity_day_time",
+            joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
+    @Column(name = "activity_day_times", length = 50, nullable = false)
+    private Set<ActivityDayTime> activityDayTimes = new HashSet<>();
 
     public void plusCommentCount() {
         this.commentCount += 1;

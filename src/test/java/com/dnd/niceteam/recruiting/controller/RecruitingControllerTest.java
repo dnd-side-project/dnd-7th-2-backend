@@ -79,7 +79,7 @@ class RecruitingControllerTest {
                                         fieldWithPath("recruitingMemberCount").description("모집 인원"),
                                         fieldWithPath("recruitingType").description("모집글 타입"),
                                         fieldWithPath("activityArea").description("활동 지역"),
-                                        fieldWithPath("introLink").description("프로젝트 소개"),
+                                        fieldWithPath("introLink").description("프로젝트 소개(없다면 null이 아닌 빈 문자열)"),
                                         fieldWithPath("status").description("모집글 상태"),
                                         fieldWithPath("recruitingEndDate").description("모집 마감일"),
                                         fieldWithPath("personalityAdjectives[]").description("배열 형태의 선호하는 성향 형용사"),
@@ -87,6 +87,10 @@ class RecruitingControllerTest {
                                         fieldWithPath("projectStartDate").description("프로젝트 시작일"),
                                         fieldWithPath("projectEndDate").description("프로젝트 종료일"),
                                         fieldWithPath("projectName").description("강의명 혹은 사이드 프로젝트명"),
+                                        fieldWithPath("activityDayTimes").description("배열 형태의 활동 요일 및 시간"),
+                                        fieldWithPath("activityDayTimes[].dayOfWeek").description("활동 요일"),
+                                        fieldWithPath("activityDayTimes[].startTime").description("활동 시작 시간"),
+                                        fieldWithPath("activityDayTimes[].endTime").description("활동 종료 시간"),
 
                                         fieldWithPath("lectureTimes").description("배열 형태의 강의 요일 및 시간").optional(),
                                         fieldWithPath("lectureTimes[].dayOfWeek").description("강의 요일"),
@@ -112,7 +116,7 @@ class RecruitingControllerTest {
     public void getRecruitingDetail() throws Exception {
         // given
         RecruitingFind.DetailResponseDto responseDto = DtoFactoryForTest.createDetailSideRecruitingResponse();
-        when(recruitingService.getRecruiting(anyLong())).thenReturn(responseDto);
+        when(recruitingService.getRecruiting(anyLong(), anyString())).thenReturn(responseDto);
 
         // then
         mockMvc.perform(get("/recruiting/{recruitingId}", RECRUITING_ID)
@@ -140,6 +144,11 @@ class RecruitingControllerTest {
                                         fieldWithPath("personalityNouns[]").description("배열 형태의 선호하는 성향 명사"),
                                         fieldWithPath("recruitingCreatedDate").description("모집글 생성 일자"),
                                         fieldWithPath("recruitingEndDate").description("모집 마감일"),
+                                        fieldWithPath("activityDayTimes").description("배열 형태의 활동 요일 및 시간"),
+                                        fieldWithPath("activityDayTimes[].dayOfWeek").description("활동 요일"),
+                                        fieldWithPath("activityDayTimes[].startTime").description("활동 시작 시간"),
+                                        fieldWithPath("activityDayTimes[].endTime").description("활동 종료 시간"),
+                                        fieldWithPath("isBookmarked").description("사용자의 모집글 북마크 여부"),
 
                                         fieldWithPath("projectResponse.id").description("프로젝트 식별자(ID)"),
                                         fieldWithPath("projectResponse.name").description("강의명 혹은 사이드 프로젝트명"),
@@ -200,9 +209,9 @@ class RecruitingControllerTest {
                 .andDo(
                         document("my-recruiting-list",
                                 requestParameters(
-                                        parameterWithName("page").description("현재 페이지(작성하지 않을 경우, 1)").optional(),
-                                        parameterWithName("perSize").description("페이지 아이템 개수(작성하지 않을 경우, 10)").optional(),
-                                        parameterWithName("status").description("모집글 상태(작성하지 않을 경우, 전체 조회").optional()
+                                        parameterWithName("page").description("현재 페이지(입력하지 않을 경우, 1)").optional(),
+                                        parameterWithName("perSize").description("페이지 아이템 개수(입력하지 않을 경우, 10)").optional(),
+                                        parameterWithName("status").description("모집글 상태(입력하지 않을 경우, 전체 조회").optional()
                                 ),
                                 responseFields(
                                         beneathPath("data").withSubsectionId("data"),
@@ -215,12 +224,12 @@ class RecruitingControllerTest {
 
                                         fieldWithPath("contents[].id").description("모집글 식별자(ID)"),
                                         fieldWithPath("contents[].title").description("모집글 제목"),
-                                        fieldWithPath("contents[].content").description("모집글 내용"),
-                                        fieldWithPath("contents[].recruitingType").description("모집글 타입"),
-                                        fieldWithPath("contents[].recruitingStatus").description("모집글 상태"),
+                                        fieldWithPath("contents[].type").description("모집글 타입"),
+                                        fieldWithPath("contents[].status").description("모집글 상태"),
                                         fieldWithPath("contents[].commentCount").description("댓글 개수"),
                                         fieldWithPath("contents[].bookmarkCount").description("북마크 개수"),
                                         fieldWithPath("contents[].projectName").description("강의명 혹은 사이드 프로젝트명"),
+                                        fieldWithPath("contents[].createdDate").description("모집글 생성 일자"),
 
                                         fieldWithPath("contents[].professor").description("강의 교수명").optional(),
 
@@ -237,7 +246,7 @@ class RecruitingControllerTest {
     public void getRecommendedRecruitings () throws Exception {
         // given
         RecruitingFind.RecommendedListResponseDto responseDto = DtoFactoryForTest.createRecommendedSideRecruitingListResponse();
-        when(recruitingService.getRecommendedRecruiting(anyInt(), anyInt(), anyString())).thenReturn(
+        when(recruitingService.getRecommendedRecruitings(anyInt(), anyInt(), anyString())).thenReturn(
                 Pagination.<RecruitingFind.RecommendedListResponseDto>builder()
                         .page(page)
                         .perSize(perSize)
@@ -245,7 +254,7 @@ class RecruitingControllerTest {
                         .totalCount(1).build());
 
         // then
-        mockMvc.perform(get("/recruiting/recommendSide")
+        mockMvc.perform(get("/recruiting/recommend-side")
                         .accept(MediaType.APPLICATION_JSON)
                         .param("page", "1")
                         .param("perSize", "4")

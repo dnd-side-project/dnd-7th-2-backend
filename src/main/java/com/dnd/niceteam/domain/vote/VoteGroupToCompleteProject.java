@@ -19,7 +19,7 @@ import javax.persistence.Entity;
 public class VoteGroupToCompleteProject extends VoteGroup {
 
     @Builder
-    public VoteGroupToCompleteProject(Project project) {
+    private VoteGroupToCompleteProject(Project project) {
         super(project);
     }
 

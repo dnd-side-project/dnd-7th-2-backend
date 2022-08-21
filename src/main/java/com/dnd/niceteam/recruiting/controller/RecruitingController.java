@@ -6,6 +6,7 @@ import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import com.dnd.niceteam.recruiting.service.RecruitingService;
+import com.dnd.niceteam.security.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,9 @@ public class RecruitingController {
 
     // 모집글 상세
     @GetMapping("/{recruitingId}")
-    public ResponseEntity<ApiResult<RecruitingFind.DetailResponseDto>> recruitingDetails (@PathVariable @NotNull Long recruitingId) {
-        RecruitingFind.DetailResponseDto responseDto = recruitingService.getRecruiting(recruitingId);
+    public ResponseEntity<ApiResult<RecruitingFind.DetailResponseDto>> recruitingDetails (@PathVariable @NotNull Long recruitingId,
+                                                                                          @CurrentUsername String username) {
+        RecruitingFind.DetailResponseDto responseDto = recruitingService.getRecruiting(recruitingId, username);
 
         ApiResult<RecruitingFind.DetailResponseDto> apiResult = ApiResult.success(responseDto);
         return new ResponseEntity<>(apiResult, HttpStatus.CREATED);
@@ -59,7 +61,7 @@ public class RecruitingController {
     ) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Pagination<RecruitingFind.RecommendedListResponseDto> recruitings = recruitingService.getRecommendedRecruiting(page, perSize, username);
+        Pagination<RecruitingFind.RecommendedListResponseDto> recruitings = recruitingService.getRecommendedRecruitings(page, perSize, username);
         ApiResult<Pagination<RecruitingFind.RecommendedListResponseDto>> apiResult = ApiResult.success(recruitings);
         return ResponseEntity.ok(apiResult);
     }
