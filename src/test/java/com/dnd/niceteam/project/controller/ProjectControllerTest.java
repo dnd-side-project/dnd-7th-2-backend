@@ -168,6 +168,7 @@ class ProjectControllerTest {
                                         fieldWithPath("memberList[].personality.noun").description("성향 명사"),
                                         fieldWithPath("memberList[].personality.tag").description("성향 형용사 + 명사 태그"),
                                         fieldWithPath("memberList[].expelled").description("내보내기 여부"),
+                                        fieldWithPath("memberList[].reviewed").description("후기 작성 여부"),
                                         fieldWithPath("professor").description("교수명"),
                                         fieldWithPath("department.id").description("학과 식별자"),
                                         fieldWithPath("department.collegeName").description("단과대학 이름"),
