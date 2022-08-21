@@ -5,6 +5,7 @@ import com.dnd.niceteam.notification.dto.NotificationRequestDto;
 import com.google.firebase.messaging.*;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public final class FCMUtil {
@@ -24,7 +25,8 @@ public final class FCMUtil {
 
         Message.Builder messageBuilder = Message.builder();
 
-        if (!request.getData().isEmpty()) messageBuilder.putAllData(request.getData());
+        Map<String, String> messageData = request.getData();
+        if (messageData != null) messageBuilder.putAllData(messageData);
 
         // 토큰이 있으면 토큰을, 없으면 Topic을 주입
         if (request.getToken() != null) messageBuilder.setToken(request.getToken());

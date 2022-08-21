@@ -1,6 +1,5 @@
 package com.dnd.niceteam.notification.service;
 
-import com.dnd.niceteam.notification.dto.NotificationRequestDto;
 import com.dnd.niceteam.notification.util.FCMUtil;
 import com.google.firebase.messaging.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +11,8 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class FirebaseCloudMessagingService {
 
-    public String sendMessageToToken(NotificationRequestDto request)
+    public String sendMessageToToken(Message message)
             throws InterruptedException, ExecutionException {
-        Message message = FCMUtil.buildMessage(request);
         return FCMUtil.sendToFirebase(message);
     }
 
