@@ -164,7 +164,7 @@ class ProjectServiceTest {
         when(recruitingRepository.findById(anyLong())).thenReturn(Optional.of(recruiting));
         when(recruiting.getProject()).thenReturn(project);
         when(project.getId()).thenReturn(1L);
-        when(recruiting.isRecruiter(any())).thenReturn(true);
+        when(recruiting.checkRecruiter(any())).thenReturn(true);
 
         Applicant applicant = mock(Applicant.class);
         when(applicantRepository.findByMemberIdAndRecruitingId(anyLong(), anyLong())).thenReturn(Optional.of(applicant));

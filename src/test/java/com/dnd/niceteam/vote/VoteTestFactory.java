@@ -5,6 +5,7 @@ import com.dnd.niceteam.domain.code.FieldCategory;
 import com.dnd.niceteam.domain.code.VoteType;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.domain.project.ProjectMember;
 import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.vote.dto.VoteRequest;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -47,8 +48,8 @@ public class VoteTestFactory {
                 .fieldCategory(FieldCategory.CLUB)
                 .build();
 
-        project.addMember(currentMember);
-        project.addMember(teamMember);
+        project.addMember(ProjectMember.builder().project(project).member(currentMember).build());
+        project.addMember(ProjectMember.builder().project(project).member(currentMember).build());
 
         return project;
     }
