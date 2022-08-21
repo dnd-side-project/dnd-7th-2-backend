@@ -8,12 +8,21 @@ import com.dnd.niceteam.domain.department.exception.DepartmentNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.project.*;
+import com.dnd.niceteam.domain.recruiting.Applicant;
+import com.dnd.niceteam.domain.recruiting.ApplicantRepository;
+import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
+import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
+import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.member.util.MemberUtils;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
+import com.dnd.niceteam.project.dto.ProjectMemberRequest;
 import com.dnd.niceteam.project.dto.ProjectRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.exception.InvalidProjectSchedule;
+import com.dnd.niceteam.project.exception.ProjectMemberAlreadyJoinedException;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
+import com.dnd.niceteam.recruiting.exception.OnlyRecruiterAvailableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,14 +45,18 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final LectureProjectRepository lectureSideProjectRepository;
+    private final LectureProjectRepository lectureProjectRepository;
     private final SideProjectRepository sideProjectRepository;
     private final DepartmentRepository departmentRepository;
     private final MemberRepository memberRepository;
+
+    private final RecruitingRepository recruitingRepository;
+    private final ApplicantRepository applicantRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     
     // TODO: 기획 논의 후 startDate, endDate에 @Past, @Future 등의 유효성검사 어노테이션 붙이기
     @Transactional
-    public ProjectResponse.Detail registerProject(ProjectRequest.Register request) {
+    public ProjectResponse.Detail registerProject(ProjectRequest.Register request, Member currentMamber) {
         LocalDate startDate =           request.getStartDate();
         LocalDate endDate =             request.getEndDate();
 
@@ -51,7 +64,7 @@ public class ProjectService {
             throw new InvalidProjectSchedule("startDate = " + startDate + ", endDate = " + endDate);
         }
 
-        return saveProject(request);
+        return saveProject(request, currentMamber);
     }
 
     @Transactional
@@ -73,14 +86,37 @@ public class ProjectService {
         return ProjectResponse.Detail.from(project);
     }
 
+    @Transactional
+    public void addProjectMember(ProjectMemberRequest.Add request, User user) {
+        Member currentMember =          MemberUtils.findMemberByEmail(user.getUsername(), memberRepository);
+        Recruiting recruiting =         findRecruiting(request.getRecruitingId());
+        Project project =               recruiting.getProject();
+
+        Long currentMemberId =          currentMember.getId();
+        Long recruitingId =             recruiting.getId();
+        Long applicantMemberId =        request.getApplicantMemberId();
+        Long projectId =                project.getId();
+
+        Applicant applicant =           findApplicant(applicantMemberId, recruitingId);
+
+        if (!recruiting.checkRecruiter(currentMember))      throw new OnlyRecruiterAvailableException(currentMemberId, recruitingId);
+        if (isApplicantJoined(project, applicant))   throw new ProjectMemberAlreadyJoinedException(projectId, applicantMemberId);
+
+        ProjectMember projectMember = saveProjectMember(project, applicant.getMember());
+        applicant.join(project, projectMember);
+    }
+
     /* private 메서드 */
     // 프로젝트 등록 관련
-    private ProjectResponse.Detail saveProject(ProjectRequest.Register request) {
-        if (request.getType() == Type.LECTURE) {
-            return ProjectResponse.Detail.from(saveLectureProject(request));
-        } else {
-            return ProjectResponse.Detail.from(saveSideProject(request));
-        }
+    private ProjectResponse.Detail saveProject(ProjectRequest.Register request, Member currentMember) {
+        Project project;
+
+        if (request.getType() == Type.LECTURE)      project = saveLectureProject(request);
+        else                                        project = saveSideProject(request);
+
+        ProjectMember recruiter = saveProjectMember(project, currentMember);
+        project.addMember(recruiter);
+        return ProjectResponse.Detail.from(project);
     }
 
     // 프로젝트 수정 관련
@@ -130,18 +166,31 @@ public class ProjectService {
                 .build();
     }
 
+    // 프로젝트 멤버 등록 관련
+    private boolean isApplicantJoined(Project project, Applicant applicant) {
+        return project.hasMember(applicant.getMember());
+    }
+
     /* JPA 메서드 */
     private LectureProject saveLectureProject(ProjectRequest.Register request) {
         Department department = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new DepartmentNotFoundException("id = " + request.getDepartmentId()));
 
         LectureProject lectureProject = request.toLectureProject(department);
-        return lectureSideProjectRepository.save(lectureProject);
+        return lectureProjectRepository.save(lectureProject);
     }
 
     private SideProject saveSideProject(ProjectRequest.Register request) {
         SideProject sideProject = request.toSideProject();
         return sideProjectRepository.save(sideProject);
+    }
+
+    private ProjectMember saveProjectMember(Project project, Member member) {
+        ProjectMember projectMember = ProjectMember.builder()
+                .project(project)
+                .member(member)
+                .build();
+        return projectMemberRepository.save(projectMember);
     }
 
     // DB : 팀플 조회
@@ -169,4 +218,13 @@ public class ProjectService {
         return projectRepository.findAll(spec, pageable);
     }
 
+    private Recruiting findRecruiting(Long recruitingId) {
+        return recruitingRepository.findById(recruitingId)
+                .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+    }
+
+    private Applicant findApplicant(Long applicantMemberId, Long recruitingId) {
+        return applicantRepository.findByMemberIdAndRecruitingId(applicantMemberId, recruitingId)
+                .orElseThrow(() -> new ApplicantNotFoundException("memberId = " + applicantMemberId));
+    }
 }

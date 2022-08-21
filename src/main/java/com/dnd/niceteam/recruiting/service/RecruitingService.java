@@ -38,12 +38,13 @@ public class RecruitingService {
 
     @Transactional
     public RecruitingCreation.ResponseDto addProjectAndRecruiting(String username, RecruitingCreation.RequestDto recruitingReqDto) {
+        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
+
         // 프로젝트
         ProjectRequest.Register projectRequestDto = setProjectRequestDto(recruitingReqDto);
-        ProjectResponse.Detail detail = projectService.registerProject(projectRequestDto);
+        ProjectResponse.Detail detail = projectService.registerProject(projectRequestDto, member);
         Project project = projectRepository.getReferenceById(detail.getId());
 
-        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         // 모집글
         Recruiting createdRecruiting = recruitingRepository.save(recruitingReqDto.toEntity(project, member));
 

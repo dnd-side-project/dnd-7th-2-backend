@@ -3,10 +3,12 @@ package com.dnd.niceteam.project.controller;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.project.ProjectStatus;
+import com.dnd.niceteam.project.dto.ProjectMemberRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.security.CurrentUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +40,13 @@ public class ProjectController {
         ProjectResponse.Detail response = projectService.getProject(projectId, currentUser);
         ApiResult<ProjectResponse.Detail> apiResult = ApiResult.success(response);
         return ResponseEntity.ok(apiResult);
+    }
+
+    @PostMapping("/project-members")
+    public ResponseEntity<ApiResult<Void>> projectMemberAdd(@RequestBody ProjectMemberRequest.Add request, @CurrentUser User user) {
+        projectService.addProjectMember(request, user);
+        ApiResult<Void> apiResult = ApiResult.<Void>success().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResult);
     }
 
 }

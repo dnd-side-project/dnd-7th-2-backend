@@ -115,4 +115,8 @@ public class Recruiting extends BaseEntity {
     public void minusBookmarkCount() {
         this.bookmarkCount -= 1;
     }
+
+    public boolean checkRecruiter(Member member) {
+        return this.member.equals(member);
+    }
 }

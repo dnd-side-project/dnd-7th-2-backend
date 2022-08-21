@@ -50,22 +50,13 @@ public abstract class Project extends BaseEntity {
     private Integer memberCount = 0;
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private final Set<ProjectMember> projectMembers = new HashSet<>();
 
     protected Project(@NonNull String name, @NonNull LocalDate startDate, @NonNull LocalDate endDate) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
-    }
-
-    public void addMember(Member member) {
-        ProjectMember projectMember = ProjectMember.builder()
-                .project(this)
-                .member(member)
-                .build();
-        projectMembers.add(projectMember);
-        memberCount += 1;
     }
 
     public void setName(String name) {
@@ -86,6 +77,19 @@ public abstract class Project extends BaseEntity {
 
     public void end() {
         this.status = ProjectStatus.DONE;
+    }
+
+    public void addMember(ProjectMember projectMember) {
+        projectMembers.add(projectMember);
+        memberCount += 1;
+    }
+
+    public boolean hasMember(Member member) {
+        ProjectMember projectMember = ProjectMember.builder()
+                .member(member)
+                .project(this)
+                .build();
+        return projectMembers.contains(projectMember);
     }
 
 }
