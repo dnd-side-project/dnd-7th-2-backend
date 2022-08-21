@@ -34,8 +34,8 @@ public class ProjectMemberService {
 
         MemberReview memberReview =         findMemberReviewOrNull(reviewer, reviewee);
 
-        if (memberReview != null)           return ProjectMemberResponse.Summary.from(reviewee, memberReview);
-        else                                return ProjectMemberResponse.Summary.from(reviewee);
+        if (memberReview != null)           return ProjectMemberResponse.Summary.from(reviewee, currentMemberId, memberReview);
+        else                                return ProjectMemberResponse.Summary.from(reviewee, currentMemberId);
     }
 
     /* JPA 메서드 */

@@ -82,9 +82,9 @@ public class ProjectService {
         Member currentMember =          MemberUtils.findMemberByEmail(currentUser.getUsername(), memberRepository);
 
         Project project = findProject(projectId, currentMember.getId());
-
         List<ProjectMemberResponse.Summary> memberList = findProjectMemberByReviewer(project, currentMember);
-        return ProjectResponse.Detail.from(project, memberList);
+
+        return ProjectResponse.Detail.from(project, currentMember.getId(), memberList);
     }
 
     @Transactional
@@ -101,7 +101,7 @@ public class ProjectService {
         Applicant applicant =           findApplicant(applicantMemberId, recruitingId);
 
         if (!recruiting.checkRecruiter(currentMember))      throw new OnlyRecruiterAvailableException(currentMemberId, recruitingId);
-        if (isApplicantJoined(project, applicant))   throw new ProjectMemberAlreadyJoinedException(projectId, applicantMemberId);
+        if (isApplicantJoined(project, applicant))          throw new ProjectMemberAlreadyJoinedException(projectId, applicantMemberId);
 
         ProjectMember projectMember = saveProjectMember(project, applicant.getMember());
         applicant.join(project, projectMember);
@@ -117,7 +117,7 @@ public class ProjectService {
 
         ProjectMember recruiter = saveProjectMember(project, currentMember);
         project.addMember(recruiter);
-        return ProjectResponse.Detail.from(project);
+        return ProjectResponse.Detail.from(project, currentMember.getId());
     }
 
     // 프로젝트 수정 관련

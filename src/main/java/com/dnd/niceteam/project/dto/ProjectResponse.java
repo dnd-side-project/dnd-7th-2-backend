@@ -98,6 +98,9 @@ public interface ProjectResponse {
         private Integer memberCount;
         private List<ProjectMemberResponse.Summary> memberList;
 
+        // 멤버별로 다르게 보이는 속성
+        private Boolean reviewComplete;
+
         // Lecture Project 상태
         private String professor;
         private DepartmentResponse department;
@@ -114,23 +117,27 @@ public interface ProjectResponse {
         private String lastModifiedBy;
 
         public static Detail from(Project project) {
-            return from(project, null);
+            return from(project, null, null);
         }
 
-        public static Detail from(Project project, List<ProjectMemberResponse.Summary> memberList) {
+        public static Detail from(Project project,  Long currentMemberId) {
+            return from(project, currentMemberId, null);
+        }
+
+        public static Detail from(Project project, Long currentMemberId, List<ProjectMemberResponse.Summary> memberList) {
             return project instanceof LectureProject ?
-                    from((LectureProject) project, memberList) :
-                    from((SideProject)    project, memberList);
+                    from((LectureProject) project, currentMemberId, memberList) :
+                    from((SideProject)    project, currentMemberId, memberList);
         }
 
-        public static Detail from(LectureProject lecture, List<ProjectMemberResponse.Summary> memberList) {
+        public static Detail from(LectureProject lecture, Long currentMemberId, List<ProjectMemberResponse.Summary> memberList) {
             Detail dto = new Detail();
 
             DepartmentResponse departmentResponse =     DepartmentResponse.from(lecture.getDepartment());
             List<LectureTimeResponse> lectureTimes =    lecture.getLectureTimes().stream()
                                                             .map(LectureTimeResponse::from).collect(Collectors.toList());
 
-            setProjectCommonDetails(lecture, dto, memberList);
+            setProjectCommonDetails(lecture, dto, currentMemberId, memberList);
 
             // Lecture Project 상태
             dto.setProfessor(lecture.getProfessor());
@@ -140,10 +147,10 @@ public interface ProjectResponse {
             return dto;
         }
 
-        public static Detail from(SideProject side, List<ProjectMemberResponse.Summary> memberList) {
+        public static Detail from(SideProject side, Long currentMemberId, List<ProjectMemberResponse.Summary> memberList) {
             Detail dto = new Detail();
 
-            setProjectCommonDetails(side, dto, memberList);
+            setProjectCommonDetails(side, dto, currentMemberId, memberList);
 
             // Side Project 상태
             dto.setField(side.getField());
@@ -152,7 +159,7 @@ public interface ProjectResponse {
             return dto;
         }
 
-        private static void setProjectCommonDetails(Project project, Detail dto, List<ProjectMemberResponse.Summary> memberList) {
+        private static void setProjectCommonDetails(Project project, Detail dto, Long currentMemberId, List<ProjectMemberResponse.Summary> memberList) {
             dto.setId(project.getId());
 
             // Project 상태
@@ -165,8 +172,19 @@ public interface ProjectResponse {
 
             dto.setMemberCount(project.getMemberCount());
 
-            dto.setMemberList(Objects.requireNonNullElseGet(memberList, () -> project.getProjectMembers().stream()
-                    .map(ProjectMemberResponse.Summary::from).collect(Collectors.toList())));
+            if (memberList != null) {
+                dto.setMemberList(memberList);
+                boolean isReviewComplete = memberList.stream()
+                        .filter(projectMember -> !projectMember.isMe())
+                        .allMatch(ProjectMemberResponse.Summary::isReviewed);
+                dto.setReviewComplete(isReviewComplete);
+            } else {
+                dto.setMemberList(
+                        project.getProjectMembers().stream()
+                                .map(projectMember -> ProjectMemberResponse.Summary.from(projectMember, currentMemberId))
+                                .collect(Collectors.toList())
+                );
+            }
 
             // Auditing 정보
             dto.setCreatedDate(project.getCreatedDate());

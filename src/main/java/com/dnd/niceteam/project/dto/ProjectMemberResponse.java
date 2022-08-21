@@ -5,6 +5,8 @@ import com.dnd.niceteam.domain.project.ProjectMember;
 import com.dnd.niceteam.domain.review.MemberReview;
 import lombok.Data;
 
+import java.util.Objects;
+
 public interface ProjectMemberResponse {
 
     @Data
@@ -22,11 +24,13 @@ public interface ProjectMemberResponse {
 
         private boolean reviewed = false;
 
-        public static Summary from (ProjectMember projectMember) {
-            return from(projectMember, null);
+        private boolean me;
+
+        public static Summary from (ProjectMember projectMember, Long currentMemberId) {
+            return from(projectMember, currentMemberId, null);
         }
 
-        public static Summary from(ProjectMember projectMember, MemberReview memberReview) {
+        public static Summary from(ProjectMember projectMember, Long currentMemberId, MemberReview memberReview) {
             Member member = projectMember.getMember();
             PersonalityResponse personalityResponse = PersonalityResponse.from(member.getPersonality());
 
@@ -42,6 +46,9 @@ public interface ProjectMemberResponse {
                 boolean isMemberReviewed = projectMember.equals(memberReview.getReviewee());
                 dto.setReviewed(isMemberReviewed);
             }
+
+            boolean isMe = Objects.equals(currentMemberId, projectMember.getMember().getId());
+            dto.setMe(isMe);
 
             return dto;
         }
