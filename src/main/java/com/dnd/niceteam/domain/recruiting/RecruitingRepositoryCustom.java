@@ -8,4 +8,9 @@ import java.util.Set;
 
 public interface RecruitingRepositoryCustom {
     Page<Recruiting> findAllByInterestingFieldsOrderByWriterLevel(Set<Field> interestingFields, Pageable pageable);
+
+    Page<Recruiting> findAllSideBySearchWordAndFieldOrderByCreatedDate(String searchWord, Field field, Pageable pageable);
+
+    Page<Recruiting> findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(String searchWord, String department, Pageable pageable);
+
 }
