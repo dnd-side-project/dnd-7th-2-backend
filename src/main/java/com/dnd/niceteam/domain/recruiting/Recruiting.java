@@ -71,8 +71,9 @@ public class Recruiting extends BaseEntity {
     @Column(name = "pool_up_date")
     private LocalDateTime poolUpDate;
 
+    @Builder.Default
     @Column(name = "intro_link", nullable = false)
-    private String introLink;
+    private String introLink = "";
 
     @Builder.Default
     @ElementCollection(fetch = FetchType.LAZY)
