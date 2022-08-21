@@ -15,10 +15,7 @@ import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
 import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
 import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.member.util.MemberUtils;
-import com.dnd.niceteam.project.dto.LectureTimeRequest;
-import com.dnd.niceteam.project.dto.ProjectMemberRequest;
-import com.dnd.niceteam.project.dto.ProjectRequest;
-import com.dnd.niceteam.project.dto.ProjectResponse;
+import com.dnd.niceteam.project.dto.*;
 import com.dnd.niceteam.project.exception.InvalidProjectSchedule;
 import com.dnd.niceteam.project.exception.ProjectMemberAlreadyJoinedException;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
@@ -43,6 +40,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService {
+
+    private final ProjectMemberService projectMemberService;
 
     private final ProjectRepository projectRepository;
     private final LectureProjectRepository lectureProjectRepository;
@@ -83,7 +82,9 @@ public class ProjectService {
         Member currentMember =          MemberUtils.findMemberByEmail(currentUser.getUsername(), memberRepository);
 
         Project project = findProject(projectId, currentMember.getId());
-        return ProjectResponse.Detail.from(project);
+
+        List<ProjectMemberResponse.Summary> memberList = findProjectMemberByReviewer(project, currentMember);
+        return ProjectResponse.Detail.from(project, memberList);
     }
 
     @Transactional
@@ -125,7 +126,7 @@ public class ProjectService {
         project.setStartDate(request.getStartDate());
         project.setEndDate(request.getEndDate());
 
-        if (project.getType() == Type.LECTURE)      modifyLectureProject((LectureProject) project, request);
+        if (project instanceof LectureProject)      modifyLectureProject((LectureProject) project, request);
         else                                        modifySideProject((SideProject) project, request);
     }
 
@@ -142,6 +143,16 @@ public class ProjectService {
     private void modifySideProject(SideProject sideProject, ProjectRequest.Update request) {
         sideProject.setField(request.getField());
         sideProject.setFieldCategory(request.getFieldCategory());
+    }
+
+    // 프로젝트 상세 조회 관련
+    private List<ProjectMemberResponse.Summary> findProjectMemberByReviewer(Project project, Member currentMember) {
+        return project.getProjectMembers().stream()
+                .map(projectMember -> projectMemberService.getProjectMemberByReviewer(
+                        project.getId(),
+                        projectMember.getMember().getId(),
+                        currentMember.getId())
+                ).collect(Collectors.toList());
     }
 
     // 프로젝트 목록 조회 관련
