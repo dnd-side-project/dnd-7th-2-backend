@@ -3,28 +3,24 @@ package com.dnd.niceteam.notification.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.PostConstruct;
 
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class FirebaseConfig {
 
-    private final String configPath;
-
-    public FirebaseConfig(@Value("${firebase.config-path}") String configPath) {
-        this.configPath = configPath;
-    }
+    private final FirebaseProperties firebaseProperties;
 
     @PostConstruct
     public void init() {
         try {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(new ClassPathResource(configPath).getInputStream()))
+                    .setCredentials(GoogleCredentials.fromStream(firebaseProperties.toStream()))
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {

@@ -1,0 +1,29 @@
+firebase:
+  type: ${firebase.type}
+  project-id: ${firebase.project_id}
+  private-key-id: ${firebase.private_key_id}
+  private-key: ${firebase.private_key}
+  client-email: ${firebase.client_email}
+  client-id: ${firebase.client_id}
+  auth-uri: ${firebase.auth_uri}
+  token-uri: ${firebase.token_uri}
+  auth-provider-x509-cert-url: ${firebase.auth_provider_x509_cert_url}
+  client-x509-cert-url: ${firebase.client_x509_cert_url}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+firebase:
+  type: undefined
+  project-id: undefined
+  private-key-id: undefined
+  private-key: undefined
+  client-email: undefined
+  client-id: undefined
+  auth-uri: undefined
+  token-uri: undefined
+  auth-provider-x509-cert-url: undefined
+  client-x509-cert-url: undefined
