@@ -24,11 +24,29 @@ class NotificationServiceTest {
     FirebaseCloudMessagingService fcmService;
 
     @Test
-    void 푸쉬_알람_전송() throws ExecutionException, InterruptedException {
+    void sendPushNotificationWithToken() throws ExecutionException, InterruptedException {
         // given
         NotificationRequestDto request = new NotificationRequestDto();
         request.setTitle("팀원 수락");
         request.setMessage("DND 7기 2조에 합류하신걸 축하합니다!");
+        request.setToken("테스트용 토큰");
+
+        when(fcmService.sendMessage(any(Message.class))).thenReturn("푸쉬 알람 전송 성공");
+
+        // when
+        notificationService.send(request);
+
+        // then
+        verify(fcmService).sendMessage(any(Message.class));
+    }
+
+    @Test
+    void sendPushNotificationWithTopic() throws ExecutionException, InterruptedException {
+        // given
+        NotificationRequestDto request = new NotificationRequestDto();
+        request.setTitle("팀원 수락");
+        request.setMessage("DND 7기 2조에 합류하신걸 축하합니다!");
+        request.setTopic("test-topic");
 
         when(fcmService.sendMessage(any(Message.class))).thenReturn("푸쉬 알람 전송 성공");
 
