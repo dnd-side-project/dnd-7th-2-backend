@@ -172,25 +172,30 @@ public interface ProjectResponse {
 
             dto.setMemberCount(project.getMemberCount());
 
-            if (memberList != null) {
-                dto.setMemberList(memberList);
-                boolean isReviewComplete = memberList.stream()
-                        .filter(projectMember -> !projectMember.isMe())
-                        .allMatch(ProjectMemberResponse.Summary::isReviewed);
-                dto.setReviewComplete(isReviewComplete);
-            } else {
-                dto.setMemberList(
-                        project.getProjectMembers().stream()
-                                .map(projectMember -> ProjectMemberResponse.Summary.from(projectMember, currentMemberId))
-                                .collect(Collectors.toList())
-                );
-            }
-
             // Auditing 정보
             dto.setCreatedDate(project.getCreatedDate());
             dto.setLastModifiedDate(project.getLastModifiedDate());
             dto.setCreatedBy(project.getCreatedBy());
             dto.setLastModifiedBy(project.getLastModifiedBy());
+
+
+            List<ProjectMemberResponse.Summary> notNullMemberList = memberList != null ?
+                    memberList :
+                    project.getProjectMembers().stream().map(projectMember -> ProjectMemberResponse.Summary.from(projectMember, currentMemberId))
+                            .collect(Collectors.toList());
+
+            dto.setMemberList(notNullMemberList);
+
+            boolean isProjectDoneYet = project.getStatus() == ProjectStatus.DONE;
+
+            if (memberList == null) return;
+            if (isProjectDoneYet) return;
+
+            boolean isReviewComplete = memberList.stream()
+                    .filter(projectMember -> !projectMember.isMe())
+                    .allMatch(ProjectMemberResponse.Summary::isReviewed);
+
+            dto.setReviewComplete(isReviewComplete);
         }
 
     }
