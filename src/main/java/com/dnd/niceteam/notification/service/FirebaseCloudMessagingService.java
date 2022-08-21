@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class FirebaseCloudMessagingService {
 
-    public String sendMessageToToken(Message message)
+    public String sendMessage(Message message)
             throws InterruptedException, ExecutionException {
         return FCMUtil.sendToFirebase(message);
     }

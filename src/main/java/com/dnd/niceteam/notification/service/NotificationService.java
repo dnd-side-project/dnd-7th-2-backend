@@ -20,7 +20,7 @@ public class NotificationService {
 
     public void send(NotificationRequestDto request) throws ExecutionException, InterruptedException {
             Message message = FCMUtil.buildMessage(request);
-            fcmService.sendMessageToToken(message);
+            fcmService.sendMessage(message);
     }
 
 }
