@@ -11,7 +11,7 @@ public class MemberReviewTestFactory {
 
     public static MemberReviewRequest.Add getAddRequest(Long revieweeId) {
         MemberReviewRequest.Add request = new MemberReviewRequest.Add();
-        Set<ReviewTag> reviewTags = new HashSet<>(List.of(ReviewTag.RESPONSIBILITY, ReviewTag.DEAD_LINE));
+        Set<ReviewTag> reviewTags = new HashSet<>(List.of(ReviewTag.RESPONSIBILITY, ReviewTag.PUNCTUALITY));
 
         request.setParticipationScore(5);
         request.setTeamAgainScore(4);
