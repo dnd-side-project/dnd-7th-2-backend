@@ -37,7 +37,7 @@ public interface RecruitingFind {
         @NotNull private Boolean isBookmarked;
         @NotNull private LocalDateTime recruitingCreatedDate;
 
-        @JsonIgnoreProperties(value = {"memberList", "memberCount"})
+        @JsonIgnoreProperties(value = {"memberList", "memberCount", "reviewComplete"})
         @NotNull private ProjectResponse.Detail projectResponse;
 
         public static RecruitingFind.DetailResponseDto from(Recruiting recruiting, boolean isBookmarked) {
