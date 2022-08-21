@@ -2,6 +2,8 @@ package com.dnd.niceteam.domain.memberscore;
 
 import com.dnd.niceteam.domain.code.ReviewTag;
 import com.dnd.niceteam.domain.common.BaseEntity;
+import com.dnd.niceteam.domain.review.MemberReview;
+import com.dnd.niceteam.domain.review.MemberReviewTag;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.*;
 import static java.util.Objects.isNull;
 
 @Entity
@@ -74,5 +77,32 @@ public class MemberScore extends BaseEntity {
             return null;
         }
         return (double) totalParticipationScore / reviewNum * 20;
+    }
+
+    public void applyReview(int totalProjectMemberNum, MemberReview review) {
+        if (Boolean.TRUE.equals(review.getSkipped())) {
+            return;
+        }
+        reviewNum += 1;
+        // 한 프로젝트에서 총 얻을 수 있는 점수 비율 / 인원 수
+        double feedWeight = (log(totalProjectMemberNum) / log(2)) / max(totalProjectMemberNum - 1, 1);
+        int participationScore = review.getParticipationScore();
+        int teamAgainScore = review.getTeamAgainScore();
+        int feedNum = calculateFeedNum(participationScore, teamAgainScore);
+
+        totalParticipationScore += participationScore;
+        totalTeamAgainScore += teamAgainScore;
+        totalFeeds += feedWeight * feedNum;
+        level = (int) (totalFeeds / levelUpFeedsNum) + 1;
+
+        review.getMemberReviewTags().stream()
+                .map(MemberReviewTag::getTag)
+                .forEach(reviewTag -> reviewTagToNums.put(reviewTag,
+                        reviewTagToNums.getOrDefault(reviewTag, 0) + 1));
+    }
+
+    private int calculateFeedNum(int participationScore, int teamAgainScore) {
+        return scoreToFeedNum[max(participationScore, scoreToFeedNum.length - 1)] +
+                scoreToFeedNum[max(teamAgainScore, scoreToFeedNum.length - 1)];
     }
 }
