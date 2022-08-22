@@ -26,9 +26,11 @@ import static java.util.Objects.isNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberScore extends BaseEntity {
 
-    private static int[] scoreToFeedNum = {0, 0, 0, 1, 2, 2};
+    private static final int MAX_LEVEL = 4;
 
-    private static int levelUpFeedsNum = 10;
+    private static final int[] SCORE_TO_FEED_NUM = {0, 0, 0, 1, 2, 2};
+
+    private static final int LEVEL_UP_FEEDS_NUM = 10;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -93,7 +95,7 @@ public class MemberScore extends BaseEntity {
         totalParticipationScore += participationScore;
         totalTeamAgainScore += teamAgainScore;
         totalFeeds += feedWeight * feedNum;
-        level = (int) (totalFeeds / levelUpFeedsNum) + 1;
+        level = min((int) (totalFeeds / LEVEL_UP_FEEDS_NUM) + 1, MAX_LEVEL);
 
         review.getMemberReviewTags().stream()
                 .map(MemberReviewTag::getTag)
@@ -102,7 +104,7 @@ public class MemberScore extends BaseEntity {
     }
 
     private int calculateFeedNum(int participationScore, int teamAgainScore) {
-        return scoreToFeedNum[max(participationScore, scoreToFeedNum.length - 1)] +
-                scoreToFeedNum[max(teamAgainScore, scoreToFeedNum.length - 1)];
+        return SCORE_TO_FEED_NUM[min(max(participationScore, 0), SCORE_TO_FEED_NUM.length - 1)] +
+                SCORE_TO_FEED_NUM[min(max(teamAgainScore, 0), SCORE_TO_FEED_NUM.length - 1)];
     }
 }
