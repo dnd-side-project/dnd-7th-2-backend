@@ -2,6 +2,8 @@ package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
+import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
 import com.dnd.niceteam.domain.project.*;
 import com.dnd.niceteam.domain.review.MemberReview;
 import com.dnd.niceteam.domain.review.MemberReviewRepository;
@@ -23,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +40,8 @@ class MemberReviewServiceTest {
     MemberRepository memberRepository;
     @Mock
     ProjectRepository projectRepository;
+    @Mock
+    MemberScoreRepository memberScoreRepository;
 
     static final long reviwerId = 1L;
     static final long revieweeId = 2L;
@@ -82,11 +87,15 @@ class MemberReviewServiceTest {
         Set<ProjectMember> projectMembers = new HashSet<>(List.of(reviewer, reviewee));
         when(project.getProjectMembers()).thenReturn(projectMembers);
 
+        MemberScore memberScore = mock(MemberScore.class);
+        when(memberScoreRepository.findByMember(reviewee.getMember())).thenReturn(Optional.of(memberScore));
+
         // when
         memberReviewService.addMemberReview(request, currentUser);
 
         // then
         verify(memberReviewRepository).save(any(MemberReview.class));
+        then(memberScore).should().applyReview(anyInt(), any(MemberReview.class));
     }
 
     @DisplayName("팀원 후기 건너뛰기")
