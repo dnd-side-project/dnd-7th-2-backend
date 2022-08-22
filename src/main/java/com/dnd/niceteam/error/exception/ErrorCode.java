@@ -25,6 +25,8 @@ public enum ErrorCode {
     DUPLICATE_EMAIL(MEMBER, SC_BAD_REQUEST, "존재하는 이메일입니다."),
     DUPLICATE_NICKNAME(MEMBER, SC_BAD_REQUEST, "존재하는 닉네임입니다."),
 
+    MEMBER_SCORE_NOT_FOUND(MEMBER_SCORE, SC_NOT_FOUND, "존재하지 않는 회원 점수 입니다."),
+
     UNIVERSITY_NOT_FOUND(UNIVERSITY, SC_NOT_FOUND, "존재하지 않는 대학교입니다."),
     INVALID_EMAIL_DOMAIN(UNIVERSITY, SC_BAD_REQUEST, "적절하지 않은 이메일 도메인입니다."),
 
