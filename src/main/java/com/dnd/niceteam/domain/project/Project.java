@@ -57,6 +57,7 @@ public abstract class Project extends BaseEntity {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.type = this instanceof LectureProject ? Type.LECTURE : Type.SIDE;
     }
 
     public void setName(String name) {
