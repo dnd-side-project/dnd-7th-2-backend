@@ -37,7 +37,7 @@ public interface RecruitingFind {
         @NotNull private Boolean isBookmarked;
         @NotNull private LocalDateTime recruitingCreatedDate;
 
-        @JsonIgnoreProperties(value = {"memberList", "memberCount"})
+        @JsonIgnoreProperties(value = {"memberList", "memberCount", "reviewComplete"})
         @NotNull private ProjectResponse.Detail projectResponse;
 
         public static RecruitingFind.DetailResponseDto from(Recruiting recruiting, boolean isBookmarked) {
@@ -59,13 +59,7 @@ public interface RecruitingFind {
             dto.setIsBookmarked(isBookmarked);
             dto.setRecruitingCreatedDate(recruiting.getCreatedDate());
 
-            ProjectResponse.Detail projectDto;
-            // TODO: 2022-08-16 DTO 구분을 위한 메서드 (리팩터링)?
-            switch (recruiting.getRecruitingType()) {
-                case LECTURE: projectDto = ProjectResponse.Detail.from((LectureProject) recruiting.getProject()); break;
-                case SIDE: projectDto = ProjectResponse.Detail.from((SideProject) recruiting.getProject()); break;
-                default: throw new InvalidRecruitingTypeException("Invalid Type: " + recruiting.getRecruitingType());
-            }
+            ProjectResponse.Detail projectDto = ProjectResponse.Detail.from(recruiting.getProject());
             dto.setProjectResponse(projectDto);
 
             return dto;

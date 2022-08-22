@@ -108,7 +108,7 @@ public class VoteService {
         return project.getProjectMembers().stream()
                 .filter(projectMember -> Objects.equals(projectMember.getMember().getId(), memberId))
                 .findAny()
-                .orElseThrow(() ->  new ProjectMemberNotFoundException(memberId));
+                .orElseThrow(() ->  new ProjectMemberNotFoundException(project.getId(), memberId));
     }
 
     /* JPA 메서드 */

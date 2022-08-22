@@ -29,7 +29,7 @@ public class Recruiting extends BaseEntity {
     @Column(name = "recruiting_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 

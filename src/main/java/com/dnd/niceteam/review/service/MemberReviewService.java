@@ -88,7 +88,7 @@ public class MemberReviewService {
         return project.getProjectMembers().stream()
                 .filter(projectMember -> Objects.equals(projectMember.getMember().getId(), member.getId()))
                 .findAny()
-                .orElseThrow(() -> new ProjectMemberNotFoundException(member.getId()));
+                .orElseThrow(() -> new ProjectMemberNotFoundException(project.getId(), member.getId()));
     }
 
     /* 내부 클래스 */

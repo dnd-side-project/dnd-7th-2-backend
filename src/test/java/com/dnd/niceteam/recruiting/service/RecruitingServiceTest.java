@@ -15,13 +15,16 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.memberscore.MemberScore;
 import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
-import com.dnd.niceteam.domain.project.*;
+import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.domain.project.ProjectRepository;
+import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
 import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import com.dnd.niceteam.project.exception.ProjectNotFoundException;
+import com.dnd.niceteam.project.service.ProjectMemberService;
 import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
@@ -37,15 +40,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-
 import java.time.LocalDate;
 
 import static com.dnd.niceteam.comment.EntityFactoryForTest.*;
-import static com.dnd.niceteam.comment.EntityFactoryForTest.createSideProject;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({TestJpaConfig.class, RecruitingService.class, ProjectService.class})
+@Import({TestJpaConfig.class, RecruitingService.class, ProjectService.class, ProjectMemberService.class})
 @Transactional
 class RecruitingServiceTest {
     @Autowired
