@@ -28,7 +28,7 @@ public interface RecruitingCreation {
         private Type recruitingType;
         @NotNull
         private ActivityArea activityArea;
-        @Nullable
+        @NotNull
         private String introLink;
         @NotNull
         private ProgressStatus status;

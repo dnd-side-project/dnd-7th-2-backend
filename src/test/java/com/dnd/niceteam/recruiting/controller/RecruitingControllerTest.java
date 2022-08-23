@@ -3,7 +3,10 @@ package com.dnd.niceteam.recruiting.controller;
 import com.dnd.niceteam.comment.DtoFactoryForTest;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.domain.code.Field;
+import com.dnd.niceteam.domain.code.FieldCategory;
 import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import com.dnd.niceteam.recruiting.service.RecruitingService;
@@ -23,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static com.dnd.niceteam.comment.DtoFactoryForTest.RECRUITING_ID;
+import static com.dnd.niceteam.comment.DtoFactoryForTest.createSearchSideListResponseDto;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -233,8 +237,8 @@ class RecruitingControllerTest {
 
                                         fieldWithPath("contents[].professor").description("강의 교수명").optional(),
 
-                                        fieldWithPath("contents[].field").description("분야").optional(),
-                                        fieldWithPath("contents[].fieldCategory").description("분야 카테고리").optional()
+                                        fieldWithPath("contents[].field").description("분야").type(Field.class).optional(),
+                                        fieldWithPath("contents[].fieldCategory").description("분야 카테고리").type(FieldCategory.class).optional()
                                 )
                         )
                 );
@@ -290,4 +294,69 @@ class RecruitingControllerTest {
                 );
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("검색 목록 요청 API")
+    public void getSearchRecruitings () throws Exception {
+        //given
+        RecruitingFind.ListResponseDto responseDto = createSearchSideListResponseDto();
+        Pagination<RecruitingFind.ListResponseDto> recruitingPagination = Pagination.<RecruitingFind.ListResponseDto>builder()
+                .page(0)
+                .perSize(10)
+                .totalCount(1)
+                .contents(List.of(responseDto))
+                .build();
+        when(recruitingService.getSearchRecruitings(anyInt(), anyInt(), any(Field.class), any(Type.class), anyString(), anyString()))
+                .thenReturn(recruitingPagination);
+
+        // then
+        mockMvc.perform(get("/recruiting")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("page", "1")
+                        .param("perSize", "10")
+                        .param("field", String.valueOf(Field.IT_SW_GAME))
+                        .param("type", String.valueOf(Type.SIDE))
+                        .param("searchWord", "검색 키워드")
+                ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+
+                .andDo(
+                        document("recruiting-search-list",
+                                requestParameters(
+                                        parameterWithName("page").description("현재 페이지(작성하지 않을 경우, 1)").optional(),
+                                        parameterWithName("perSize").description("페이지 아이템 개수(작성하지 않을 경우, 10)").optional(),
+                                        parameterWithName("field").description("필터링 선택한 분야 (SIDE 타입의 모집글 검색 화면에서 필터링 선택한 경우에만 입력. 입력하지 않으면 전체 분야 조회(필터링 X)").optional(),
+                                        parameterWithName("type").description("선택한 모집글 타입(SIDE 혹은 LECTURE)"),
+                                        parameterWithName("searchWord").description("검색 키워드(입력하지 않으면 기본값으로 조회)").optional()
+                                ),
+                                responseFields(
+                                        beneathPath("data").withSubsectionId("data"),
+                                        fieldWithPath("page").description("현재 페이지"),
+                                        fieldWithPath("perSize").description("페이지 아이템 개수"),
+                                        fieldWithPath("totalCount").description("총 아이템 개수"),
+                                        fieldWithPath("totalPages").description("총 페이지 개수"),
+                                        fieldWithPath("prev").description("이전 페이지 존재 여부"),
+                                        fieldWithPath("next").description("다음 페이지 존재 여부"),
+
+                                        fieldWithPath("contents[].id").description("모집글 식별자(ID)"),
+                                        fieldWithPath("contents[].title").description("모집글 제목"),
+                                        fieldWithPath("contents[].type").description("모집글 타입"),
+                                        fieldWithPath("contents[].status").description("모집글 상태"),
+                                        fieldWithPath("contents[].commentCount").description("댓글 개수"),
+                                        fieldWithPath("contents[].bookmarkCount").description("북마크 개수"),
+                                        fieldWithPath("contents[].projectName").description("강의명 혹은 사이드 프로젝트명"),
+
+                                        fieldWithPath("contents[].recruitingEndDate").description("모집글 마감 일자"),
+                                        fieldWithPath("contents[].recruitingMemberCount").description("모집 인원"),
+                                        fieldWithPath("contents[].recruiterNickname").description("모집글 작성자 닉네임"),
+
+                                        fieldWithPath("contents[].professor").description("강의 교수명").type(JsonFieldType.STRING).optional(),
+
+                                        fieldWithPath("contents[].field").description("분야").optional(),
+                                        fieldWithPath("contents[].fieldCategory").description("분야 카테고리").optional()
+                                )
+                        )
+                );
+    }
 }

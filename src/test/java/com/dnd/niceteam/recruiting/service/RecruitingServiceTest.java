@@ -190,4 +190,114 @@ class RecruitingServiceTest {
         assertThat(recommendedRecruitings.getContents().get(0).getRecruitingId()).isEqualTo(savedRecommendedRecruiting.getId());
         assertThat(recommendedRecruitings.getContents().size()).isEqualTo(1);
     }
+
+    @DisplayName("모집글 키워드 검색 서비스 테스트 코드")
+    @Test
+    public void getSearchRecruitingWithKeywordPage() {
+        // given
+        String projectName = "DND 동아리원 구해요!";
+        Project savedLectureProject = projectRepository.save(createLectureProject(department));
+        Project savedSideProject = projectRepository.save(SideProject.builder()
+                .name(projectName)
+                .field(Field.DESIGN)
+                .fieldCategory(FieldCategory.STUDY)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 30))
+                .build()
+        );
+        recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
+
+        // when (SIDE탭에서 키워드 검색)
+        Pagination<RecruitingFind.ListResponseDto> searchRecruitingPage = recruitingService.getSearchRecruitings(page, perSize, null, Type.SIDE, "DND", account.getEmail());
+        Pagination<RecruitingFind.ListResponseDto> nonSearchRecruitingPage = recruitingService.getSearchRecruitings(page, perSize, null, Type.SIDE, "DND동아리원", account.getEmail());
+
+        // then
+        Page<Recruiting> foundRecommendedRecruitingsPage = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate("DND", null, pageable);
+        // 검색 o
+        assertThat(searchRecruitingPage.getTotalCount()).isEqualTo(foundRecommendedRecruitingsPage.getTotalElements());
+        assertThat(searchRecruitingPage.getPage()).isEqualTo(0);
+        assertThat(searchRecruitingPage.getTotalPages()).isEqualTo(1);
+        assertThat(searchRecruitingPage.getContents().get(0).getProjectName()).isEqualTo(projectName);
+        assertThat(searchRecruitingPage.getContents().size()).isEqualTo(1);
+        // 검색 x
+        assertThat(nonSearchRecruitingPage.getTotalCount()).isEqualTo(0);
+        assertThat(nonSearchRecruitingPage.getContents().size()).isEqualTo(0);
+    }
+
+
+    @DisplayName("사이드 모집글 검색 목록 조회 서비스 테스트 코드")
+    @Test
+    public void getSearchRecruitingPage() {
+        // given
+        String projectName = "나중에 등록된 프로젝트!";
+        Project lectureProjectWithSameDeaprtment = projectRepository.save(createLectureProject(department));
+        Project lectureProjectWithNonsameDepartment = projectRepository.save(createLectureProject(departmentRepository.save(Department.builder()
+                .university(university)
+                .collegeName("학교")
+                .region("부산")
+                .mainBranchType("main")
+                .name("다른 학과")
+                .build())));
+
+        Project savedSideProject = projectRepository.save(createSideProject());
+        Project afterSavedSideProject = projectRepository.save(SideProject.builder()
+                .name(projectName)
+                .field(Field.DESIGN)
+                .fieldCategory(FieldCategory.STUDY)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 30))
+                .build()
+        );
+        recruitingRepository.save(createRecruiting(member, lectureProjectWithNonsameDepartment, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, lectureProjectWithSameDeaprtment, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
+        recruitingRepository.save(createRecruiting(member, afterSavedSideProject, Type.SIDE));
+
+        // when
+        Pagination<RecruitingFind.ListResponseDto> allSideRecruitingsPage = recruitingService.getSearchRecruitings(page, perSize, null, Type.SIDE, null, account.getEmail());   // side - 전체 조회
+        Pagination<RecruitingFind.ListResponseDto> allSideRecruitingsPageWithFiltered = recruitingService.getSearchRecruitings(page, perSize, Field.DESIGN, Type.SIDE, null, account.getEmail());   // side - 분야 필터링 조회
+
+        // then
+        assertThat(allSideRecruitingsPage.getContents().size()).isEqualTo(2);
+        assertThat(allSideRecruitingsPage.getPage()).isZero();
+        assertThat(allSideRecruitingsPage.getTotalPages()).isEqualTo(1);
+        assertThat(allSideRecruitingsPage.getContents().get(0).getProjectName()).isEqualTo(projectName);
+
+        assertThat(allSideRecruitingsPageWithFiltered.getContents().size()).isEqualTo(1);
+        assertThat(allSideRecruitingsPageWithFiltered.getContents().get(0).getField()).isEqualTo(Field.DESIGN);
+    }
+
+    @DisplayName("강의 모집글 검색 목록 조회 서비스 테스트 코드")
+    @Test
+    public void getRecruitingPageWithFilter() {
+        // given
+        Project lectureProjectWithSameDeaprtment = projectRepository.save(createLectureProject(department));
+        Project lectureProjectWithNonsameDepartment = projectRepository.save(createLectureProject(departmentRepository.save(Department.builder()
+                .university(university)
+                .collegeName("학교")
+                .region("부산")
+                .mainBranchType("main")
+                .name("다른 학과")
+                .build())));
+
+        Project savedSideProject = projectRepository.save(createSideProject());
+        Project afterSavedSideProject = projectRepository.save(createSideProject());
+        recruitingRepository.save(createRecruiting(member, lectureProjectWithNonsameDepartment, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, lectureProjectWithSameDeaprtment, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
+        recruitingRepository.save(createRecruiting(member, afterSavedSideProject, Type.SIDE));
+        // when
+        Pagination<RecruitingFind.ListResponseDto> allLectureRecruitingsPageSameWithDepartment = recruitingService.getSearchRecruitings(page, perSize, null, Type.LECTURE, null, account.getEmail()); // 전체 조회 (전공 학과 필터링)
+        Pagination<RecruitingFind.ListResponseDto> allLectureRecruitingsPageSameWithKeyword = recruitingService.getSearchRecruitings(page, perSize, null, Type.LECTURE, "test-professor" , account.getEmail()); // 검색 (검색어 필터링)
+
+        // then
+        Page<Recruiting> foundLectureRecruitingPagSameWithDepartment = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(null, member.getDepartment().getName(), pageable);
+        assertThat(allLectureRecruitingsPageSameWithDepartment.getContents().size()).isEqualTo(1);
+        assertThat(allLectureRecruitingsPageSameWithDepartment.getPage()).isZero();
+        LectureProject foundLectureProject = (LectureProject)foundLectureRecruitingPagSameWithDepartment.getContent().get(0).getProject();
+        assertThat(foundLectureProject.getDepartment().getName()).isEqualTo(member.getDepartment().getName());
+
+        assertThat(allLectureRecruitingsPageSameWithKeyword.getTotalCount()).isEqualTo(2);  // 교수명 검색 -> 전공 필터링X
+    }
 }

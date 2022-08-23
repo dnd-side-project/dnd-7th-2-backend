@@ -10,9 +10,7 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.memberscore.MemberScore;
 import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
-import com.dnd.niceteam.domain.project.Project;
-import com.dnd.niceteam.domain.project.ProjectRepository;
-import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.project.*;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 import static com.dnd.niceteam.comment.EntityFactoryForTest.*;
@@ -194,6 +194,133 @@ class RecruitingRepositoryTest {
         assertThat(foundRecommendedRecruitings.getContent().get(1).getMember().getMemberScore().getLevel()).isEqualTo(1);
         assertThat(foundRecommendedRecruitings.getContent().get(0).getProject().getType()).isEqualTo(Type.SIDE);
         assertThat(foundRecommendedRecruitings.getContent().get(0).getProject().getName()).isEqualTo("recommended-side-project1-name");
+    }
 
+    @Test
+    @DisplayName("사이드 모집글 검색 모든 경우의 수 테스트")
+    void test_sideRecruiting_Search_Case() {
+        Project sideProject0 = projectRepository.save(SideProject.builder()
+                .name("project-0")
+                .field(Field.IT_SW_GAME)
+                .fieldCategory(FieldCategory.CLUB)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build());
+        Project sideProject1 = projectRepository.save(SideProject.builder()
+                .name("project-")
+                .field(Field.DESIGN)
+                .fieldCategory(FieldCategory.CLUB)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build());
+        Project sideProject2 = projectRepository.save(SideProject.builder()
+                .name("project-side2")
+                .field(Field.IT_SW_GAME)
+                .fieldCategory(FieldCategory.CLUB)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build());
+        recruitingRepository.save(Recruiting.builder()
+                .member(member)
+                .project(sideProject0)
+                .title("project-name")
+                .content("test-content")
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .activityDayTimes(createActivityDayTime())
+                .activityArea(ActivityArea.ONLINE)
+                .status(ProgressStatus.IN_PROGRESS)
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
+                .personalityNouns(Set.of(Personality.Noun.PERFECTIONIST, Personality.Noun.INVENTOR))
+                .commentCount(0)
+                .bookmarkCount(0)
+                .poolUpCount(0)
+                .introLink("test-introLink")
+                .build());
+        recruitingRepository.save(createRecruiting(member, sideProject1, Type.SIDE));
+        recruitingRepository.save(createRecruiting(member, sideProject2, Type.SIDE));
+        em.flush();
+        em.clear();
+
+        // when - 사이드
+        List<Recruiting> sideRecruitingsWithKeyword = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate("proj", null, pageable).getContent();
+        List<Recruiting> sideRecruitingsWithKeywordAndField = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate("proj", Field.IT_SW_GAME, pageable).getContent();
+        List<Recruiting> sideRecruitingsWithField = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(null, Field.IT_SW_GAME, pageable).getContent();
+        List<Recruiting> sideRecruitings = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(null, null, pageable).getContent();
+        // then
+        assertThat(sideRecruitingsWithKeyword.size()).isEqualTo(3);
+        assertThat(sideRecruitingsWithKeywordAndField.size()).isEqualTo(2);
+        assertThat(sideRecruitingsWithField.size()).isEqualTo(2);
+        assertThat(sideRecruitings.get(0).getProject().getName()).isEqualTo("project-side2");   // just 최신순
+    }
+
+    @Test
+    @DisplayName("강의 모집글 검색 모든 경우의 수 테스트")
+    void test_lectureRecruiting_Search_Case() {
+        Project lectureProjectNonsameDepartment = projectRepository.save(LectureProject.builder()
+                .name("project-0")
+                .professor("common-professor")
+                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
+                .department(departmentRepository.save(Department.builder()
+                        .name("미디어커뮤니케이션 학과")
+                        .mainBranchType("main")
+                        .region("서울")
+                        .collegeName("학교")
+                        .university(university)
+                        .build()))
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build());
+        Project lectureProject1 = projectRepository.save(LectureProject.builder()
+                .name("project-")
+                .professor("common-professor")
+                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
+                .department(department)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build());
+        Project lectureProject2 = projectRepository.save(LectureProject.builder()
+                .name("project-side2")
+                .professor("only-professor")
+                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
+                .department(department)
+                .startDate(LocalDate.of(2022, 7, 4))
+                .endDate(LocalDate.of(2022, 8, 28))
+                .build());
+        recruitingRepository.save(Recruiting.builder()
+                .member(member)
+                .project(lectureProjectNonsameDepartment)
+                .title("lecture-type-recruiting-title")
+                .content("test-content")
+                .recruitingMemberCount(4)
+                .recruitingType(Type.LECTURE)
+                .activityDayTimes(createActivityDayTime())
+                .activityArea(ActivityArea.ONLINE)
+                .status(ProgressStatus.IN_PROGRESS)
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
+                .personalityNouns(Set.of(Personality.Noun.PERFECTIONIST, Personality.Noun.INVENTOR))
+                .commentCount(0)
+                .bookmarkCount(0)
+                .poolUpCount(0)
+                .introLink("test-introLink")
+                .build());
+        recruitingRepository.save(createRecruiting(member, lectureProject1, Type.LECTURE));
+        recruitingRepository.save(createRecruiting(member, lectureProject2, Type.LECTURE));
+        em.flush();
+        em.clear();
+
+        // when - 강의
+        List<Recruiting> lectureRecruitingsWithoutKeyword = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(null, department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
+        List<Recruiting> lectureRecruitingsWithKeyword = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("project", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
+        List<Recruiting> lectureRecruitingsWithDiffKeyword = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("33", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
+        List<Recruiting> lectureRecruitingsWithKeywordSameWithLectureTitle = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("lecture-type-recruiting-title", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
+        List<Recruiting> lectureRecruitingsWithKeywordSameWithProfessor = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("only-professor", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
+        // then
+        assertThat(lectureRecruitingsWithoutKeyword.size()).isEqualTo(2);   // 검색 없을 때는 같은 전공
+        assertThat(lectureRecruitingsWithKeyword.size()).isEqualTo(3);   // 검색 있을 때는 전공 필터링X
+        assertThat(lectureRecruitingsWithDiffKeyword.size()).isEqualTo(0);   // 검색어 중 일치하지 않으면 검색x
+        assertThat(lectureRecruitingsWithKeywordSameWithLectureTitle.size()).isEqualTo(1);   // 검색어가 모집글 제목과 일치한 경우
+        assertThat(lectureRecruitingsWithKeywordSameWithProfessor.size()).isEqualTo(1);   // 검색어가 교수명과 일치한 경우
+        assertThat(lectureRecruitingsWithKeywordSameWithProfessor.get(0).getProject().getName()).isEqualTo("project-side2");
     }
 }

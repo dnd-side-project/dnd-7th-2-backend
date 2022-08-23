@@ -8,6 +8,7 @@ import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.exception.InvalidRecruitingTypeException;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -72,6 +73,7 @@ public interface RecruitingFind {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     class ListResponseDto {
         // 목록 조회
         @NotNull private Long id;
@@ -89,10 +91,25 @@ public interface RecruitingFind {
         // 내가 쓴글 조회
         private LocalDateTime createdDate;
 
+        // 검색 목록 조회
+        private LocalDate recruitingEndDate;
+        private Integer recruitingMemberCount;
+        private String recruiterNickname;
+
         public static ListResponseDto fromMyList(Recruiting recruiting) {
             ListResponseDto dto = createCommonListResponseDto(recruiting);
 
             dto.setCreatedDate(recruiting.getCreatedDate());
+            return dto;
+        }
+
+        public static ListResponseDto fromSearchList(Recruiting recruiting) {
+            ListResponseDto dto = createCommonListResponseDto(recruiting);
+
+            dto.setRecruitingEndDate(recruiting.getRecruitingEndDate());
+            dto.setRecruitingMemberCount(recruiting.getRecruitingMemberCount());
+            dto.setRecruiterNickname(recruiting.getMember().getNickname());
+
             return dto;
         }
 

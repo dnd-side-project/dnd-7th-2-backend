@@ -2,7 +2,9 @@ package com.dnd.niceteam.recruiting.controller;
 
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import com.dnd.niceteam.recruiting.service.RecruitingService;
@@ -63,6 +65,21 @@ public class RecruitingController {
 
         Pagination<RecruitingFind.RecommendedListResponseDto> recruitings = recruitingService.getRecommendedRecruitings(page, perSize, username);
         ApiResult<Pagination<RecruitingFind.RecommendedListResponseDto>> apiResult = ApiResult.success(recruitings);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    // 키워드 검색 & 목록 조회(필터링)
+    @GetMapping
+    public ResponseEntity<ApiResult<Pagination<RecruitingFind.ListResponseDto>>> searchRecruitingList(
+            @RequestParam(defaultValue = "1", required = false) Integer page,
+            @RequestParam(defaultValue = "10", required = false) Integer perSize,
+            @RequestParam(required = false) Field field,        // only used at SIDE
+            @RequestParam Type type,
+            @RequestParam(required = false) String searchWord,
+            @CurrentUsername String username) {
+        Pagination<RecruitingFind.ListResponseDto> recruitings = recruitingService.getSearchRecruitings(page, perSize, field, type, searchWord, username);
+
+        ApiResult<Pagination<RecruitingFind.ListResponseDto>> apiResult = ApiResult.success(recruitings);
         return ResponseEntity.ok(apiResult);
     }
 }

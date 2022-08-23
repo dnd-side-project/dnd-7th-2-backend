@@ -9,6 +9,7 @@ import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
@@ -110,6 +111,7 @@ public class DtoFactoryForTest {
         dto.setStatus(ProgressStatus.IN_PROGRESS);
         dto.setCommentCount(0);
         dto.setBookmarkCount(0);
+        dto.setCreatedDate(LocalDateTime.of(2022,8,21,13,0));
         dto.setProjectName("test-lecture-project-name");
         dto.setProfessor("test-professor-name");
         return dto;
@@ -136,5 +138,22 @@ public class DtoFactoryForTest {
         dto.setEndTime(LocalTime.of(20, 30));
 
         return Set.of(dto);
+    }
+
+    public static RecruitingFind.ListResponseDto createSearchSideListResponseDto() {
+        RecruitingFind.ListResponseDto responseDto = new RecruitingFind.ListResponseDto();
+        responseDto.setId(1L);
+        responseDto.setRecruiterNickname("writer-tester");
+        responseDto.setRecruitingMemberCount(4);
+        responseDto.setRecruitingEndDate(LocalDate.of(2022,8,28));
+        responseDto.setStatus(ProgressStatus.IN_PROGRESS);
+        responseDto.setTitle("모집글 제목 테스트");
+        responseDto.setProjectName("프르젝트명 테스트");
+        responseDto.setBookmarkCount(2);
+        responseDto.setCommentCount(2);
+        responseDto.setType(Type.SIDE);
+        responseDto.setField(Field.IT_SW_GAME);
+        responseDto.setFieldCategory(FieldCategory.STUDY);
+        return responseDto;
     }
 }

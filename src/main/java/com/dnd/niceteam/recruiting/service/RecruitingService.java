@@ -3,7 +3,9 @@ package com.dnd.niceteam.recruiting.service;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.util.PaginationUtil;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
+import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.project.*;
@@ -39,9 +41,8 @@ public class RecruitingService {
     @Transactional
     public RecruitingCreation.ResponseDto addProjectAndRecruiting(String username, RecruitingCreation.RequestDto recruitingReqDto) {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
-
         // 프로젝트
-        ProjectRequest.Register projectRequestDto = setProjectRequestDto(recruitingReqDto);
+        ProjectRequest.Register projectRequestDto = setProjecRegistertRequestDto(recruitingReqDto);
         ProjectResponse.Detail detail = projectService.registerProject(projectRequestDto, member);
         Project project = projectRepository.getReferenceById(detail.getId());
 
@@ -55,7 +56,7 @@ public class RecruitingService {
     public RecruitingFind.DetailResponseDto getRecruiting(Long recruitingId, String username) {
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
-        // TODO: 2022-08-20 북마크 체크 테스트 추가 필요 
+        // TODO: 2022-08-20 북마크 체크 테스트 추가 필요
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         boolean isBookmarked = bookmarkRepository.existsByMemberAndRecruiting(member, recruiting);
 
@@ -86,7 +87,28 @@ public class RecruitingService {
         return PaginationUtil.pageToPagination(recommendedRecruitingPages);
     }
 
-    private ProjectRequest.Register setProjectRequestDto(RecruitingCreation.RequestDto recruitingReqDto) {
+    // 검색 목록 조회
+    public Pagination<RecruitingFind.ListResponseDto> getSearchRecruitings (int page, int perSize, Field field, Type type, String searchWord, String email) {
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
+
+        Page<Recruiting> recruitingPages;
+        Pageable pageable = PageRequest.of(page - 1, perSize);
+
+        switch(type) {
+            case SIDE:
+                recruitingPages = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(searchWord, field, pageable);
+                break;
+            case LECTURE:
+                recruitingPages = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(searchWord, member.getDepartment().getName(), pageable);
+                break;
+            default: throw new InvalidRecruitingTypeException(type.name());
+        }
+
+        Page<RecruitingFind.ListResponseDto> searchRecruitingPages = recruitingPages.map(RecruitingFind.ListResponseDto::fromSearchList);
+        return PaginationUtil.pageToPagination(searchRecruitingPages);
+    }
+
+    private ProjectRequest.Register setProjecRegistertRequestDto(RecruitingCreation.RequestDto recruitingReqDto) {
         ProjectRequest.Register projectDto = new ProjectRequest.Register();
         projectDto.setType(recruitingReqDto.getRecruitingType());
         projectDto.setStartDate(recruitingReqDto.getProjectStartDate());
