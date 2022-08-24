@@ -25,3 +25,9 @@ operation::bookmark-delete[snippets='http-request,path-parameters,http-response,
 == 북마크 페이지 조회
 
 operation::bookmarks-page[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[bookmarks-lecture-page]]
+== 강의 북마크 페이지 조회
+
+operation::bookmarks-lecture-page[snippets='http-request,request-parameters,http-response,response-fields-data']
