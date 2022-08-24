@@ -15,6 +15,7 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.memberscore.MemberScore;
 import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
+import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.project.SideProject;
