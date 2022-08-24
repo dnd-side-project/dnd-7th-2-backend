@@ -77,12 +77,7 @@ public class MemberService {
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .build());
-        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
-                .level(1)
-                .reviewNum(0)
-                .totalParticipationScore(0)
-                .totalTeamAgainScore(0)
-                .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.createInitMemberScore());
         Member member = memberRepository.save(Member.builder()
                 .account(account)
                 .university(department.getUniversity())

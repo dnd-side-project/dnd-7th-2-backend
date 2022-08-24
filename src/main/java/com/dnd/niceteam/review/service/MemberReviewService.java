@@ -2,6 +2,9 @@ package com.dnd.niceteam.review.service;
 
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
+import com.dnd.niceteam.domain.memberscore.MemberScore;
+import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
+import com.dnd.niceteam.domain.memberscore.exception.MemberScoreNotFoundException;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectMember;
 import com.dnd.niceteam.domain.project.ProjectRepository;
@@ -26,6 +29,7 @@ public class MemberReviewService {
     private final MemberReviewRepository memberReviewRepository;
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
+    private final MemberScoreRepository memberScoreRepository;
 
     @Transactional
     public void addMemberReview(MemberReviewRequest.Add request, User currentUser) {
@@ -35,7 +39,12 @@ public class MemberReviewService {
                 projectMember.reviewer,
                 projectMember.reviewee
         );
+        Member revieweeMember = projectMember.reviewee.getMember();
+        MemberScore memberScore = memberScoreRepository.findByMember(revieweeMember)
+                .orElseThrow(() -> new MemberScoreNotFoundException("memberId = " + revieweeMember.getId()));
+        int totalProjectMembers = projectMember.reviewee.getProject().getProjectMembers().size();
         memberReviewRepository.save(newMemberReview);
+        memberScore.applyReview(totalProjectMembers, newMemberReview);
     }
 
     @Transactional
