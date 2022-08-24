@@ -7,6 +7,7 @@ import com.dnd.niceteam.bookmark.service.BookmarkService;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.bookmark.dto.LectureBookmarkDto;
+import com.dnd.niceteam.domain.bookmark.dto.SideBookmarkDto;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotOwnedException;
 import com.dnd.niceteam.security.CurrentUsername;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,14 @@ public class BookmarkController {
             Pageable pageable, @CurrentUsername String username) {
         Pagination<LectureBookmarkDto> pagination = bookmarkService.getLectureBookmarkPageByUsername(pageable, username);
         ApiResult<Pagination<LectureBookmarkDto>> apiResult = ApiResult.success(pagination);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/side")
+    public ResponseEntity<ApiResult<Pagination<SideBookmarkDto>>> sideBookmarkPage(
+            Pageable pageable, @CurrentUsername String username) {
+        Pagination<SideBookmarkDto> pagination = bookmarkService.getSideBookmarkPageByUsername(pageable, username);
+        ApiResult<Pagination<SideBookmarkDto>> apiResult = ApiResult.success(pagination);
         return ResponseEntity.ok(apiResult);
     }
 }
