@@ -2,7 +2,6 @@ package com.dnd.niceteam.bookmark.controller;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
-import com.dnd.niceteam.bookmark.dto.BookmarkDto;
 import com.dnd.niceteam.bookmark.service.BookmarkService;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.common.dto.Pagination;
@@ -41,14 +40,6 @@ public class BookmarkController {
         }
         BookmarkDeletion.ResponseDto responseDto = bookmarkService.deleteBookmark(bookmarkId);
         ApiResult<BookmarkDeletion.ResponseDto> apiResult = ApiResult.success(responseDto);
-        return ResponseEntity.ok(apiResult);
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResult<Pagination<BookmarkDto>>> bookmarkPage(
-            Pageable pageable, @CurrentUsername String username) {
-        Pagination<BookmarkDto> pagination = bookmarkService.getBookmarkPageByUsername(pageable, username);
-        ApiResult<Pagination<BookmarkDto>> apiResult = ApiResult.success(pagination);
         return ResponseEntity.ok(apiResult);
     }
 

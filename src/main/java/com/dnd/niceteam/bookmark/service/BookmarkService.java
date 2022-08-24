@@ -2,7 +2,6 @@ package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
-import com.dnd.niceteam.bookmark.dto.BookmarkDto;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.util.PaginationUtil;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
@@ -61,13 +60,6 @@ public class BookmarkService {
         BookmarkDeletion.ResponseDto responseDto = new BookmarkDeletion.ResponseDto();
         responseDto.setId(bookmark.getId());
         return responseDto;
-    }
-
-    public Pagination<BookmarkDto> getBookmarkPageByUsername(Pageable pageable, String username) {
-        Member member = getMemberByEmail(username);
-        Page<BookmarkDto> page = bookmarkRepository.findPageWithRecruitingByMember(pageable, member)
-                .map(BookmarkDto::of);
-        return PaginationUtil.pageToPagination(page);
     }
 
     public Pagination<LectureBookmarkDto> getLectureBookmarkPageByUsername(Pageable pageable, String username) {

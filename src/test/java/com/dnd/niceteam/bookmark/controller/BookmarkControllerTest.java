@@ -2,7 +2,6 @@ package com.dnd.niceteam.bookmark.controller;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
-import com.dnd.niceteam.bookmark.dto.BookmarkDto;
 import com.dnd.niceteam.bookmark.service.BookmarkService;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
@@ -131,47 +130,6 @@ class BookmarkControllerTest {
                 .andExpect(jsonPath("$.error.message").value(ErrorCode.BOOKMARK_NOT_OWNED.getMessage()))
                 .andExpect(jsonPath("$.error.errors").isEmpty())
         ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("북마크 페이지 조회 API")
-    void bookmarkPage() throws Exception {
-        // given
-        BookmarkDto givenBookmarkDto = new BookmarkDto();
-        givenBookmarkDto.setId(1L);
-        givenBookmarkDto.setRecruitingId(2L);
-        givenBookmarkDto.setRecruitingTitle("테스트 모집글 제목");
-        Pagination<BookmarkDto> givenPagination = Pagination.<BookmarkDto>builder()
-                .page(0)
-                .perSize(10)
-                .totalCount(1)
-                .contents(List.of(givenBookmarkDto))
-                .build();
-        given(mockBookmarkService.getBookmarkPageByUsername(any(Pageable.class), anyString()))
-                .willReturn(givenPagination);
-
-        // expected
-        mockMvc.perform(get("/bookmarks")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("page", String.valueOf(0))
-                        .param("size", String.valueOf(10)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("success").value(true))
-                .andDo(document("bookmarks-page",
-                        requestParameters(
-                                parameterWithName("page").description("페이지 인덱스"),
-                                parameterWithName("size").description("페이지 크기").optional()
-                        ),
-                        responseFields(
-                                beneathPath("data.contents").withSubsectionId("data"),
-                                fieldWithPath("id").description("북마크 ID"),
-                                fieldWithPath("recruitingId").description("모집글 ID"),
-                                fieldWithPath("recruitingTitle").description("모집글 제목")
-                        )
-                ))
-                ;
     }
 
     @Test
