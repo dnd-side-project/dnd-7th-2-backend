@@ -7,6 +7,7 @@ import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
+import com.dnd.niceteam.domain.bookmark.dto.LectureBookmarkDto;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
@@ -217,6 +218,43 @@ class BookmarkServiceTest {
 
         // expected
         assertThatThrownBy(() -> bookmarkService.getBookmarkPageByUsername(
+                PageRequest.of(0, 10), "test@email.com"))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("강의 북마크 페이지 조회")
+    void getLectureBookmarkPageByUsername() {
+        // given
+        Member mockMember = mock(Member.class);
+        String givenEmail = "test@email.com";
+        given(mockMemberRepository.findByEmail(givenEmail))
+                .willReturn(Optional.of(mockMember));
+        PageRequest givenPageRequest = PageRequest.of(0, 10);
+        given(mockBookmarkRepository.findLectureBookmarkDtoPageByMember(givenPageRequest, mockMember))
+                .willReturn(new PageImpl<>(Collections.emptyList(), givenPageRequest, 0L));
+
+        // when
+        Pagination<LectureBookmarkDto> page = bookmarkService.getLectureBookmarkPageByUsername(
+                givenPageRequest, givenEmail);
+
+        // then
+        assertThat(page.getPage()).isZero();
+        assertThat(page.getPerSize()).isEqualTo(10);
+        assertThat(page.getTotalPages()).isZero();
+        assertThat(page.getTotalCount()).isZero();
+        assertThat(page.getContents()).isEqualTo(Collections.emptyList());
+    }
+
+    @Test
+    @DisplayName("강의 북마크 페이지 조회 - 존재하지 않는 회원")
+    void getLectureBookmarkPageByUsername_MemberNotFound() {
+        // given
+        given(mockMemberRepository.findByEmail(anyString()))
+                .willReturn(Optional.empty());
+
+        // expected
+        assertThatThrownBy(() -> bookmarkService.getLectureBookmarkPageByUsername(
                 PageRequest.of(0, 10), "test@email.com"))
                 .isInstanceOf(MemberNotFoundException.class);
     }
