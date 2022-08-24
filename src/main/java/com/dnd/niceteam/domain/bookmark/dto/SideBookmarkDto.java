@@ -2,6 +2,7 @@ package com.dnd.niceteam.domain.bookmark.dto;
 
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ public class SideBookmarkDto extends BookmarkDto {
 
     private FieldCategory fieldCategory;
 
+    @QueryProjection
     public SideBookmarkDto(
             Long id,
             Long recruitingId,

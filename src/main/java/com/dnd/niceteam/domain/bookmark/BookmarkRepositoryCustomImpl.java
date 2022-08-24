@@ -1,9 +1,6 @@
 package com.dnd.niceteam.domain.bookmark;
 
-import com.dnd.niceteam.domain.bookmark.dto.LectureBookmarkDto;
-import com.dnd.niceteam.domain.bookmark.dto.LectureTimeDto;
-import com.dnd.niceteam.domain.bookmark.dto.QLectureBookmarkDto;
-import com.dnd.niceteam.domain.bookmark.dto.QLectureTimeDto;
+import com.dnd.niceteam.domain.bookmark.dto.*;
 import com.dnd.niceteam.domain.member.Member;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,6 +21,7 @@ import static com.dnd.niceteam.domain.member.QMember.member;
 import static com.dnd.niceteam.domain.project.QLectureProject.lectureProject;
 import static com.dnd.niceteam.domain.project.QLectureTime.lectureTime;
 import static com.dnd.niceteam.domain.project.QProject.project;
+import static com.dnd.niceteam.domain.project.QSideProject.sideProject;
 import static com.dnd.niceteam.domain.recruiting.QRecruiting.recruiting;
 import static java.util.Objects.isNull;
 
@@ -103,6 +101,35 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
             }
         });
         return projectIdToLectureTimeDtosMap;
+    }
+
+    @Override
+    public Page<SideBookmarkDto> findSideBookmarkDtoPageByMember(Pageable pageable, Member member) {
+        List<SideBookmarkDto> content = query
+                .select(new QSideBookmarkDto(
+                        bookmark.id,
+                        recruiting.id,
+                        project.id,
+                        recruiting.title,
+                        recruiting.recruitingEndDate,
+                        recruiting.commentCount,
+                        recruiting.bookmarkCount,
+                        recruiting.recruitingMemberCount,
+                        sideProject.field,
+                        sideProject.fieldCategory))
+                .from(bookmark)
+                .join(bookmark.member)
+                .join(bookmark.recruiting, recruiting)
+                .join(bookmark.recruiting.project, project)
+                .join(sideProject).on(sideProject.eq(project))
+                .where(bookmark.member.eq(member))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = countQueryByMember(member);
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     private JPAQuery<Long> countQueryByMember(Member member) {
