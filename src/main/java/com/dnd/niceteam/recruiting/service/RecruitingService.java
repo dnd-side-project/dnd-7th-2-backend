@@ -19,6 +19,7 @@ import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,7 +43,7 @@ public class RecruitingService {
     public RecruitingCreation.ResponseDto addProjectAndRecruiting(String username, RecruitingCreation.RequestDto recruitingReqDto) {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         // 프로젝트
-        ProjectRequest.Register projectRequestDto = setProjecRegistertRequestDto(recruitingReqDto);
+        ProjectRequest.Register projectRequestDto = ProjectRequest.Register.createProjecRegistertRequestDto(recruitingReqDto);
         ProjectResponse.Detail detail = projectService.registerProject(projectRequestDto, member);
         Project project = projectRepository.getReferenceById(detail.getId());
 
@@ -54,8 +55,7 @@ public class RecruitingService {
 
     // 모집글 상세
     public RecruitingFind.DetailResponseDto getRecruiting(Long recruitingId, String username) {
-        Recruiting recruiting = recruitingRepository.findById(recruitingId)
-                .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+        Recruiting recruiting = findRecruitingById(recruitingId);
         // TODO: 2022-08-20 북마크 체크 테스트 추가 필요
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         boolean isBookmarked = bookmarkRepository.existsByMemberAndRecruiting(member, recruiting);
@@ -64,7 +64,7 @@ public class RecruitingService {
     }
 
     // 내가 쓴글
-    public Pagination<RecruitingFind.ListResponseDto> getMyRecruitings(int page, int perSize, ProgressStatus progressStatus, String username) {    // 현재 페이지, 페이지 데이터 수
+    public Pagination<RecruitingFind.ListResponseDto> getMyRecruitings(int page, int perSize, ProgressStatus progressStatus, String username) {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
 
         Pageable pageable = PageRequest.of(page - 1, perSize);
@@ -108,27 +108,37 @@ public class RecruitingService {
         return PaginationUtil.pageToPagination(searchRecruitingPages);
     }
 
-    private ProjectRequest.Register setProjecRegistertRequestDto(RecruitingCreation.RequestDto recruitingReqDto) {
-        ProjectRequest.Register projectDto = new ProjectRequest.Register();
-        projectDto.setType(recruitingReqDto.getRecruitingType());
-        projectDto.setStartDate(recruitingReqDto.getProjectStartDate());
-        projectDto.setEndDate(recruitingReqDto.getProjectEndDate());
-        projectDto.setName(recruitingReqDto.getProjectName());
+    // 모집글 수정
+    @Transactional
+    public RecruitingModify.ResponseDto modifyProjectAndRecruiting(Long recruitingId, RecruitingModify.RequestDto requestDto) {
+        Recruiting recruiting = findRecruitingById(recruitingId);
 
-        switch (recruitingReqDto.getRecruitingType()) {
-            case SIDE:
-                projectDto.setField(recruitingReqDto.getField());
-                projectDto.setFieldCategory(recruitingReqDto.getFieldCategory());
-                break;
-            case LECTURE:
-                projectDto.setProfessor(recruitingReqDto.getProfessor());
-                projectDto.setDepartmentId(recruitingReqDto.getDepartmentId());
-                projectDto.setLectureTimes(recruitingReqDto.getLectureTimes());
-                break;
-            default:
-                throw new InvalidRecruitingTypeException("Unexpected Type: " + recruitingReqDto.getRecruitingType());
+        ProjectRequest.Update upateRequestDto = ProjectRequest.Update.createProjectUpdateRequestDto (requestDto);
+        projectService.modifyProject(recruiting.getProject().getId(), recruiting.getMember().getId(), upateRequestDto);
+
+        recruiting.update(requestDto);
+
+        return RecruitingModify.ResponseDto.from(recruiting);
+    }
+
+    @Transactional
+    public void removeRecruiting(Long recruitingId) {
+        Recruiting recruiting = findRecruitingById(recruitingId);
+
+        recruitingRepository.delete(recruiting);
+
+        if (isProjectNotStarted(recruiting.getProject())) {
+            projectRepository.delete(recruiting.getProject());
         }
-        return projectDto;
+    }
+
+    private boolean isProjectNotStarted(Project project) {
+        return project.getStatus().equals(ProjectStatus.NOT_STARTED);
+    }
+
+    private Recruiting findRecruitingById(Long recruitingId) {
+        return recruitingRepository.findById(recruitingId)
+                .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
     }
 
     private Page<Recruiting> findRecruitingsDependsOnStatus(Pageable pageable, ProgressStatus progressStatus, Member member) {

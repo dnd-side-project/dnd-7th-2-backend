@@ -8,6 +8,9 @@ import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.LectureTime;
 import com.dnd.niceteam.domain.project.ProjectStatus;
 import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.recruiting.exception.InvalidRecruitingTypeException;
+import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -60,6 +63,29 @@ public interface ProjectRequest {
                     .fieldCategory(fieldCategory)
                     .build();
         }
+
+        public static ProjectRequest.Register createProjecRegistertRequestDto(RecruitingCreation.RequestDto recruitingReqDto) {
+            ProjectRequest.Register projectDto = new ProjectRequest.Register();
+            projectDto.setType(recruitingReqDto.getRecruitingType());
+            projectDto.setStartDate(recruitingReqDto.getProjectStartDate());
+            projectDto.setEndDate(recruitingReqDto.getProjectEndDate());
+            projectDto.setName(recruitingReqDto.getProjectName());
+
+            switch (recruitingReqDto.getRecruitingType()) {
+                case SIDE:
+                    projectDto.setField(recruitingReqDto.getField());
+                    projectDto.setFieldCategory(recruitingReqDto.getFieldCategory());
+                    break;
+                case LECTURE:
+                    projectDto.setProfessor(recruitingReqDto.getProfessor());
+                    projectDto.setDepartmentId(recruitingReqDto.getDepartmentId());
+                    projectDto.setLectureTimes(recruitingReqDto.getLectureTimes());
+                    break;
+                default:
+                    throw new InvalidRecruitingTypeException("Unexpected Type: " + recruitingReqDto.getRecruitingType());
+            }
+            return projectDto;
+        }
     }
 
 
@@ -80,6 +106,27 @@ public interface ProjectRequest {
         private Field field;
         private FieldCategory fieldCategory;
 
+        public static ProjectRequest.Update createProjectUpdateRequestDto (RecruitingModify.RequestDto requestDto) {
+            ProjectRequest.Update dto = new ProjectRequest.Update();
+            dto.setName(requestDto.getProjectName());
+            dto.setStartDate(requestDto.getProjectStartDate());
+            dto.setEndDate(requestDto.getProjectEndDate());
+
+            switch (requestDto.getRecruitingType()) {
+                case SIDE:
+                    dto.setField(requestDto.getField());
+                    dto.setFieldCategory(requestDto.getFieldCategory());
+                    break;
+                case LECTURE:
+                    dto.setProfessor(requestDto.getProfessor());
+                    dto.setDepartmentId(requestDto.getDepartmentId());
+                    dto.setLectureTimes(requestDto.getLectureTimes());
+                    break;
+                default:
+                    throw new InvalidRecruitingTypeException("Unexpected Type: " + requestDto.getRecruitingType());
+            }
+            return dto;
+        }
     }
 
 }
