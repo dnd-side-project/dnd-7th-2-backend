@@ -7,6 +7,7 @@ import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.recruiting.dto.ActivityDayTimeDto;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,8 +21,11 @@ public class DtoFactoryForTest {
     public static final Long RECRUITING_ID = 1L;
     public static final Long PROJECT_ID = 1L;
     public static final Long DEPARTMENT_ID = 1L;
+    public static final int page = 1;
+    public static final int perSize = 5;
+    public static final Long recruitingId = 1L;
 
-    public static CommentCreation.RequestDto createCommentRequest() {
+    public static CommentCreation.RequestDto createCommentAddRequest() {
         CommentCreation.RequestDto dto = new CommentCreation.RequestDto();
         dto.setContent(COMMENT_CONTENT);
         dto.setParentId(PARENT_ID);
@@ -29,9 +33,12 @@ public class DtoFactoryForTest {
     }
 
     public static final Long COMMENT_ID = 1L;
-    public static CommentCreation.ResponseDto createCommentResponse() {
+    public static final Long GROUP_NO = 1L;
+    public static CommentCreation.ResponseDto createCommentAddResponse() {
         CommentCreation.ResponseDto dto = new CommentCreation.ResponseDto();
         dto.setId(COMMENT_ID);
+        dto.setParentId(PARENT_ID);
+        dto.setGroupNo(GROUP_NO);
         return dto;
     }
 
@@ -40,7 +47,7 @@ public class DtoFactoryForTest {
         dto.setTitle("모집글 제목 테스트");
         dto.setContent("모집글 내용 테스트");
         dto.setRecruitingType(Type.LECTURE);
-        dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
+        dto.setRecruitingEndDate(LocalDate.of(2023, 8, 28));
         dto.setActivityArea(ActivityArea.ONLINE);
         dto.setStatus(ProgressStatus.IN_PROGRESS);
         dto.setRecruitingMemberCount(3);
@@ -49,8 +56,8 @@ public class DtoFactoryForTest {
         dto.setPersonalityNouns(Set.of(Personality.Noun.INVENTOR, Personality.Noun.MEDIATOR));
         dto.setActivityDayTimes(createActivityDayTimesDto());
 
-        dto.setProjectStartDate(LocalDate.of(2022, 7, 4));
-        dto.setProjectEndDate(LocalDate.of(2022, 8, 28));
+        dto.setProjectStartDate(LocalDate.of(2023, 8, 29));
+        dto.setProjectEndDate(LocalDate.of(2023, 12, 28));
 
         dto.setProjectName("project-name");
         dto.setDepartmentId(DEPARTMENT_ID);
@@ -155,5 +162,38 @@ public class DtoFactoryForTest {
         responseDto.setField(Field.IT_SW_GAME);
         responseDto.setFieldCategory(FieldCategory.STUDY);
         return responseDto;
+    }
+
+    public static RecruitingModify.RequestDto createRecruitingModifyRequest() {
+        RecruitingModify.RequestDto dto = new RecruitingModify.RequestDto();
+        dto.setTitle("모집글 제목 테스트");
+        dto.setContent("모집글 내용 테스트");
+        dto.setRecruitingType(Type.LECTURE);
+        dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
+        dto.setActivityArea(ActivityArea.ONLINE);
+        dto.setRecruitingMemberCount(3);
+        dto.setIntroLink("test-intro");
+        dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CREATIVE));
+        dto.setPersonalityNouns(Set.of(Personality.Noun.INVENTOR, Personality.Noun.MEDIATOR));
+        dto.setActivityDayTimes(createActivityDayTimesDto());
+
+        dto.setProjectStartDate(LocalDate.of(2022, 7, 4));
+        dto.setProjectEndDate(LocalDate.of(2022, 8, 28));
+
+        dto.setProjectName("project-name");
+        dto.setDepartmentId(DEPARTMENT_ID);
+        dto.setProfessor("test-professor");
+        dto.setLectureTimes(createLectureTimeRequest());
+
+        if (dto.getRecruitingType() == Type.LECTURE) {
+            dto.setDepartmentId(DEPARTMENT_ID);
+            dto.setProfessor("test-professor");
+            dto.setLectureTimes(createLectureTimeRequest());
+        } else {
+            dto.setField(Field.AD_MARKETING);
+            dto.setFieldCategory(FieldCategory.STUDY);
+        }
+
+        return dto;
     }
 }
