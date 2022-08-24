@@ -4,6 +4,8 @@ import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.common.BaseEntity;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.project.Project;
+import com.dnd.niceteam.recruiting.dto.ActivityDayTimeDto;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Builder
@@ -29,7 +32,7 @@ public class Recruiting extends BaseEntity {
     @Column(name = "recruiting_id")
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
@@ -105,6 +108,10 @@ public class Recruiting extends BaseEntity {
         this.commentCount += 1;
     }
 
+    public void minusCommentCount() {
+        this.commentCount -= 1;
+    }
+
     public void updateStatus(ProgressStatus status) {
         this.status = status;
     }
@@ -119,5 +126,19 @@ public class Recruiting extends BaseEntity {
 
     public boolean checkRecruiter(Member member) {
         return this.member.equals(member);
+    }
+
+    public void update(RecruitingModify.RequestDto dto) {
+        title = dto.getTitle();
+        content = dto.getContent();
+        recruitingMemberCount = dto.getRecruitingMemberCount();
+        recruitingType = dto.getRecruitingType();
+        recruitingType = dto.getRecruitingType();
+        activityArea = dto.getActivityArea();
+        introLink = dto.getIntroLink();
+        recruitingEndDate = dto.getRecruitingEndDate();
+        activityDayTimes = dto.getActivityDayTimes().stream().map(ActivityDayTimeDto::toEntity).collect(Collectors.toSet());   // dto로 수정 필요.
+        personalityAdjectives = dto.getPersonalityAdjectives();
+        personalityNouns = dto.getPersonalityNouns();
     }
 }

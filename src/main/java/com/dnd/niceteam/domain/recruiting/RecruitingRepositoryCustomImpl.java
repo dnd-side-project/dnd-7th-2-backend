@@ -136,7 +136,7 @@ public class RecruitingRepositoryCustomImpl implements RecruitingRepositoryCusto
                 .leftJoin(sideProject).on(sideProject.eq(project))
                 .where(
                         nameContains(sideProject.name, searchWord)
-                                .and(fieldEq(field))    // searchWord가 null이면 무시하고, 필드가 같아야 한다.)
+                                .and(fieldEq(field))
                 )
                 .fetch();
     }
