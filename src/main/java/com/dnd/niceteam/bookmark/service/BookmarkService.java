@@ -2,11 +2,12 @@ package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
-import com.dnd.niceteam.bookmark.dto.BookmarkDto;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.util.PaginationUtil;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
+import com.dnd.niceteam.domain.bookmark.dto.LectureBookmarkDto;
+import com.dnd.niceteam.domain.bookmark.dto.SideBookmarkDto;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
@@ -61,10 +62,17 @@ public class BookmarkService {
         return responseDto;
     }
 
-    public Pagination<BookmarkDto> getBookmarkPageByUsername(Pageable pageable, String username) {
+    public Pagination<LectureBookmarkDto> getLectureBookmarkPageByUsername(Pageable pageable, String username) {
         Member member = getMemberByEmail(username);
-        Page<BookmarkDto> page = bookmarkRepository.findPageWithRecruitingByMember(pageable, member)
-                .map(BookmarkDto::of);
+        Page<LectureBookmarkDto> page = bookmarkRepository
+                .findLectureBookmarkDtoPageByMember(pageable, member);
+        return PaginationUtil.pageToPagination(page);
+    }
+
+    public Pagination<SideBookmarkDto> getSideBookmarkPageByUsername(Pageable pageable, String username) {
+        Member member = getMemberByEmail(username);
+        Page<SideBookmarkDto> page = bookmarkRepository
+                .findSideBookmarkDtoPageByMember(pageable, member);
         return PaginationUtil.pageToPagination(page);
     }
 

@@ -2,10 +2,15 @@ package com.dnd.niceteam.bookmark.controller;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
-import com.dnd.niceteam.bookmark.dto.BookmarkDto;
 import com.dnd.niceteam.bookmark.service.BookmarkService;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.domain.bookmark.dto.LectureBookmarkDto;
+import com.dnd.niceteam.domain.bookmark.dto.LectureTimeDto;
+import com.dnd.niceteam.domain.bookmark.dto.SideBookmarkDto;
+import com.dnd.niceteam.domain.code.DayOfWeek;
+import com.dnd.niceteam.domain.code.Field;
+import com.dnd.niceteam.domain.code.FieldCategory;
 import com.dnd.niceteam.error.exception.ErrorCode;
 import com.dnd.niceteam.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +27,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -127,31 +134,42 @@ class BookmarkControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("북마크 페이지 조회 API")
-    void bookmarkPage() throws Exception {
+    @DisplayName("강의 북마크 페이지 조회 API")
+    void lectureBookmarkPage() throws Exception {
         // given
-        BookmarkDto givenBookmarkDto = new BookmarkDto();
-        givenBookmarkDto.setId(1L);
-        givenBookmarkDto.setRecruitingId(2L);
-        givenBookmarkDto.setRecruitingTitle("테스트 모집글 제목");
-        Pagination<BookmarkDto> givenPagination = Pagination.<BookmarkDto>builder()
+        LectureBookmarkDto lectureBookmarkDto1 = new LectureBookmarkDto(
+                1L,
+                2L,
+                3L,
+                "모집글1",
+                LocalDate.of(2022, 3, 1),
+                0,
+                0,
+                0,
+                "강의1"
+        );
+        lectureBookmarkDto1.setLectureTimes(List.of(
+                new LectureTimeDto(3L, DayOfWeek.MON, LocalTime.of(1, 30)),
+                new LectureTimeDto(3L, DayOfWeek.WED, LocalTime.of(3, 0))
+        ));
+        Pagination<LectureBookmarkDto> givenPagination = Pagination.<LectureBookmarkDto>builder()
                 .page(0)
                 .perSize(10)
                 .totalCount(1)
-                .contents(List.of(givenBookmarkDto))
+                .contents(List.of(lectureBookmarkDto1))
                 .build();
-        given(mockBookmarkService.getBookmarkPageByUsername(any(Pageable.class), anyString()))
+        given(mockBookmarkService.getLectureBookmarkPageByUsername(any(Pageable.class), anyString()))
                 .willReturn(givenPagination);
 
         // expected
-        mockMvc.perform(get("/bookmarks")
+        mockMvc.perform(get("/bookmarks/lecture")
                         .accept(MediaType.APPLICATION_JSON)
                         .param("page", String.valueOf(0))
                         .param("size", String.valueOf(10)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("success").value(true))
-                .andDo(document("bookmarks-page",
+                .andDo(document("bookmarks-lecture-page",
                         requestParameters(
                                 parameterWithName("page").description("페이지 인덱스"),
                                 parameterWithName("size").description("페이지 크기").optional()
@@ -160,9 +178,75 @@ class BookmarkControllerTest {
                                 beneathPath("data.contents").withSubsectionId("data"),
                                 fieldWithPath("id").description("북마크 ID"),
                                 fieldWithPath("recruitingId").description("모집글 ID"),
-                                fieldWithPath("recruitingTitle").description("모집글 제목")
+                                fieldWithPath("projectId").description("프로젝트 ID"),
+                                fieldWithPath("title").description("모집글 제목"),
+                                fieldWithPath("recruitingEndDate").description("모집 마감 일자"),
+                                fieldWithPath("commentCount").description("댓글 수"),
+                                fieldWithPath("bookmarkCount").description("북마크 수"),
+                                fieldWithPath("recruitingMemberCount").description("모집 인원"),
+                                fieldWithPath("lectureName").description("강의명"),
+                                fieldWithPath("lectureTimes").description("강의 일정 - 없을 경우 빈 리스트 반환"),
+                                fieldWithPath("lectureTimes[].projectId").description("프로젝트 ID"),
+                                fieldWithPath("lectureTimes[].dayOfWeek").description("강의 요일"),
+                                fieldWithPath("lectureTimes[].startTime").description("강의 시작 시간")
                         )
                 ))
-                ;
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("사이드 북마크 페이지 조회 API")
+    void sideBookmarkPage() throws Exception {
+        // given
+        SideBookmarkDto sideBookmarkDto = new SideBookmarkDto(
+                1L,
+                2L,
+                3L,
+                "모집글1",
+                LocalDate.of(2022, 3, 1),
+                0,
+                0,
+                0,
+                Field.IT_SW_GAME,
+                FieldCategory.EXTRA_ACTIVITY
+        );
+        Pagination<SideBookmarkDto> givenPagination = Pagination.<SideBookmarkDto>builder()
+                .page(0)
+                .perSize(10)
+                .totalCount(1)
+                .contents(List.of(sideBookmarkDto))
+                .build();
+        given(mockBookmarkService.getSideBookmarkPageByUsername(any(Pageable.class), anyString()))
+                .willReturn(givenPagination);
+
+        // expected
+        mockMvc.perform(get("/bookmarks/side")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(10)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("success").value(true))
+                .andDo(document("bookmarks-side-page",
+                        requestParameters(
+                                parameterWithName("page").description("페이지 인덱스"),
+                                parameterWithName("size").description("페이지 크기").optional()
+                        ),
+                        responseFields(
+                                beneathPath("data.contents").withSubsectionId("data"),
+                                fieldWithPath("id").description("북마크 ID"),
+                                fieldWithPath("recruitingId").description("모집글 ID"),
+                                fieldWithPath("projectId").description("프로젝트 ID"),
+                                fieldWithPath("title").description("모집글 제목"),
+                                fieldWithPath("recruitingEndDate").description("모집 마감 일자"),
+                                fieldWithPath("commentCount").description("댓글 수"),
+                                fieldWithPath("bookmarkCount").description("북마크 수"),
+                                fieldWithPath("recruitingMemberCount").description("모집 인원"),
+                                fieldWithPath("field").description("분야"),
+                                fieldWithPath("fieldCategory").description("분야 카테고리")
+                        )
+                ))
+        ;
     }
 }

@@ -2,11 +2,12 @@ package com.dnd.niceteam.bookmark.service;
 
 import com.dnd.niceteam.bookmark.dto.BookmarkCreation;
 import com.dnd.niceteam.bookmark.dto.BookmarkDeletion;
-import com.dnd.niceteam.bookmark.dto.BookmarkDto;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.bookmark.Bookmark;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
+import com.dnd.niceteam.domain.bookmark.dto.LectureBookmarkDto;
+import com.dnd.niceteam.domain.bookmark.dto.SideBookmarkDto;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkExistingException;
 import com.dnd.niceteam.domain.bookmark.exception.BookmarkNotFoundException;
 import com.dnd.niceteam.domain.member.Member;
@@ -185,38 +186,75 @@ class BookmarkServiceTest {
     }
 
     @Test
-    @DisplayName("북마크 페이지 조회")
-    void getBookmarkPageByUsername() {
+    @DisplayName("강의 북마크 페이지 조회")
+    void getLectureBookmarkPageByUsername() {
         // given
         Member mockMember = mock(Member.class);
         String givenEmail = "test@email.com";
         given(mockMemberRepository.findByEmail(givenEmail))
                 .willReturn(Optional.of(mockMember));
         PageRequest givenPageRequest = PageRequest.of(0, 10);
-        given(mockBookmarkRepository.findPageWithRecruitingByMember(givenPageRequest, mockMember))
+        given(mockBookmarkRepository.findLectureBookmarkDtoPageByMember(givenPageRequest, mockMember))
                 .willReturn(new PageImpl<>(Collections.emptyList(), givenPageRequest, 0L));
 
         // when
-        Pagination<BookmarkDto> bookmarkDtoPagination = bookmarkService.getBookmarkPageByUsername(
+        Pagination<LectureBookmarkDto> page = bookmarkService.getLectureBookmarkPageByUsername(
                 givenPageRequest, givenEmail);
 
         // then
-        assertThat(bookmarkDtoPagination.getPage()).isZero();
-        assertThat(bookmarkDtoPagination.getPerSize()).isEqualTo(10);
-        assertThat(bookmarkDtoPagination.getTotalPages()).isZero();
-        assertThat(bookmarkDtoPagination.getTotalCount()).isZero();
-        assertThat(bookmarkDtoPagination.getContents()).isEqualTo(Collections.emptyList());
+        assertThat(page.getPage()).isZero();
+        assertThat(page.getPerSize()).isEqualTo(10);
+        assertThat(page.getTotalPages()).isZero();
+        assertThat(page.getTotalCount()).isZero();
+        assertThat(page.getContents()).isEqualTo(Collections.emptyList());
     }
 
     @Test
-    @DisplayName("북마크 페이지 조회 - 존재하지 않는 회원")
-    void getBookmarkPageByUsername_MemberNotFound() {
+    @DisplayName("강의 북마크 페이지 조회 - 존재하지 않는 회원")
+    void getLectureBookmarkPageByUsername_MemberNotFound() {
         // given
         given(mockMemberRepository.findByEmail(anyString()))
                 .willReturn(Optional.empty());
 
         // expected
-        assertThatThrownBy(() -> bookmarkService.getBookmarkPageByUsername(
+        assertThatThrownBy(() -> bookmarkService.getLectureBookmarkPageByUsername(
+                PageRequest.of(0, 10), "test@email.com"))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("사이드 북마크 페이지 조회")
+    void getSideBookmarkPageByUsername() {
+        // given
+        Member mockMember = mock(Member.class);
+        String givenEmail = "test@email.com";
+        given(mockMemberRepository.findByEmail(givenEmail))
+                .willReturn(Optional.of(mockMember));
+        PageRequest givenPageRequest = PageRequest.of(0, 10);
+        given(mockBookmarkRepository.findSideBookmarkDtoPageByMember(givenPageRequest, mockMember))
+                .willReturn(new PageImpl<>(Collections.emptyList(), givenPageRequest, 0L));
+
+        // when
+        Pagination<SideBookmarkDto> page = bookmarkService.getSideBookmarkPageByUsername(
+                givenPageRequest, givenEmail);
+
+        // then
+        assertThat(page.getPage()).isZero();
+        assertThat(page.getPerSize()).isEqualTo(10);
+        assertThat(page.getTotalPages()).isZero();
+        assertThat(page.getTotalCount()).isZero();
+        assertThat(page.getContents()).isEqualTo(Collections.emptyList());
+    }
+
+    @Test
+    @DisplayName("사이드 북마크 페이지 조회 - 존재하지 않는 회원")
+    void getSideBookmarkPageByUsername_MemberNotFound() {
+        // given
+        given(mockMemberRepository.findByEmail(anyString()))
+                .willReturn(Optional.empty());
+
+        // expected
+        assertThatThrownBy(() -> bookmarkService.getSideBookmarkPageByUsername(
                 PageRequest.of(0, 10), "test@email.com"))
                 .isInstanceOf(MemberNotFoundException.class);
     }
