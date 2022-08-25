@@ -1,6 +1,7 @@
 package com.dnd.niceteam.comment;
 
 import com.dnd.niceteam.comment.dto.CommentCreation;
+import com.dnd.niceteam.comment.dto.CommentFind;
 import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
@@ -21,9 +22,10 @@ public class DtoFactoryForTest {
     public static final Long RECRUITING_ID = 1L;
     public static final Long PROJECT_ID = 1L;
     public static final Long DEPARTMENT_ID = 1L;
-    public static final int page = 1;
-    public static final int perSize = 5;
-    public static final Long recruitingId = 1L;
+    public static final int PAGE = 1;
+    public static final int PER_SIZE = 5;
+    public static final Long COMMENT_ID = 1L;
+    public static final Long GROUP_NO = 1L;
 
     public static CommentCreation.RequestDto createCommentAddRequest() {
         CommentCreation.RequestDto dto = new CommentCreation.RequestDto();
@@ -32,13 +34,21 @@ public class DtoFactoryForTest {
         return dto;
     }
 
-    public static final Long COMMENT_ID = 1L;
-    public static final Long GROUP_NO = 1L;
     public static CommentCreation.ResponseDto createCommentAddResponse() {
         CommentCreation.ResponseDto dto = new CommentCreation.ResponseDto();
         dto.setId(COMMENT_ID);
         dto.setParentId(PARENT_ID);
         dto.setGroupNo(GROUP_NO);
+        return dto;
+    }
+
+    public static CommentFind.ResponseDto createCommentListResponse() {
+        CommentFind.ResponseDto dto = new CommentFind.ResponseDto();
+        dto.setCommentId(1L);
+        dto.setParentId(0L);
+        dto.setContent("모집글의 모댓글입니다.");
+        dto.setRecruitingId(RECRUITING_ID);
+        dto.setCreatedAt(LocalDateTime.now());
         return dto;
     }
 

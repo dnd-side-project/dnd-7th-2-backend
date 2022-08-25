@@ -199,8 +199,8 @@ class RecruitingControllerTest {
         RecruitingFind.ListResponseDto responseDto = DtoFactoryForTest.createListLectureRecruitingResponse();
         when(recruitingService.getMyRecruitings(anyInt(), anyInt(), any(ProgressStatus.class), anyString())).thenReturn(
                 Pagination.<RecruitingFind.ListResponseDto>builder()
-                .page(page)
-                .perSize(perSize)
+                .page(PAGE-1)
+                .perSize(PER_SIZE)
                 .contents(List.of(responseDto))
                 .totalCount(1).build());
 
@@ -256,8 +256,8 @@ class RecruitingControllerTest {
         RecruitingFind.RecommendedListResponseDto responseDto = DtoFactoryForTest.createRecommendedSideRecruitingListResponse();
         when(recruitingService.getRecommendedRecruitings(anyInt(), anyInt(), anyString())).thenReturn(
                 Pagination.<RecruitingFind.RecommendedListResponseDto>builder()
-                        .page(page)
-                        .perSize(perSize)
+                        .page(PAGE-1)
+                        .perSize(PER_SIZE)
                         .contents(List.of(responseDto))
                         .totalCount(1).build());
 
@@ -305,8 +305,8 @@ class RecruitingControllerTest {
         //given
         RecruitingFind.ListResponseDto responseDto = createSearchSideListResponseDto();
         Pagination<RecruitingFind.ListResponseDto> recruitingPagination = Pagination.<RecruitingFind.ListResponseDto>builder()
-                .page(0)
-                .perSize(10)
+                .page(PAGE-1)
+                .perSize(PER_SIZE)
                 .totalCount(1)
                 .contents(List.of(responseDto))
                 .build();
@@ -372,15 +372,15 @@ class RecruitingControllerTest {
         Long projectId = 1L;
         Recruiting mockRecruiting = mock(Recruiting.class, RETURNS_DEEP_STUBS);
         RecruitingModify.RequestDto requestDto = createRecruitingModifyRequest();
-        when(mockRecruiting.getId()).thenReturn(recruitingId);
+        when(mockRecruiting.getId()).thenReturn(RECRUITING_ID);
 
         RecruitingModify.ResponseDto responseDto = new RecruitingModify.ResponseDto();
-        responseDto.setRecruitingId(recruitingId);
+        responseDto.setRecruitingId(RECRUITING_ID);
         responseDto.setProjectId(projectId);
         when(recruitingService.modifyProjectAndRecruiting(anyLong(), eq(requestDto))).thenReturn(responseDto);
 
         // expected
-        mockMvc.perform(put("/recruiting/{recruitingId}", recruitingId)
+        mockMvc.perform(put("/recruiting/{recruitingId}", RECRUITING_ID)
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -431,12 +431,12 @@ class RecruitingControllerTest {
     public void removeRecruiting() throws Exception {
         // given
         Recruiting mockRecruiting = mock(Recruiting.class, RETURNS_DEEP_STUBS);
-        when(mockRecruiting.getId()).thenReturn(recruitingId);
-        when(recruitingRepository.findById(recruitingId)).thenReturn(Optional.of(mockRecruiting));
-        doNothing().when(recruitingService).removeRecruiting(recruitingId);
+        when(mockRecruiting.getId()).thenReturn(RECRUITING_ID);
+        when(recruitingRepository.findById(RECRUITING_ID)).thenReturn(Optional.of(mockRecruiting));
+        doNothing().when(recruitingService).removeRecruiting(RECRUITING_ID);
 
         // expected
-        mockMvc.perform(delete("/recruiting/{recruitingId}", recruitingId)
+        mockMvc.perform(delete("/recruiting/{recruitingId}", RECRUITING_ID)
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
