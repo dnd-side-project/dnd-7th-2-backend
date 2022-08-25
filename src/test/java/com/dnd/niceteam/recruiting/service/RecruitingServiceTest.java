@@ -5,10 +5,7 @@ import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
-import com.dnd.niceteam.domain.code.Field;
-import com.dnd.niceteam.domain.code.FieldCategory;
-import com.dnd.niceteam.domain.code.ProgressStatus;
-import com.dnd.niceteam.domain.code.Type;
+import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.member.Member;
@@ -29,6 +26,7 @@ import com.dnd.niceteam.project.service.ProjectMemberService;
 import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,9 +40,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static com.dnd.niceteam.comment.EntityFactoryForTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Import({TestJpaConfig.class, RecruitingService.class, ProjectService.class, ProjectMemberService.class})
@@ -70,6 +70,8 @@ class RecruitingServiceTest {
 
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private EntityManager em;
@@ -300,5 +302,44 @@ class RecruitingServiceTest {
         assertThat(foundLectureProject.getDepartment().getName()).isEqualTo(member.getDepartment().getName());
 
         assertThat(allLectureRecruitingsPageSameWithKeyword.getTotalCount()).isEqualTo(2);  // 교수명 검색 -> 전공 필터링X
+    }
+
+    // TODO: 2022-08-23 PROJECT_NOT_FOUND 해결 필요
+    @DisplayName("(LECTURE) 모집글 수정 서비스 테스트 코드")
+    @Test
+    public void modifyRecruiting() {
+        // given
+        Project savedLectureProject = projectRepository.save(createLectureProject(department));
+        Recruiting savedRecruiting = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
+        RecruitingModify.RequestDto recruitingReqDto = DtoFactoryForTest.createRecruitingModifyRequest();
+        recruitingReqDto.setActivityArea(ActivityArea.BUSAN);
+        recruitingReqDto.setPersonalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES));
+        recruitingReqDto.setRecruitingMemberCount(savedRecruiting.getRecruitingMemberCount()+1);    // update
+
+        //when
+        RecruitingModify.ResponseDto recruitingResDto = recruitingService.modifyProjectAndRecruiting(savedRecruiting.getId(), recruitingReqDto);
+
+        //then
+        Recruiting updatedRecruiting = recruitingRepository.findById(savedRecruiting.getId())
+                .orElseThrow(() -> new RecruitingNotFoundException("recruiting id : " + savedRecruiting.getId()));
+        assertThat(savedRecruiting.getActivityArea()).isNotEqualTo(updatedRecruiting.getActivityArea());
+        assertThat(savedRecruiting.getPersonalityNouns()).isNotEqualTo(updatedRecruiting.getPersonalityNouns());
+        assertThat(savedRecruiting.getPersonalityAdjectives()).isEqualTo(updatedRecruiting.getPersonalityAdjectives());
+
+        assertThat(recruitingResDto.getProjectId()).isEqualTo(updatedRecruiting.getProject().getId());
+    }
+
+    @DisplayName("모집글 제거 서비스 테스트 코드")
+    @Test
+    public void removeRecruiting() {
+        // given
+        Project saveSideProject = projectRepository.save(createSideProject());
+        Recruiting savedRecruiting = recruitingRepository.save(createRecruiting(member, saveSideProject, Type.SIDE));
+        // when
+        recruitingService.removeRecruiting(savedRecruiting.getId());
+
+        // expected
+        assertThatThrownBy(() -> recruitingService.getRecruiting(savedRecruiting.getId(), account.getEmail()))
+                .isInstanceOf(RecruitingNotFoundException.class);
     }
 }

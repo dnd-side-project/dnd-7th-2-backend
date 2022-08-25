@@ -7,6 +7,7 @@ import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import com.dnd.niceteam.recruiting.service.RecruitingService;
 import com.dnd.niceteam.security.CurrentUsername;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class RecruitingController {
     private final RecruitingService recruitingService;
 
     @PostMapping
-    public ResponseEntity<ApiResult<RecruitingCreation.ResponseDto>> recruitingAdd (@RequestBody RecruitingCreation.RequestDto recruitingReqDto) {
+    public ResponseEntity<ApiResult<RecruitingCreation.ResponseDto>> recruitingAdd (@RequestBody @Valid RecruitingCreation.RequestDto recruitingReqDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         RecruitingCreation.ResponseDto responseDto = recruitingService.addProjectAndRecruiting(username, recruitingReqDto);
 
@@ -80,6 +82,22 @@ public class RecruitingController {
         Pagination<RecruitingFind.ListResponseDto> recruitings = recruitingService.getSearchRecruitings(page, perSize, field, type, searchWord, username);
 
         ApiResult<Pagination<RecruitingFind.ListResponseDto>> apiResult = ApiResult.success(recruitings);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @PutMapping("/{recruitingId}")
+    public ResponseEntity<ApiResult<RecruitingModify.ResponseDto>> recruitingModify (@PathVariable @NotNull Long recruitingId,
+                                                                                     @RequestBody RecruitingModify.RequestDto requestDto) {
+        RecruitingModify.ResponseDto updatedRecruiting = recruitingService.modifyProjectAndRecruiting(recruitingId, requestDto);
+        ApiResult<RecruitingModify.ResponseDto> apiResult = ApiResult.success(updatedRecruiting);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @DeleteMapping("/{recruitingId}")
+    public ResponseEntity<ApiResult<Void>> recruitingRemove (@PathVariable @NotNull Long recruitingId) {
+        recruitingService.removeRecruiting(recruitingId);
+
+        ApiResult<Void> apiResult = ApiResult.<Void>success().build();
         return ResponseEntity.ok(apiResult);
     }
 }

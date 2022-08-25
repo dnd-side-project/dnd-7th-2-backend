@@ -7,12 +7,16 @@ import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
 import com.dnd.niceteam.domain.code.ProgressStatus;
 import com.dnd.niceteam.domain.code.Type;
+import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
+import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import com.dnd.niceteam.recruiting.service.RecruitingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,17 +28,16 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
-import static com.dnd.niceteam.comment.DtoFactoryForTest.RECRUITING_ID;
-import static com.dnd.niceteam.comment.DtoFactoryForTest.createSearchSideListResponseDto;
+import static com.dnd.niceteam.comment.DtoFactoryForTest.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -52,9 +55,8 @@ class RecruitingControllerTest {
 
     @MockBean
     private RecruitingService recruitingService;
-
-    private final int page = 1;
-    private final int perSize = 5;
+    @Mock
+    private RecruitingRepository recruitingRepository;
 
     @Test
     @WithMockUser
@@ -85,7 +87,9 @@ class RecruitingControllerTest {
                                         fieldWithPath("activityArea").description("활동 지역"),
                                         fieldWithPath("introLink").description("프로젝트 소개(없다면 null이 아닌 빈 문자열)"),
                                         fieldWithPath("status").description("모집글 상태"),
-                                        fieldWithPath("recruitingEndDate").description("모집 마감일"),
+                                        fieldWithPath("recruitingEndDate").description("모집 마감일")
+                                                .attributes(key("constraint")
+                                                        .value("must be a date in the present or in the future")),
                                         fieldWithPath("personalityAdjectives[]").description("배열 형태의 선호하는 성향 형용사"),
                                         fieldWithPath("personalityNouns[]").description("배열 형태의 선호하는 성향 명사"),
                                         fieldWithPath("projectStartDate").description("프로젝트 시작일"),
@@ -214,7 +218,7 @@ class RecruitingControllerTest {
                         document("my-recruiting-list",
                                 requestParameters(
                                         parameterWithName("page").description("현재 페이지(입력하지 않을 경우, 1)").optional(),
-                                        parameterWithName("perSize").description("페이지 아이템 개수(입력하지 않을 경우, 10)").optional(),
+                                        parameterWithName("perSize").description("페이지 별 아이템 개수(입력하지 않을 경우, 10)").optional(),
                                         parameterWithName("status").description("모집글 상태(입력하지 않을 경우, 전체 조회").optional()
                                 ),
                                 responseFields(
@@ -358,5 +362,90 @@ class RecruitingControllerTest {
                                 )
                         )
                 );
+    }
+
+    @Test
+    @DisplayName("모집글 수정 요청 API")
+    @WithMockUser
+    public void modifyRecruiting() throws Exception {
+        // given
+        Long projectId = 1L;
+        Recruiting mockRecruiting = mock(Recruiting.class, RETURNS_DEEP_STUBS);
+        RecruitingModify.RequestDto requestDto = createRecruitingModifyRequest();
+        when(mockRecruiting.getId()).thenReturn(recruitingId);
+
+        RecruitingModify.ResponseDto responseDto = new RecruitingModify.ResponseDto();
+        responseDto.setRecruitingId(recruitingId);
+        responseDto.setProjectId(projectId);
+        when(recruitingService.modifyProjectAndRecruiting(anyLong(), eq(requestDto))).thenReturn(responseDto);
+
+        // expected
+        mockMvc.perform(put("/recruiting/{recruitingId}", recruitingId)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("bookmark-delete",
+                        requestFields(
+                                fieldWithPath("title").description("모집글 제목"),
+                                fieldWithPath("content").description("모집글 내용"),
+                                fieldWithPath("recruitingMemberCount").description("모집 인원"),
+                                fieldWithPath("recruitingType").description("모집글 타입"),
+                                fieldWithPath("activityArea").description("활동 지역"),
+                                fieldWithPath("introLink").description("프로젝트 소개(없다면 null이 아닌 빈 문자열)"),
+                                fieldWithPath("recruitingEndDate").description("모집 마감일"),
+                                fieldWithPath("personalityAdjectives[]").description("배열 형태의 선호하는 성향 형용사"),
+                                fieldWithPath("personalityNouns[]").description("배열 형태의 선호하는 성향 명사"),
+                                fieldWithPath("projectStartDate").description("프로젝트 시작일"),
+                                fieldWithPath("projectEndDate").description("프로젝트 종료일"),
+                                fieldWithPath("projectName").description("강의명 혹은 사이드 프로젝트명"),
+                                fieldWithPath("activityDayTimes").description("배열 형태의 활동 요일 및 시간"),
+                                fieldWithPath("activityDayTimes[].dayOfWeek").description("활동 요일"),
+                                fieldWithPath("activityDayTimes[].startTime").description("활동 시작 시간"),
+                                fieldWithPath("activityDayTimes[].endTime").description("활동 종료 시간"),
+
+                                fieldWithPath("lectureTimes").description("배열 형태의 강의 요일 및 시간").optional(),
+                                fieldWithPath("lectureTimes[].dayOfWeek").description("강의 요일"),
+                                fieldWithPath("lectureTimes[].startTime").description("강의 시간"),
+                                fieldWithPath("professor").description("교수명").optional(),
+                                fieldWithPath("departmentId").description("학과 식별자(ID)").optional(),
+
+                                fieldWithPath("field").description("분야").optional(),
+                                fieldWithPath("fieldCategory").description("분야 카테고리").optional()
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("recruitingId").description("모집글 식별자(ID)"),
+                                fieldWithPath("projectId").description("프로젝트 식별자(ID)")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("모집글 제거 요청 API")
+    @WithMockUser
+    public void removeRecruiting() throws Exception {
+        // given
+        Recruiting mockRecruiting = mock(Recruiting.class, RETURNS_DEEP_STUBS);
+        when(mockRecruiting.getId()).thenReturn(recruitingId);
+        when(recruitingRepository.findById(recruitingId)).thenReturn(Optional.of(mockRecruiting));
+        doNothing().when(recruitingService).removeRecruiting(recruitingId);
+
+        // expected
+        mockMvc.perform(delete("/recruiting/{recruitingId}", recruitingId)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("recruiting-remove",
+                        pathParameters(
+                                parameterWithName("recruitingId").description("모집글 식별자(ID)")
+                        )
+                ));
     }
 }
