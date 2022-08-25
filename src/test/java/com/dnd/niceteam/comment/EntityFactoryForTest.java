@@ -2,6 +2,7 @@ package com.dnd.niceteam.comment;
 
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.code.*;
+import com.dnd.niceteam.domain.comment.Comment;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.memberscore.MemberScore;
@@ -106,6 +107,15 @@ public class EntityFactoryForTest {
                 .build();
     }
 
+    public static Comment createComment(Member member, Recruiting recruiting) {
+        return Comment.builder()
+                .content("create-comment")
+                .recruiting(recruiting)
+                .member(member)
+                .groupNo(1L)
+                .parentId(0L)
+                .build();
+    }
     // TODO: 2022-08-18 중복 제거 리팩토링 필요
     public static Set<ActivityDayTime> createActivityDayTime() {
         return Set.of(ActivityDayTime.builder()

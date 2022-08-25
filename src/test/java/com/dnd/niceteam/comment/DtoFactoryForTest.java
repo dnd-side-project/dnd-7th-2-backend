@@ -18,13 +18,13 @@ import java.util.Set;
 
 public class DtoFactoryForTest {
     public static final String COMMENT_CONTENT = "모집글의 댓글입니다.";
-    public static final Long PARENT_ID = 0L;
     public static final Long RECRUITING_ID = 1L;
     public static final Long PROJECT_ID = 1L;
     public static final Long DEPARTMENT_ID = 1L;
     public static final int PAGE = 1;
     public static final int PER_SIZE = 5;
     public static final Long COMMENT_ID = 1L;
+    public static final Long PARENT_ID = 0L;
     public static final Long GROUP_NO = 1L;
 
     public static CommentCreation.RequestDto createCommentAddRequest() {
