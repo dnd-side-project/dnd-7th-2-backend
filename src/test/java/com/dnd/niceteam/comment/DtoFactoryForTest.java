@@ -3,6 +3,7 @@ package com.dnd.niceteam.comment;
 import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.comment.dto.CommentFind;
 import com.dnd.niceteam.domain.code.*;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.recruiting.dto.ActivityDayTimeDto;
@@ -59,7 +60,7 @@ public class DtoFactoryForTest {
         dto.setRecruitingType(Type.LECTURE);
         dto.setRecruitingEndDate(LocalDate.of(2023, 8, 28));
         dto.setActivityArea(ActivityArea.ONLINE);
-        dto.setStatus(ProgressStatus.IN_PROGRESS);
+        dto.setStatus(RecruitingStatus.IN_PROGRESS);
         dto.setRecruitingMemberCount(3);
         dto.setIntroLink("test-intro");
         dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CREATIVE));
@@ -99,7 +100,7 @@ public class DtoFactoryForTest {
         dto.setTitle("모집글 제목 테스트");
         dto.setContent("모집글 내용 테스트");
         dto.setRecruitingType(Type.SIDE);
-        dto.setRecruitingStatus(ProgressStatus.IN_PROGRESS);
+        dto.setRecruitingStatus(RecruitingStatus.IN_PROGRESS);
         dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
         dto.setActivityArea(ActivityArea.ONLINE);
         dto.setRecruitingMemberCount(3);
@@ -125,7 +126,7 @@ public class DtoFactoryForTest {
         dto.setId(RECRUITING_ID);
         dto.setTitle("모집글 제목 테스트");
         dto.setType(Type.LECTURE);
-        dto.setStatus(ProgressStatus.IN_PROGRESS);
+        dto.setStatus(RecruitingStatus.IN_PROGRESS);
         dto.setCommentCount(0);
         dto.setBookmarkCount(0);
         dto.setCreatedDate(LocalDateTime.of(2022,8,21,13,0));
@@ -163,7 +164,7 @@ public class DtoFactoryForTest {
         responseDto.setRecruiterNickname("writer-tester");
         responseDto.setRecruitingMemberCount(4);
         responseDto.setRecruitingEndDate(LocalDate.of(2022,8,28));
-        responseDto.setStatus(ProgressStatus.IN_PROGRESS);
+        responseDto.setStatus(RecruitingStatus.IN_PROGRESS);
         responseDto.setTitle("모집글 제목 테스트");
         responseDto.setProjectName("프르젝트명 테스트");
         responseDto.setBookmarkCount(2);

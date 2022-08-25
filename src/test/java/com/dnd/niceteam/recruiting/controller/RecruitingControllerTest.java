@@ -5,7 +5,7 @@ import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
-import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
@@ -197,7 +197,7 @@ class RecruitingControllerTest {
     public void getMyRecruitings () throws Exception {
         // given
         RecruitingFind.ListResponseDto responseDto = DtoFactoryForTest.createListLectureRecruitingResponse();
-        when(recruitingService.getMyRecruitings(anyInt(), anyInt(), any(ProgressStatus.class), anyString())).thenReturn(
+        when(recruitingService.getMyRecruitings(anyInt(), anyInt(), any(RecruitingStatus.class), anyString())).thenReturn(
                 Pagination.<RecruitingFind.ListResponseDto>builder()
                 .page(PAGE-1)
                 .perSize(PER_SIZE)
@@ -209,7 +209,7 @@ class RecruitingControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .param("page", "1")
                         .param("perSize", "10")
-                        .param("status", ProgressStatus.IN_PROGRESS.name())
+                        .param("status", RecruitingStatus.IN_PROGRESS.name())
                 ).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))

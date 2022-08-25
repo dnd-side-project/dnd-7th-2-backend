@@ -3,7 +3,7 @@ package com.dnd.niceteam.recruiting.controller;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.code.Field;
-import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
@@ -49,7 +49,7 @@ public class RecruitingController {
     public ResponseEntity<ApiResult<Pagination<RecruitingFind.ListResponseDto>>> myRecruitingList(
             @RequestParam(defaultValue = "1", required = false) Integer page,
             @RequestParam(defaultValue = "10", required = false) Integer perSize,
-            @RequestParam ProgressStatus status) {
+            @RequestParam RecruitingStatus status) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Pagination<RecruitingFind.ListResponseDto> recruitings = recruitingService.getMyRecruitings(page, perSize, status, username);
 

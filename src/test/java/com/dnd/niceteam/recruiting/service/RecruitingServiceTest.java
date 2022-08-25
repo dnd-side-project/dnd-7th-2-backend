@@ -18,6 +18,7 @@ import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
@@ -145,7 +146,7 @@ class RecruitingServiceTest {
         Project savedLectureProject = projectRepository.save(createLectureProject(department));
         Project savedSideProject = projectRepository.save(createSideProject());
         Recruiting savedRecruitingWithDone = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
-        savedRecruitingWithDone.updateStatus(ProgressStatus.DONE);
+        savedRecruitingWithDone.updateStatus(RecruitingStatus.DONE);
         Recruiting savedRecruiting2 = recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
 
         //when - 전체 조회

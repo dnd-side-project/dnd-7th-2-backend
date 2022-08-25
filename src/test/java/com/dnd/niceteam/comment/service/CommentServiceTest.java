@@ -22,6 +22,7 @@ import com.dnd.niceteam.domain.project.LectureProjectRepository;
 import com.dnd.niceteam.domain.project.LectureTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
 import com.dnd.niceteam.error.exception.ErrorCode;
@@ -137,7 +138,7 @@ class CommentServiceTest {
                 .recruitingMemberCount(4)
                 .recruitingType(Type.LECTURE)
                 .activityArea(ActivityArea.ONLINE)
-                .status(ProgressStatus.IN_PROGRESS)
+                .status(RecruitingStatus.IN_PROGRESS)
                 .commentCount(0)
                 .bookmarkCount(0)
                 .poolUpCount(0)
