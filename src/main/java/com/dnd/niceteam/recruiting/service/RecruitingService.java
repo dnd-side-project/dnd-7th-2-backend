@@ -4,7 +4,7 @@ import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.util.PaginationUtil;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.code.Field;
-import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
@@ -64,12 +64,12 @@ public class RecruitingService {
     }
 
     // 내가 쓴글
-    public Pagination<RecruitingFind.ListResponseDto> getMyRecruitings(int page, int perSize, ProgressStatus progressStatus, String username) {
+    public Pagination<RecruitingFind.ListResponseDto> getMyRecruitings(int page, int perSize, RecruitingStatus recruitingStatus, String username) {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
 
         Pageable pageable = PageRequest.of(page - 1, perSize);
 
-        Page<RecruitingFind.ListResponseDto> recruitingPages = findRecruitingsDependsOnStatus(pageable, progressStatus, member)
+        Page<RecruitingFind.ListResponseDto> recruitingPages = findRecruitingsDependsOnStatus(pageable, recruitingStatus, member)
                 .map(RecruitingFind.ListResponseDto::fromMyList);
 
         return PaginationUtil.pageToPagination(recruitingPages);
@@ -141,11 +141,11 @@ public class RecruitingService {
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
     }
 
-    private Page<Recruiting> findRecruitingsDependsOnStatus(Pageable pageable, ProgressStatus progressStatus, Member member) {
-        if (isNull(progressStatus))
+    private Page<Recruiting> findRecruitingsDependsOnStatus(Pageable pageable, RecruitingStatus recruitingStatus, Member member) {
+        if (isNull(recruitingStatus))
             return recruitingRepository.findPageByMemberOrderByCreatedDateDesc(pageable, member);
         else {
-            return recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, progressStatus);
+            return recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, recruitingStatus);
         }
     }
 }

@@ -113,7 +113,7 @@ class RecruitingRepositoryTest {
         project = projectRepository.save(createLectureProject(department));
         project2 = projectRepository.save(createLectureProject(department));
         Recruiting doneRecruiting = createRecruiting(member, project, Type.LECTURE);
-        doneRecruiting.updateStatus(ProgressStatus.DONE);
+        doneRecruiting.updateStatus(RecruitingStatus.DONE);
         recruiting = createRecruiting(member, project2, Type.LECTURE);
         recruitingRepository.save(doneRecruiting);
         recruitingRepository.save(recruiting);
@@ -122,7 +122,7 @@ class RecruitingRepositoryTest {
         em.clear();
 
         // when
-        Page<Recruiting> foundMyRecruitings = recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, ProgressStatus.DONE);
+        Page<Recruiting> foundMyRecruitings = recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, RecruitingStatus.DONE);
 
         assertThat(foundMyRecruitings.getTotalPages()).isEqualTo(1);
         assertThat(foundMyRecruitings.getTotalElements()).isEqualTo(1);
@@ -229,7 +229,7 @@ class RecruitingRepositoryTest {
                 .recruitingType(Type.SIDE)
                 .activityDayTimes(createActivityDayTime())
                 .activityArea(ActivityArea.ONLINE)
-                .status(ProgressStatus.IN_PROGRESS)
+                .status(RecruitingStatus.IN_PROGRESS)
                 .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
                 .personalityNouns(Set.of(Personality.Noun.PERFECTIONIST, Personality.Noun.INVENTOR))
                 .commentCount(0)
@@ -296,7 +296,7 @@ class RecruitingRepositoryTest {
                 .recruitingType(Type.LECTURE)
                 .activityDayTimes(createActivityDayTime())
                 .activityArea(ActivityArea.ONLINE)
-                .status(ProgressStatus.IN_PROGRESS)
+                .status(RecruitingStatus.IN_PROGRESS)
                 .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
                 .personalityNouns(Set.of(Personality.Noun.PERFECTIONIST, Personality.Noun.INVENTOR))
                 .commentCount(0)

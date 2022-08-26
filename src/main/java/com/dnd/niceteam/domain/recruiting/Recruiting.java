@@ -57,7 +57,7 @@ public class Recruiting extends BaseEntity {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private ProgressStatus status = ProgressStatus.IN_PROGRESS;
+    private RecruitingStatus status = RecruitingStatus.IN_PROGRESS;
 
     @Column(name = "recruiting_end_date")
     private LocalDate recruitingEndDate;
@@ -112,7 +112,7 @@ public class Recruiting extends BaseEntity {
         this.commentCount -= 1;
     }
 
-    public void updateStatus(ProgressStatus status) {
+    public void updateStatus(RecruitingStatus status) {
         this.status = status;
     }
 

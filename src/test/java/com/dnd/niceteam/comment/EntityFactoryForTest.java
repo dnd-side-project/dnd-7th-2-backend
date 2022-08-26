@@ -2,6 +2,7 @@ package com.dnd.niceteam.comment;
 
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.code.*;
+import com.dnd.niceteam.domain.comment.Comment;
 import com.dnd.niceteam.domain.department.Department;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.memberscore.MemberScore;
@@ -11,6 +12,7 @@ import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.recruiting.ActivityDayTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.university.University;
 
 import java.time.LocalDate;
@@ -96,7 +98,7 @@ public class EntityFactoryForTest {
                 .recruitingType(type)
                 .activityDayTimes(createActivityDayTime())
                 .activityArea(ActivityArea.ONLINE)
-                .status(ProgressStatus.IN_PROGRESS)
+                .status(RecruitingStatus.IN_PROGRESS)
                 .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL, Personality.Adjective.GOAL_ORIENTED))
                 .personalityNouns(Set.of(Personality.Noun.PERFECTIONIST, Personality.Noun.INVENTOR))
                 .commentCount(0)
@@ -106,6 +108,15 @@ public class EntityFactoryForTest {
                 .build();
     }
 
+    public static Comment createComment(Member member, Recruiting recruiting) {
+        return Comment.builder()
+                .content("create-comment")
+                .recruiting(recruiting)
+                .member(member)
+                .groupNo(1L)
+                .parentId(0L)
+                .build();
+    }
     // TODO: 2022-08-18 중복 제거 리팩토링 필요
     public static Set<ActivityDayTime> createActivityDayTime() {
         return Set.of(ActivityDayTime.builder()

@@ -1,7 +1,9 @@
 package com.dnd.niceteam.comment;
 
 import com.dnd.niceteam.comment.dto.CommentCreation;
+import com.dnd.niceteam.comment.dto.CommentFind;
 import com.dnd.niceteam.domain.code.*;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.recruiting.dto.ActivityDayTimeDto;
@@ -17,13 +19,14 @@ import java.util.Set;
 
 public class DtoFactoryForTest {
     public static final String COMMENT_CONTENT = "모집글의 댓글입니다.";
-    public static final Long PARENT_ID = 0L;
     public static final Long RECRUITING_ID = 1L;
     public static final Long PROJECT_ID = 1L;
     public static final Long DEPARTMENT_ID = 1L;
-    public static final int page = 1;
-    public static final int perSize = 5;
-    public static final Long recruitingId = 1L;
+    public static final int PAGE = 1;
+    public static final int PER_SIZE = 5;
+    public static final Long COMMENT_ID = 1L;
+    public static final Long PARENT_ID = 0L;
+    public static final Long GROUP_NO = 1L;
 
     public static CommentCreation.RequestDto createCommentAddRequest() {
         CommentCreation.RequestDto dto = new CommentCreation.RequestDto();
@@ -32,13 +35,21 @@ public class DtoFactoryForTest {
         return dto;
     }
 
-    public static final Long COMMENT_ID = 1L;
-    public static final Long GROUP_NO = 1L;
     public static CommentCreation.ResponseDto createCommentAddResponse() {
         CommentCreation.ResponseDto dto = new CommentCreation.ResponseDto();
         dto.setId(COMMENT_ID);
         dto.setParentId(PARENT_ID);
         dto.setGroupNo(GROUP_NO);
+        return dto;
+    }
+
+    public static CommentFind.ResponseDto createCommentListResponse() {
+        CommentFind.ResponseDto dto = new CommentFind.ResponseDto();
+        dto.setCommentId(1L);
+        dto.setParentId(0L);
+        dto.setContent("모집글의 모댓글입니다.");
+        dto.setRecruitingId(RECRUITING_ID);
+        dto.setCreatedAt(LocalDateTime.now());
         return dto;
     }
 
@@ -49,7 +60,7 @@ public class DtoFactoryForTest {
         dto.setRecruitingType(Type.LECTURE);
         dto.setRecruitingEndDate(LocalDate.of(2023, 8, 28));
         dto.setActivityArea(ActivityArea.ONLINE);
-        dto.setStatus(ProgressStatus.IN_PROGRESS);
+        dto.setStatus(RecruitingStatus.IN_PROGRESS);
         dto.setRecruitingMemberCount(3);
         dto.setIntroLink("test-intro");
         dto.setPersonalityAdjectives(Set.of(Personality.Adjective.PRECISE, Personality.Adjective.CREATIVE));
@@ -89,7 +100,7 @@ public class DtoFactoryForTest {
         dto.setTitle("모집글 제목 테스트");
         dto.setContent("모집글 내용 테스트");
         dto.setRecruitingType(Type.SIDE);
-        dto.setRecruitingStatus(ProgressStatus.IN_PROGRESS);
+        dto.setRecruitingStatus(RecruitingStatus.IN_PROGRESS);
         dto.setRecruitingEndDate(LocalDate.of(2022, 8, 16));
         dto.setActivityArea(ActivityArea.ONLINE);
         dto.setRecruitingMemberCount(3);
@@ -115,7 +126,7 @@ public class DtoFactoryForTest {
         dto.setId(RECRUITING_ID);
         dto.setTitle("모집글 제목 테스트");
         dto.setType(Type.LECTURE);
-        dto.setStatus(ProgressStatus.IN_PROGRESS);
+        dto.setStatus(RecruitingStatus.IN_PROGRESS);
         dto.setCommentCount(0);
         dto.setBookmarkCount(0);
         dto.setCreatedDate(LocalDateTime.of(2022,8,21,13,0));
@@ -153,7 +164,7 @@ public class DtoFactoryForTest {
         responseDto.setRecruiterNickname("writer-tester");
         responseDto.setRecruitingMemberCount(4);
         responseDto.setRecruitingEndDate(LocalDate.of(2022,8,28));
-        responseDto.setStatus(ProgressStatus.IN_PROGRESS);
+        responseDto.setStatus(RecruitingStatus.IN_PROGRESS);
         responseDto.setTitle("모집글 제목 테스트");
         responseDto.setProjectName("프르젝트명 테스트");
         responseDto.setBookmarkCount(2);

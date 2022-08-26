@@ -4,7 +4,6 @@ import com.dnd.niceteam.domain.comment.Comment;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import lombok.Data;
-import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -16,7 +15,7 @@ public interface CommentCreation {
         @NotNull
         private String content;
 
-        @Nullable
+        @NotNull
         private Long parentId;
 
         public Comment toEntity(Member member, Recruiting recruiting) {
@@ -27,11 +26,27 @@ public interface CommentCreation {
                     .parentId(parentId)
                     .build();
         }
+
+        public boolean isChild() {
+            return this.getParentId() != 0L;
+        }
     }
 
     @Data
     class ResponseDto {
         @NotNull
         private Long id;
+        @NotNull
+        private Long parentId;
+        @NotNull
+        private Long groupNo;
+
+        public static ResponseDto from (Comment comment) {
+            ResponseDto responseDto = new ResponseDto();
+            responseDto.setId(comment.getId());
+            responseDto.setParentId(comment.getParentId());
+            responseDto.setGroupNo(comment.getGroupNo());
+            return responseDto;
+        }
     }
 }

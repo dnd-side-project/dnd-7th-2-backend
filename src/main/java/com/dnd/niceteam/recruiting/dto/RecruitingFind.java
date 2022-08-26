@@ -5,6 +5,7 @@ import com.dnd.niceteam.domain.project.LectureProject;
 import com.dnd.niceteam.domain.project.SideProject;
 import com.dnd.niceteam.domain.recruiting.ActivityDayTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.recruiting.exception.InvalidRecruitingTypeException;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -24,7 +25,7 @@ public interface RecruitingFind {
         @NotNull private String title;
         @NotNull private String content;
         @NotNull private Type recruitingType;
-        @NotNull private ProgressStatus recruitingStatus;
+        @NotNull private RecruitingStatus recruitingStatus;
         @NotNull private Integer commentCount;
         @NotNull private Integer bookmarkCount;
         @NotNull private String introLink;
@@ -79,7 +80,7 @@ public interface RecruitingFind {
         @NotNull private Long id;
         @NotNull private String title;
         @NotNull private Type type;
-        @NotNull private ProgressStatus status;
+        @NotNull private RecruitingStatus status;
         @NotNull private Integer commentCount;
         @NotNull private Integer bookmarkCount;
         @NotNull private String projectName;

@@ -5,6 +5,7 @@ import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.recruiting.ActivityDayTime;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.project.dto.LectureTimeRequest;
 import lombok.Data;
 import org.springframework.lang.Nullable;
@@ -33,7 +34,7 @@ public interface RecruitingCreation {
         @NotNull
         private String introLink;
         @NotNull
-        private ProgressStatus status;
+        private RecruitingStatus status;
         @FutureOrPresent
         @Nullable
         private LocalDate recruitingEndDate;    // 기간이 정해져있지 않으면 null

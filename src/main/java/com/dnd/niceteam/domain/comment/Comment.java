@@ -34,7 +34,16 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @Setter
     @Builder.Default
     @Column(name = "parent_id", nullable = false)
     private Long parentId = 0L;
+
+    @Setter
+    @Column(name = "group_no")
+    private Long groupNo;
+
+    public void update(String content) {
+        this.content = content;
+    }
 }
