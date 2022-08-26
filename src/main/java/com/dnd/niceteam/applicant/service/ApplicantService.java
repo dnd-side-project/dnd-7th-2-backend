@@ -1,21 +1,25 @@
 package com.dnd.niceteam.applicant.service;
 
 import com.dnd.niceteam.applicant.dto.ApplicantCreation;
-import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.applicant.dto.ApplicantFind;
+import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.util.PaginationUtil;
+import com.dnd.niceteam.domain.recruiting.*;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
-import com.dnd.niceteam.domain.recruiting.Applicant;
-import com.dnd.niceteam.domain.recruiting.ApplicantRepository;
-import com.dnd.niceteam.domain.recruiting.Recruiting;
-import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
-import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
-import com.dnd.niceteam.domain.recruiting.exception.ApplyCancelImpossibleRecruitingException;
-import com.dnd.niceteam.domain.recruiting.exception.ApplyImpossibleRecruitingException;
-import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
+import com.dnd.niceteam.domain.project.ProjectMember;
+import com.dnd.niceteam.domain.project.ProjectMemberRepository;
+import com.dnd.niceteam.domain.recruiting.exception.*;
 import com.dnd.niceteam.member.util.MemberUtils;
+import com.dnd.niceteam.project.exception.ProjectMemberNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.isNull;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,7 @@ public class ApplicantService {
     private final ApplicantRepository applicantRepository;
     private final RecruitingRepository recruitingRepository;
     private final MemberRepository memberRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
     @Transactional
     public ApplicantCreation.ResponseDto addApplicant(Long recruitingId, String username) {
@@ -43,8 +48,48 @@ public class ApplicantService {
         return responseDto;
     }
 
-    private boolean isApplyImpossible(ProgressStatus recruitingStatus) {
-        return !ProgressStatus.IN_PROGRESS.equals(recruitingStatus);
+    @Transactional
+    public void removeApplicant(Long recruitingId, String username) {
+        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
+        Recruiting recruiting = recruitingRepository.findById(recruitingId)
+                .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+        Applicant foundApplicant = applicantRepository.findByMemberIdAndRecruitingId(member.getId(), recruitingId)
+                .orElseThrow(() -> new ApplicantNotFoundException("memberId = " + member.getId() + ", recruitingId = " + recruitingId));
+
+        if (alreadyRecruitingClosed(recruiting)) {
+            throw new ApplyCancelImpossibleRecruitingException("recruiting status : " + recruiting.getStatus());
+        }
+
+        if (alreadyJoined(foundApplicant)) {
+            ProjectMember projectMember = projectMemberRepository.findByProjectAndMember(recruiting.getProject(), member)
+                            .orElseThrow(() -> new ProjectMemberNotFoundException(recruiting.getProject().getId(), member.getId()));
+            projectMemberRepository.delete(projectMember);
+        }
+        applicantRepository.delete(foundApplicant);
+    }
+
+    public Pagination<ApplicantFind.ListResponseDto> getMyApplicnts(int page, int perSize,
+                                                                    ApplicantFind.ListRequestDto requestDto, String username) {
+        if (isInvalidFiltering(requestDto)) {
+            throw new InvalidApplicantTypeException(requestDto.getRecruitingStatus(), requestDto.getApplicantJoined());
+        }
+        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
+
+        Pageable pageable = PageRequest.of(page - 1, perSize);
+        Page<ApplicantFind.ListResponseDto> applicationPages = applicantRepository.findAllByMemberAndRecruitingStatusAndJoinedOrderByCreatedDateDesc(
+                member, requestDto.getRecruitingStatus(), requestDto.getApplicantJoined(), pageable)
+                .map(ApplicantFind.ListResponseDto::from);
+
+        return PaginationUtil.pageToPagination(applicationPages);
+    }
+
+    private boolean isInvalidFiltering(ApplicantFind.ListRequestDto requestDto) {
+        return (isNull(requestDto.getApplicantJoined()) && requestDto.getRecruitingStatus() != null)
+                || (isNull(requestDto.getRecruitingStatus()) && requestDto.getApplicantJoined() != null);
+    }
+
+    private boolean isApplyImpossible(RecruitingStatus recruitingStatus) {
+        return !RecruitingStatus.IN_PROGRESS.equals(recruitingStatus);
     }
 
     private Recruiting getRecruitingtEntity(Long recruitingId) {
@@ -52,16 +97,8 @@ public class ApplicantService {
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
     }
 
-    @Transactional
-    public void removeApplicant(Long recruitingId, String username) {
-        Member member = MemberUtils.findMemberByEmail(username, memberRepository);
-        Applicant foundApplicant = applicantRepository.findByMemberIdAndRecruitingId(member.getId(), recruitingId)
-                .orElseThrow(() -> new ApplicantNotFoundException("memberId = " + member.getId() + ", recruitingId = " + recruitingId));
-
-        if (alreadyJoined(foundApplicant)) {
-            throw new ApplyCancelImpossibleRecruitingException(foundApplicant.getId() + "의 join 상태 : " + foundApplicant.getJoined());
-        }
-        applicantRepository.delete(foundApplicant);
+    private boolean alreadyRecruitingClosed(Recruiting recruiting) {
+        return recruiting.getStatus() != RecruitingStatus.IN_PROGRESS;
     }
 
     private boolean alreadyJoined(Applicant applicant) {
