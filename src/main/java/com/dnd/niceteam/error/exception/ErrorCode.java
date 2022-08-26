@@ -61,7 +61,8 @@ public enum ErrorCode {
     BOOKMARK_NOT_OWNED(BOOKMARK, SC_BAD_REQUEST, "소유하지 않은 북마크입니다."),
     
     APPLY_ALREADY_ACCEPTED(APPLICANT, SC_BAD_REQUEST, "이미 수락된 지원입니다."),
-    
+    INVALID_APPLICANT_TYPE(APPLICANT, SC_BAD_REQUEST, "유요하지 않는 지원 상태입니다."),
+
     // Vote
     EXPIRED_VOTE_GROUP(VOTE_GROUP, SC_BAD_REQUEST, "내보내기 투표 기간이 만료되었습니다."),
     ALREADY_VOTED(VOTE, SC_BAD_REQUEST, "이미 투표에 참여하셨습니다."),
