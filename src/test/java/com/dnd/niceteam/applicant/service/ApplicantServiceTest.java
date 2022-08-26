@@ -2,8 +2,12 @@ package com.dnd.niceteam.applicant.service;
 
 import com.dnd.niceteam.applicant.dto.ApplicantCreation;
 
+import com.dnd.niceteam.applicant.dto.ApplicantFind;
+import com.dnd.niceteam.comment.EntityFactoryForTest;
+import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.account.Account;
-import com.dnd.niceteam.domain.code.ProgressStatus;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
+import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
 import com.dnd.niceteam.domain.recruiting.Applicant;
@@ -13,6 +17,7 @@ import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
 import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
 import com.dnd.niceteam.domain.recruiting.exception.ApplyCancelImpossibleRecruitingException;
 import com.dnd.niceteam.domain.recruiting.exception.ApplyImpossibleRecruitingException;
+import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.error.exception.ErrorCode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +26,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -47,6 +56,7 @@ class ApplicantServiceTest {
     private final Long applicantId = 1L;
     private final Long memberId = 1L;
     private final Long recruitingId = 1L;
+    private final Long universityId = 1L;
 
     Member member;
     Recruiting recruiting;
@@ -65,7 +75,7 @@ class ApplicantServiceTest {
 
         recruiting = Recruiting.builder()
                 .id(recruitingId)
-                .status(ProgressStatus.IN_PROGRESS)
+                .status(RecruitingStatus.IN_PROGRESS)
                 .build();
         given(mockRecruitingRepository.findById(recruitingId))
                 .willReturn(Optional.of(recruiting));
@@ -87,9 +97,9 @@ class ApplicantServiceTest {
     }
 
     @Transactional
-    @DisplayName("예외 - 모집글 지원 가능한 상태가 아닙니다.")
+    @DisplayName("예외 - 모집글 지원 불가능 상태(DONE)")
     @Test
-    void ImpossibleApplyException() {
+    void impossibleApplyException() {
         // given
         member = Member.builder()
                 .id(memberId)
@@ -100,7 +110,7 @@ class ApplicantServiceTest {
 
         recruiting = Recruiting.builder()
                 .id(recruitingId)
-                .status(ProgressStatus.DONE)
+                .status(RecruitingStatus.DONE)
                 .build();
         given(mockRecruitingRepository.findById(recruitingId))
                 .willReturn(Optional.of(recruiting));
@@ -114,7 +124,7 @@ class ApplicantServiceTest {
 
 
     @Transactional
-    @DisplayName("모집글 지원 취소 서비스 테스트")
+    @DisplayName("모집글 지원 취소")
     @Test
     void remove() {
         // given
@@ -124,6 +134,13 @@ class ApplicantServiceTest {
                 .build();
         given(mockMemberRepository.findByEmail(email))
                 .willReturn(Optional.of(member));
+
+        recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .status(RecruitingStatus.IN_PROGRESS)
+                .build();
+        given(mockRecruitingRepository.findById(recruitingId))
+                .willReturn(Optional.of(recruiting));
 
         applicant = Applicant.builder()
                 .id(applicantId)
@@ -145,9 +162,9 @@ class ApplicantServiceTest {
     }
 
     @Transactional
-    @DisplayName("모집글 지원 취소 불가 테스트")
+    @DisplayName("예외 - 모집글 지원 취소 불가능 상태(DONE)")
     @Test
-    void removeImpossible() {
+    void impossibleApplyCancelException() {
         // given
         member = Member.builder()
                 .id(memberId)
@@ -155,6 +172,18 @@ class ApplicantServiceTest {
                 .build();
         given(mockMemberRepository.findByEmail(email))
                 .willReturn(Optional.of(member));
+
+        recruiting = EntityFactoryForTest.createRecruiting(member,
+                EntityFactoryForTest.createLectureProject(EntityFactoryForTest.createDepartment(
+                        University.builder()
+                                .id(universityId)
+                                .emailDomain("email-domain.ac.kr")
+                                .name("univ")
+                                .build()
+                )), Type.LECTURE);
+        recruiting.updateStatus(RecruitingStatus.DONE);
+        given(mockRecruitingRepository.findById(recruitingId))
+                .willReturn(Optional.of(recruiting));
 
         applicant = Applicant.builder()
                 .id(applicantId)
@@ -170,5 +199,34 @@ class ApplicantServiceTest {
                 , () -> applicantService.removeApplicant(recruitingId, email));
         // then
         assertThat(e.getMessage()).startsWith(ErrorCode.APPLY_CANCEL_IMPOSSIBLE_RECRUITING.name());
+    }
+
+    @Transactional
+    @DisplayName("모집글 지원 현황 목록 조회(필터링)")
+    @Test
+    void getMyApplication() {
+        // given
+        Member mockMember = mock(Member.class, RETURNS_DEEP_STUBS);
+        Recruiting mockRecruiting = mock(Recruiting.class, RETURNS_DEEP_STUBS);
+        Applicant applicant = Applicant.builder()
+                .member(mockMember)
+                .recruiting(mockRecruiting)
+                .joined(Boolean.TRUE)
+                .build();
+        ApplicantFind.ListRequestDto requestDto = new ApplicantFind.ListRequestDto();
+        requestDto.setRecruitingStatus(RecruitingStatus.IN_PROGRESS);
+        requestDto.setApplicantJoined(Boolean.TRUE);
+
+        Pageable pageable = PageRequest.of(0, 10);
+        when(mockMemberRepository.findByEmail(email)).thenReturn(Optional.ofNullable(mockMember));
+        when(mockApplicantRepository.findAllByMemberAndRecruitingStatusAndJoinedOrderByCreatedDateDesc(
+                mockMember, RecruitingStatus.IN_PROGRESS, Boolean.TRUE, pageable))
+                .thenReturn(new PageImpl<>(List.of(applicant), pageable, 1L));
+        // when
+        Pagination<ApplicantFind.ListResponseDto> myApplicntsDto = applicantService.getMyApplicnts(1, 10, requestDto, email);
+
+        // then
+        assertThat(myApplicntsDto.getContents().size()).isEqualTo(1);
+        assertThat(myApplicntsDto.getTotalCount()).isEqualTo(1);
     }
 }
