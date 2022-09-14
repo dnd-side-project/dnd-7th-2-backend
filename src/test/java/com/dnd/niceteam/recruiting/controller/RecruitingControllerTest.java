@@ -3,17 +3,17 @@ package com.dnd.niceteam.recruiting.controller;
 import com.dnd.niceteam.comment.DtoFactoryForTest;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.code.Field;
 import com.dnd.niceteam.domain.code.FieldCategory;
-import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import com.dnd.niceteam.recruiting.service.RecruitingService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -50,8 +50,8 @@ class RecruitingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
+
+    private final RestDocsObjectMapper objectMapper = new RestDocsObjectMapper();
 
     @MockBean
     private RecruitingService recruitingService;
@@ -84,24 +84,29 @@ class RecruitingControllerTest {
                                         fieldWithPath("content").description("모집글 내용"),
                                         fieldWithPath("recruitingMemberCount").description("모집 인원"),
                                         fieldWithPath("recruitingType").description("모집글 타입"),
-                                        fieldWithPath("activityArea").description("활동 지역"),
+                                        fieldWithPath("activityArea.code").description("활동 지역 코드"),
+                                        fieldWithPath("activityArea.title").description("활동 지역"),
                                         fieldWithPath("introLink").description("프로젝트 소개(없다면 null이 아닌 빈 문자열)"),
                                         fieldWithPath("status").description("모집글 상태"),
                                         fieldWithPath("recruitingEndDate").description("모집 마감일")
                                                 .attributes(key("constraint")
                                                         .value("must be a date in the present or in the future")),
-                                        fieldWithPath("personalityAdjectives[]").description("배열 형태의 선호하는 성향 형용사"),
-                                        fieldWithPath("personalityNouns[]").description("배열 형태의 선호하는 성향 명사"),
+                                        fieldWithPath("personalityAdjectives[].code").description("배열 형태의 선호하는 성향 형용사 코드"),
+                                        fieldWithPath("personalityAdjectives[].title").description("배열 형태의 선호하는 성향 형용사"),
+                                        fieldWithPath("personalityNouns[].code").description("배열 형태의 선호하는 성향 명사 코드"),
+                                        fieldWithPath("personalityNouns[].title").description("배열 형태의 선호하는 성향 명사"),
                                         fieldWithPath("projectStartDate").description("프로젝트 시작일"),
                                         fieldWithPath("projectEndDate").description("프로젝트 종료일"),
                                         fieldWithPath("projectName").description("강의명 혹은 사이드 프로젝트명"),
                                         fieldWithPath("activityDayTimes").description("배열 형태의 활동 요일 및 시간"),
-                                        fieldWithPath("activityDayTimes[].dayOfWeek").description("활동 요일"),
+                                        fieldWithPath("activityDayTimes[].dayOfWeek.code").description("활동 요일 코드"),
+                                        fieldWithPath("activityDayTimes[].dayOfWeek.title").description("활동 요일"),
                                         fieldWithPath("activityDayTimes[].startTime").description("활동 시작 시간"),
                                         fieldWithPath("activityDayTimes[].endTime").description("활동 종료 시간"),
 
                                         fieldWithPath("lectureTimes").description("배열 형태의 강의 요일 및 시간").optional(),
-                                        fieldWithPath("lectureTimes[].dayOfWeek").description("강의 요일"),
+                                        fieldWithPath("lectureTimes[].dayOfWeek.code").description("강의 요일 코드"),
+                                        fieldWithPath("lectureTimes[].dayOfWeek.title").description("강의 요일"),
                                         fieldWithPath("lectureTimes[].startTime").description("강의 시간"),
                                         fieldWithPath("professor").description("교수명").optional(),
                                         fieldWithPath("departmentId").description("학과 식별자(ID)").optional(),
@@ -147,13 +152,17 @@ class RecruitingControllerTest {
                                         fieldWithPath("bookmarkCount").description("북마크 개수"),
                                         fieldWithPath("introLink").description("프로젝트 소개"),
                                         fieldWithPath("recruitingMemberCount").description("모집 인원"),
-                                        fieldWithPath("activityArea").description("활동 지역"),
-                                        fieldWithPath("personalityAdjectives[]").description("배열 형태의 선호하는 성향 형용사"),
-                                        fieldWithPath("personalityNouns[]").description("배열 형태의 선호하는 성향 명사"),
+                                        fieldWithPath("activityArea.code").description("활동 지역 코드"),
+                                        fieldWithPath("activityArea.title").description("활동 지역"),
+                                        fieldWithPath("personalityAdjectives[].code").description("배열 형태의 선호하는 성향 형용사 코드"),
+                                        fieldWithPath("personalityAdjectives[].title").description("배열 형태의 선호하는 성향 형용사"),
+                                        fieldWithPath("personalityNouns[].code").description("배열 형태의 선호하는 성향 명사 코드"),
+                                        fieldWithPath("personalityNouns[].title").description("배열 형태의 선호하는 성향 명사"),
                                         fieldWithPath("recruitingCreatedDate").description("모집글 생성 일자"),
                                         fieldWithPath("recruitingEndDate").description("모집 마감일"),
                                         fieldWithPath("activityDayTimes").description("배열 형태의 활동 요일 및 시간"),
-                                        fieldWithPath("activityDayTimes[].dayOfWeek").description("활동 요일"),
+                                        fieldWithPath("activityDayTimes[].dayOfWeek.code").description("활동 요일 코드"),
+                                        fieldWithPath("activityDayTimes[].dayOfWeek.title").description("활동 요일"),
                                         fieldWithPath("activityDayTimes[].startTime").description("활동 시작 시간"),
                                         fieldWithPath("activityDayTimes[].endTime").description("활동 종료 시간"),
                                         fieldWithPath("isBookmarked").description("사용자의 모집글 북마크 여부"),
@@ -179,8 +188,10 @@ class RecruitingControllerTest {
                                         fieldWithPath("projectResponse.department.university.name").description("대학교 이름").type(JsonFieldType.STRING).optional(),
                                         fieldWithPath("projectResponse.department.university.emailDomain").description("대학교 이메일 도메인").type(JsonFieldType.STRING).optional(),
 
-                                        fieldWithPath("projectResponse.field").description("분야").optional(),
-                                        fieldWithPath("projectResponse.fieldCategory").description("분야 카테고리").optional(),
+                                        fieldWithPath("projectResponse.field.code").description("분야 코드").optional(),
+                                        fieldWithPath("projectResponse.field.title").description("분야").optional(),
+                                        fieldWithPath("projectResponse.fieldCategory.code").description("분야 카테고리 코드").optional(),
+                                        fieldWithPath("projectResponse.fieldCategory.title").description("분야 카테고리").optional(),
 
                                         fieldWithPath("projectResponse.createdDate").description("데이터 정보 - 프로젝트 데이터 생성 일자"),
                                         fieldWithPath("projectResponse.lastModifiedDate").description("데이터 정보 - 프로젝트 데이터 수정 일자"),
@@ -288,8 +299,10 @@ class RecruitingControllerTest {
                                         fieldWithPath("contents[].recruitingId").description("모집글 식별자(ID)"),
                                         fieldWithPath("contents[].title").description("모집글 제목"),
                                         fieldWithPath("contents[].recruitingMemberCount").description("모집 인원"),
-                                        fieldWithPath("contents[].field").description("분야"),
-                                        fieldWithPath("contents[].fieldCategory").description("분야 카테고리"),
+                                        fieldWithPath("contents[].field.code").description("분야 코드"),
+                                        fieldWithPath("contents[].field.title").description("분야"),
+                                        fieldWithPath("contents[].fieldCategory.code").description("분야 카테고리 코드"),
+                                        fieldWithPath("contents[].fieldCategory.title").description("분야 카테고리"),
                                         fieldWithPath("contents[].projectStartDate").description("프로젝트 시작일"),
                                         fieldWithPath("contents[].projectEndDate").description("프로젝트 종료일"),
                                         fieldWithPath("contents[].recruitingEndDate").description("모집 마감일")
@@ -357,8 +370,10 @@ class RecruitingControllerTest {
 
                                         fieldWithPath("contents[].professor").description("강의 교수명").type(JsonFieldType.STRING).optional(),
 
-                                        fieldWithPath("contents[].field").description("분야").optional(),
-                                        fieldWithPath("contents[].fieldCategory").description("분야 카테고리").optional()
+                                        fieldWithPath("contents[].field.code").description("분야 코드").optional(),
+                                        fieldWithPath("contents[].field.title").description("분야").optional(),
+                                        fieldWithPath("contents[].fieldCategory.code").description("분야 카테고리 코드").optional(),
+                                        fieldWithPath("contents[].fieldCategory.title").description("분야 카테고리").optional()
                                 )
                         )
                 );
@@ -395,21 +410,26 @@ class RecruitingControllerTest {
                                 fieldWithPath("content").description("모집글 내용"),
                                 fieldWithPath("recruitingMemberCount").description("모집 인원"),
                                 fieldWithPath("recruitingType").description("모집글 타입"),
-                                fieldWithPath("activityArea").description("활동 지역"),
+                                fieldWithPath("activityArea.code").description("활동 지역 코드"),
+                                fieldWithPath("activityArea.title").description("활동 지역"),
                                 fieldWithPath("introLink").description("프로젝트 소개(없다면 null이 아닌 빈 문자열)"),
                                 fieldWithPath("recruitingEndDate").description("모집 마감일"),
-                                fieldWithPath("personalityAdjectives[]").description("배열 형태의 선호하는 성향 형용사"),
-                                fieldWithPath("personalityNouns[]").description("배열 형태의 선호하는 성향 명사"),
+                                fieldWithPath("personalityAdjectives[].code").description("배열 형태의 선호하는 성향 형용사 코드"),
+                                fieldWithPath("personalityAdjectives[].title").description("배열 형태의 선호하는 성향 형용사"),
+                                fieldWithPath("personalityNouns[].code").description("배열 형태의 선호하는 성향 명사 코드"),
+                                fieldWithPath("personalityNouns[].title").description("배열 형태의 선호하는 성향 명사"),
                                 fieldWithPath("projectStartDate").description("프로젝트 시작일"),
                                 fieldWithPath("projectEndDate").description("프로젝트 종료일"),
                                 fieldWithPath("projectName").description("강의명 혹은 사이드 프로젝트명"),
                                 fieldWithPath("activityDayTimes").description("배열 형태의 활동 요일 및 시간"),
-                                fieldWithPath("activityDayTimes[].dayOfWeek").description("활동 요일"),
+                                fieldWithPath("activityDayTimes[].dayOfWeek.code").description("활동 요일 코드"),
+                                fieldWithPath("activityDayTimes[].dayOfWeek.title").description("활동 요일"),
                                 fieldWithPath("activityDayTimes[].startTime").description("활동 시작 시간"),
                                 fieldWithPath("activityDayTimes[].endTime").description("활동 종료 시간"),
 
                                 fieldWithPath("lectureTimes").description("배열 형태의 강의 요일 및 시간").optional(),
-                                fieldWithPath("lectureTimes[].dayOfWeek").description("강의 요일"),
+                                fieldWithPath("lectureTimes[].dayOfWeek.code").description("강의 요일 코드"),
+                                fieldWithPath("lectureTimes[].dayOfWeek.title").description("강의 요일"),
                                 fieldWithPath("lectureTimes[].startTime").description("강의 시간"),
                                 fieldWithPath("professor").description("교수명").optional(),
                                 fieldWithPath("departmentId").description("학과 식별자(ID)").optional(),

@@ -2,6 +2,7 @@ package com.dnd.niceteam.project.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.project.ProjectStatus;
 import com.dnd.niceteam.project.ProjectTestFactory;
 import com.dnd.niceteam.project.dto.LectureTimeResponse;
@@ -10,7 +11,6 @@ import com.dnd.niceteam.project.dto.ProjectMemberResponse;
 import com.dnd.niceteam.project.dto.ProjectResponse;
 import com.dnd.niceteam.project.service.ProjectService;
 import com.dnd.niceteam.security.SecurityConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
 @AutoConfigureRestDocs
 @WebMvcTest(
         controllers = ProjectController.class,
@@ -54,7 +54,7 @@ class ProjectControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private RestDocsObjectMapper objectMapper;
 
     @MockBean
     private ProjectService projectService;
@@ -120,8 +120,10 @@ class ProjectControllerTest {
                                         fieldWithPath("contents[].department.university.emailDomain").description("대학교 이메일 도메인"),
                                         fieldWithPath("contents[].lectureTimes[].dayOfWeek").description("활동 요일"),
                                         fieldWithPath("contents[].lectureTimes[].startTime").description("시작 시간"),
-                                        fieldWithPath("contents[].field").description("관심 분야"),
-                                        fieldWithPath("contents[].fieldCategory").description("관심 분야 카테고리")
+                                        fieldWithPath("contents[].field.code").description("관심 분야 코드"),
+                                        fieldWithPath("contents[].field.title").description("관심 분야"),
+                                        fieldWithPath("contents[].fieldCategory.code").description("관심 분야 카테고리 코드"),
+                                        fieldWithPath("contents[].fieldCategory.title").description("관심 분야 카테고리")
                                 )
                         )
                 );
@@ -165,8 +167,10 @@ class ProjectControllerTest {
                                         fieldWithPath("memberList[].memberId").description("회원 식별자"),
                                         fieldWithPath("memberList[].nickname").description("프로젝트 멤버 닉네임"),
                                         fieldWithPath("memberList[].admissionYear").description("학번"),
-                                        fieldWithPath("memberList[].personality.adjective").description("성향 형용사"),
-                                        fieldWithPath("memberList[].personality.noun").description("성향 명사"),
+                                        fieldWithPath("memberList[].personality.adjective.code").description("성향 형용사 코드"),
+                                        fieldWithPath("memberList[].personality.adjective.title").description("성향 형용사"),
+                                        fieldWithPath("memberList[].personality.noun.code").description("성향 명사 코드"),
+                                        fieldWithPath("memberList[].personality.noun.title").description("성향 명사"),
                                         fieldWithPath("memberList[].personality.tag").description("성향 형용사 + 명사 태그"),
                                         fieldWithPath("memberList[].expelled").description("내보내기 여부"),
                                         fieldWithPath("memberList[].reviewed").description("후기 작성 여부"),
@@ -182,8 +186,10 @@ class ProjectControllerTest {
                                         fieldWithPath("department.university.emailDomain").description("대학교 이메일 도메인"),
                                         fieldWithPath("lectureTimes[].dayOfWeek").description("활동 요일"),
                                         fieldWithPath("lectureTimes[].startTime").description("시작 시간"),
-                                        fieldWithPath("field").description("관심 분야"),
-                                        fieldWithPath("fieldCategory").description("관심 분야 카테고리"),
+                                        fieldWithPath("field.code").description("관심 분야 코드"),
+                                        fieldWithPath("field.title").description("관심 분야"),
+                                        fieldWithPath("fieldCategory.code").description("관심 분야 카테고리 코드"),
+                                        fieldWithPath("fieldCategory.title").description("관심 분야 카테고리"),
                                         fieldWithPath("createdDate").description("생성일시"),
                                         fieldWithPath("lastModifiedDate").description("수정일시"),
                                         fieldWithPath("createdBy").description("생성자"),

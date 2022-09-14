@@ -1,11 +1,11 @@
 package com.dnd.niceteam.security;
 
 import com.dnd.niceteam.common.RestDocsConfig;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.account.Account;
 import com.dnd.niceteam.domain.account.AccountRepository;
 import com.dnd.niceteam.security.auth.dto.AuthRequestDto;
 import com.dnd.niceteam.security.jwt.JwtTokenProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
 @Transactional
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
@@ -41,7 +41,7 @@ class AuthApiTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private RestDocsObjectMapper objectMapper;
 
     @Autowired
     private EntityManager em;

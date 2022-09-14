@@ -1,11 +1,11 @@
 package com.dnd.niceteam.vote.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.security.SecurityConfig;
 import com.dnd.niceteam.vote.VoteTestFactory;
 import com.dnd.niceteam.vote.dto.VoteRequest;
 import com.dnd.niceteam.vote.service.VoteService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
 @AutoConfigureRestDocs
 @WebMvcTest(
         controllers = VoteController.class,
@@ -41,7 +41,7 @@ class VoteControllerTest {
     MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    RestDocsObjectMapper objectMapper;
 
     @MockBean
     VoteService voteService;
@@ -66,7 +66,8 @@ class VoteControllerTest {
                 .andDo(
                         document("vote",
                                 requestFields(
-                                        fieldWithPath("type").description("투표 종류 (PROJECT_COMPLETE, EXPEL)"),
+                                        fieldWithPath("type.code").description("투표 종류 코드"),
+                                        fieldWithPath("type.title").description("투표 종류"),
                                         fieldWithPath("projectId").description("프로젝트 식별자"),
                                         fieldWithPath("candidateMemberId").description("내보내기 투표 대상 멤버 식별자"),
                                         fieldWithPath("choice").description("찬성, 반대 여부")

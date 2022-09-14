@@ -5,6 +5,7 @@ import com.dnd.niceteam.applicant.dto.ApplicantFind;
 import com.dnd.niceteam.applicant.service.ApplicantService;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -34,14 +35,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
 @AutoConfigureRestDocs
 @WebMvcTest(controllers = ApplicantController.class)
 class ApplicantControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private ObjectMapper objectMapper;
+    private RestDocsObjectMapper objectMapper;
     @MockBean
     private ApplicantService applicantService;
 

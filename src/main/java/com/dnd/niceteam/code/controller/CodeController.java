@@ -1,8 +1,8 @@
 package com.dnd.niceteam.code.controller;
 
 import com.dnd.niceteam.code.config.EnumMapperFactory;
-import com.dnd.niceteam.code.dto.EnumMapperValue;
 import com.dnd.niceteam.common.dto.ApiResult;
+import com.dnd.niceteam.domain.common.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +23,13 @@ public class CodeController {
     private final EnumMapperFactory enumMapperFactory;
 
     @GetMapping
-    public ResponseEntity<ApiResult<Map<String, List<EnumMapperValue>>>> codeList(
+    public ResponseEntity<ApiResult<Map<String, List<EnumMapperType>>>> codeList(
             @RequestParam(required = false) List<String> codeTypes) {
         if (isNull(codeTypes)) {
-            ApiResult<Map<String, List<EnumMapperValue>>> apiResult = ApiResult.success(enumMapperFactory.getAll());
+            ApiResult<Map<String, List<EnumMapperType>>> apiResult = ApiResult.success(enumMapperFactory.getAll());
             return ResponseEntity.ok(apiResult);
         }
-        ApiResult<Map<String, List<EnumMapperValue>>> apiResult = ApiResult.success(enumMapperFactory.get(codeTypes));
+        ApiResult<Map<String, List<EnumMapperType>>> apiResult = ApiResult.success(enumMapperFactory.get(codeTypes));
         return ResponseEntity.ok(apiResult);
     }
 }

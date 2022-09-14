@@ -187,7 +187,8 @@ class BookmarkControllerTest {
                                 fieldWithPath("lectureName").description("강의명"),
                                 fieldWithPath("lectureTimes").description("강의 일정 - 없을 경우 빈 리스트 반환"),
                                 fieldWithPath("lectureTimes[].projectId").description("프로젝트 ID"),
-                                fieldWithPath("lectureTimes[].dayOfWeek").description("강의 요일"),
+                                fieldWithPath("lectureTimes[].dayOfWeek.title").description("강의 요일"),
+                                fieldWithPath("lectureTimes[].dayOfWeek.code").description("강의 요일 코드"),
                                 fieldWithPath("lectureTimes[].startTime").description("강의 시작 시간")
                         )
                 ))
@@ -243,8 +244,10 @@ class BookmarkControllerTest {
                                 fieldWithPath("commentCount").description("댓글 수"),
                                 fieldWithPath("bookmarkCount").description("북마크 수"),
                                 fieldWithPath("recruitingMemberCount").description("모집 인원"),
-                                fieldWithPath("field").description("분야"),
-                                fieldWithPath("fieldCategory").description("분야 카테고리")
+                                fieldWithPath("field.code").description("분야 코드"),
+                                fieldWithPath("field.title").description("분야"),
+                                fieldWithPath("fieldCategory.code").description("분야 카테고리 코드"),
+                                fieldWithPath("fieldCategory.title").description("분야 카테고리")
                         )
                 ))
         ;
