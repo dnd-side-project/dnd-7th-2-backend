@@ -1,6 +1,8 @@
 package com.dnd.niceteam.domain.code;
 
 import com.dnd.niceteam.domain.common.EnumMapperType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,5 +29,10 @@ public enum Field implements EnumMapperType {
     @Override
     public String getTitle() {
         return title;
+    }
+
+    @JsonCreator
+    public static Field fromJson(@JsonProperty("code") String code) {
+        return valueOf(code);
     }
 }

@@ -152,13 +152,16 @@ class MemberControllerTest {
                                                 .value("8~16자 영문 대/소문자, 숫자 사용")),
                                 fieldWithPath("nickname").description("회원 닉네임")
                                         .attributes(key("constraint").value("1~10자 공백없이 한글만 사용")),
-                                fieldWithPath("personalityAdjective").description("성향 형용사")
+                                fieldWithPath("personalityAdjective.code").description("성향 형용사 코드")
                                         .attributes(key("constraint").value(Personality.Adjective.values())),
-                                fieldWithPath("personalityNoun").description("성향 명사")
+                                fieldWithPath("personalityAdjective.title").description("성향 형용사"),
+                                fieldWithPath("personalityNoun.code").description("성향 명사 코드")
                                         .attributes(key("constraint").value(Personality.Noun.values())),
-                                fieldWithPath("interestingFields").description("관심 분야")
+                                fieldWithPath("personalityNoun.title").description("성향 명사"),
+                                fieldWithPath("interestingFields[].code").description("관심 분야 코드")
                                         .attributes(key("constraint")
                                         .value(Arrays.toString(Field.values()) + " 이 중 최대 3개")),
+                                fieldWithPath("interestingFields[].title").description("관심 분야"),
                                 fieldWithPath("departmentId").description("회원 학과 -> 이를 통해 대학교도 알 수 있음"),
                                 fieldWithPath("admissionYear").description("입학 년도 (학번)"),
                                 fieldWithPath("introduction").description("자기소개")
@@ -203,13 +206,16 @@ class MemberControllerTest {
                         requestFields(
                                 fieldWithPath("nickname").description("회원 닉네임")
                                         .attributes(key("constraint").value("1~10자 공백없이 한글만 사용")),
-                                fieldWithPath("personalityAdjective").description("성향 형용사")
+                                fieldWithPath("personalityAdjective.code").description("성향 형용사 코드")
                                         .attributes(key("constraint").value(Personality.Adjective.values())),
-                                fieldWithPath("personalityNoun").description("성향 명사")
+                                fieldWithPath("personalityAdjective.title").description("성향 형용사"),
+                                fieldWithPath("personalityNoun.code").description("성향 명사 코드")
                                         .attributes(key("constraint").value(Personality.Noun.values())),
-                                fieldWithPath("interestingFields").description("관심 분야")
+                                fieldWithPath("personalityNoun.title").description("성향 명사"),
+                                fieldWithPath("interestingFields[].code").description("관심 분야 코드")
                                         .attributes(key("constraint")
                                                 .value(Arrays.toString(Field.values()) + " 이 중 최대 3개")),
+                                fieldWithPath("interestingFields[].title").description("관심 분야"),
                                 fieldWithPath("introduction").description("자기소개")
                                         .attributes(key("constraint").value("없을 경우 null 이 아닌 \"\" 로 처리")),
                                 fieldWithPath("introductionUrl").description("자기소개 링크")
@@ -265,7 +271,8 @@ class MemberControllerTest {
                                 fieldWithPath("nickname").description("회원 닉네임"),
                                 subsectionWithPath("personality").description("회원 성향"),
                                 fieldWithPath("departmentName").description("학과 명"),
-                                fieldWithPath("interestingFields").description("관심 분야"),
+                                fieldWithPath("interestingFields[].code").description("관심 분야 코드"),
+                                fieldWithPath("interestingFields[].title").description("관심 분야"),
                                 fieldWithPath("admissionYear").description("입학년도(학번)"),
                                 fieldWithPath("introduction").description("자기소개"),
                                 fieldWithPath("introductionUrl").description("자기소개 링크"),

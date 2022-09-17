@@ -1,12 +1,12 @@
 package com.dnd.niceteam.emailauth.controller;
 
 import com.dnd.niceteam.common.RestDocsConfig;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckRequestDto;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeyCheckResponseDto;
 import com.dnd.niceteam.emailauth.dto.EmailAuthKeySendRequestDto;
 import com.dnd.niceteam.emailauth.service.EmailAuthService;
 import com.dnd.niceteam.security.SecurityConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class})
 @AutoConfigureRestDocs
 @WebMvcTest(controllers = EmailAuthController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })
@@ -40,7 +40,7 @@ class EmailAuthControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private RestDocsObjectMapper objectMapper;
 
     @MockBean
     private EmailAuthService mockEmailAuthService;

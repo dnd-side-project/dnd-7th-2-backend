@@ -1,6 +1,5 @@
 package com.dnd.niceteam.code.config;
 
-import com.dnd.niceteam.code.dto.EnumMapperValue;
 import com.dnd.niceteam.domain.common.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,12 +26,12 @@ class EnumMapperFactoryTest {
         enumMapperFactory.put(TestEnum1.class.getSimpleName(), TestEnum1.class);
 
         // when
-        List<EnumMapperValue> testEnumValues = enumMapperFactory.get("TestEnum1");
+        List<EnumMapperType> testEnumValues = enumMapperFactory.get("TestEnum1");
 
         // then
         assertThat(testEnumValues)
                 .hasSize(2)
-                .containsExactly(new EnumMapperValue(TestEnum1.TEST1_1), new EnumMapperValue(TestEnum1.TEST1_2));
+                .containsExactly(TestEnum1.TEST1_1, TestEnum1.TEST1_2);
     }
 
     @Test
@@ -42,7 +41,7 @@ class EnumMapperFactoryTest {
         enumMapperFactory.put(TestEnum2.class.getSimpleName(), TestEnum2.class);
 
         // when
-        Map<String, List<EnumMapperValue>> enumValueMap = enumMapperFactory.get(List.of("TestEnum1", "TestEnum2"));
+        Map<String, List<EnumMapperType>> enumValueMap = enumMapperFactory.get(List.of("TestEnum1", "TestEnum2"));
 
         // then
         assertAll(
@@ -51,12 +50,10 @@ class EnumMapperFactoryTest {
                         .containsExactly("TestEnum1", "TestEnum2"),
                 () -> assertThat(enumValueMap.get("TestEnum1"))
                         .hasSize(2)
-                        .containsExactly(
-                                new EnumMapperValue(TestEnum1.TEST1_1), new EnumMapperValue(TestEnum1.TEST1_2)),
+                        .containsExactly(TestEnum1.TEST1_1, TestEnum1.TEST1_2),
                 () -> assertThat(enumValueMap.get("TestEnum2"))
                         .hasSize(2)
-                        .containsExactly(
-                                new EnumMapperValue(TestEnum2.TEST2_1), new EnumMapperValue(TestEnum2.TEST2_2))
+                        .containsExactly(TestEnum2.TEST2_1, TestEnum2.TEST2_2)
         );
     }
 
@@ -67,7 +64,7 @@ class EnumMapperFactoryTest {
         enumMapperFactory.put(TestEnum2.class.getSimpleName(), TestEnum2.class);
 
         // when
-        Map<String, List<EnumMapperValue>> enumValueMap = enumMapperFactory.getAll();
+        Map<String, List<EnumMapperType>> enumValueMap = enumMapperFactory.getAll();
 
         // then
         assertAll(
@@ -76,12 +73,10 @@ class EnumMapperFactoryTest {
                         .containsExactly("TestEnum1", "TestEnum2"),
                 () -> assertThat(enumValueMap.get("TestEnum1"))
                         .hasSize(2)
-                        .containsExactly(
-                                new EnumMapperValue(TestEnum1.TEST1_1), new EnumMapperValue(TestEnum1.TEST1_2)),
+                        .containsExactly(TestEnum1.TEST1_1, TestEnum1.TEST1_2),
                 () -> assertThat(enumValueMap.get("TestEnum2"))
                         .hasSize(2)
-                        .containsExactly(
-                                new EnumMapperValue(TestEnum2.TEST2_1), new EnumMapperValue(TestEnum2.TEST2_2))
+                        .containsExactly(TestEnum2.TEST2_1, TestEnum2.TEST2_2)
         );
     }
 

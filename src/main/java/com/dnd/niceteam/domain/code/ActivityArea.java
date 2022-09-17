@@ -1,11 +1,14 @@
 package com.dnd.niceteam.domain.code;
 
+import com.dnd.niceteam.domain.common.EnumMapperType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ActivityArea {
+public enum ActivityArea implements EnumMapperType {
     ONLINE("온라인"),
     SEOUL("서울"),
     GYEONGGI("경기"),
@@ -24,5 +27,21 @@ public enum ActivityArea {
     JEJUDO("제주도")
     ;
 
-    private final String kor;
+    private final String title;
+
+    @Override
+    public String getCode() {
+        return name();
+    }
+
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @JsonCreator
+    public static ActivityArea fromJson(@JsonProperty("code") String code) {
+        return valueOf(code);
+    }
+
 }

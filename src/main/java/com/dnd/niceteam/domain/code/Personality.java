@@ -1,6 +1,8 @@
 package com.dnd.niceteam.domain.code;
 
 import com.dnd.niceteam.domain.common.EnumMapperType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -46,6 +48,11 @@ public class Personality {
         public String getTitle() {
             return title;
         }
+
+        @JsonCreator
+        public static Adjective fromJson(@JsonProperty("code") String code) {
+            return valueOf(code);
+        }
     }
 
     @RequiredArgsConstructor
@@ -71,6 +78,11 @@ public class Personality {
         @Override
         public String getTitle() {
             return title;
+        }
+
+        @JsonCreator
+        public static Noun fromJson(@JsonProperty("code") String code) {
+            return valueOf(code);
         }
     }
 }

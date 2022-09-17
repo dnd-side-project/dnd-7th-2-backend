@@ -4,12 +4,11 @@ import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.comment.dto.CommentFind;
 import com.dnd.niceteam.comment.dto.CommentModify;
 import com.dnd.niceteam.comment.service.CommentService;
-import static com.dnd.niceteam.comment.DtoFactoryForTest.*;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.comment.Comment;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +24,9 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
-import static com.dnd.niceteam.comment.DtoFactoryForTest.RECRUITING_ID;
+import static com.dnd.niceteam.comment.DtoFactoryForTest.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -39,14 +37,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
 @AutoConfigureRestDocs
 @WebMvcTest(controllers = CommentController.class)
 class CommentControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private ObjectMapper objectMapper;
+    private RestDocsObjectMapper objectMapper;
 
     @MockBean
     private CommentService commentService;
