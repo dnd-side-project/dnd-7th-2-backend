@@ -186,6 +186,7 @@ create table comment
     created_by         varchar(45)  not null,
     last_modified_by   varchar(45)  not null,
     content            varchar(255) not null,
+    group_no           bigint,
     parent_id          bigint       not null,
     member_id          bigint       not null,
     recruiting_id      bigint       not null,
