@@ -9,6 +9,7 @@ import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.comment.Comment;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,6 +145,7 @@ class CommentControllerTest {
                 );
     }
 
+    @Disabled
     @Test
     @WithMockUser
     @DisplayName("내가 쓴 댓글 목록 조회 요청 API")

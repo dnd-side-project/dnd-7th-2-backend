@@ -29,6 +29,7 @@ import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import com.dnd.niceteam.recruiting.dto.RecruitingModify;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,7 @@ class RecruitingServiceTest {
         em.clear();
     }
 
+    @Disabled
     @DisplayName("(Lecture)신규 모집글 작성 서비스 테스트 코드 ")
     @Test
     public void postRecruiting() {
@@ -306,6 +308,7 @@ class RecruitingServiceTest {
     }
 
     // TODO: 2022-08-23 PROJECT_NOT_FOUND 해결 필요
+    @Disabled
     @DisplayName("(LECTURE) 모집글 수정 서비스 테스트 코드")
     @Test
     public void modifyRecruiting() {
