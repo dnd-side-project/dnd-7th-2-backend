@@ -95,7 +95,7 @@ INSERT INTO university(university_id, name, email_domain) VALUES(93, '성공회�
 INSERT INTO university(university_id, name, email_domain) VALUES(94, '성균관대학교', 'skku.ac.kr');
 INSERT INTO university(university_id, name, email_domain) VALUES(95, '성신여자대학교', 'sungshin.ac.kr');
 INSERT INTO university(university_id, name, email_domain) VALUES(96, '세명대학교', 'semyung.ac.kr');
-INSERT INTO university(university_id, name, email_domain) VALUES(97, '세종대학교', 'sj.ac.kr');
+INSERT INTO university(university_id, name, email_domain) VALUES(97, '세종대학교', 'sju햐.ac.kr');
 INSERT INTO university(university_id, name, email_domain) VALUES(98, '세한대학교', 'sehan.ac.kr');
 INSERT INTO university(university_id, name, email_domain) VALUES(99, '송원대학교', 'songwon.ac.kr');
 INSERT INTO university(university_id, name, email_domain) VALUES(100, '수원가톨릭대학교', 'suwoncatholic.ac.kr');
