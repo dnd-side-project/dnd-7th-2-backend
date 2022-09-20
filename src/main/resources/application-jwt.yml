@@ -18,3 +18,14 @@ jwt:
   secret: ${jwt.secret_key}
   access-token-validity: ${jwt.access_token_validity}
   refresh-token-validity: ${jwt.refresh_token_validity}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+jwt:
+  secret: ${jwt.secret_key}
+  access-token-validity: ${jwt.access_token_validity}
+  refresh-token-validity: ${jwt.refresh_token_validity}
