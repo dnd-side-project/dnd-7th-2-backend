@@ -1,5 +1,5 @@
 firebase:
-  type: ${firebase.type}
+  type: ${firebase.firebase_type}
   project-id: ${firebase.project_id}
   private-key-id: ${firebase.private_key_id}
   private-key: ${firebase.private_key}
