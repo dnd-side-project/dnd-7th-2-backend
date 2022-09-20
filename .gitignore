@@ -39,7 +39,5 @@ out/
 ### Macbook ###
 .DS_Store
 
-### 테스트 ###
-data.sql
 ### Firebase ###
 springboot-fcm-test-firebase-adminsdk-o6qme-71dcb938bf.json

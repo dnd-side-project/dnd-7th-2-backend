@@ -6,6 +6,7 @@ spring:
     group:
       local: db, firebase, jwt, mail
       dev: db, firebase, jwt, mail
+      prod: db, firebase, jwt, mail
 aws:
   paramstore:
     name: niceteam
@@ -36,3 +37,10 @@ logging:
     org.hibernate:
       SQL: debug
       type: trace
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: 'aws-parameterstore:'
