@@ -6,6 +6,10 @@ spring:
         default_batch_fetch_size: 100
     open-in-view: false
 
+  sql:
+    init:
+      mode: never
+
 ---
 spring:
   config:
@@ -26,7 +30,6 @@ spring:
         format_sql: true
         use_sql_comments: true
         default_batch_fetch_size: 100
-    defer-datasource-initialization: true
 
   sql:
     init:
@@ -46,7 +49,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
