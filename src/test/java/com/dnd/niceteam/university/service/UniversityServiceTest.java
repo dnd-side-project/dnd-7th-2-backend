@@ -37,6 +37,35 @@ class UniversityServiceTest {
     private EntityManager em;
 
     @Test
+    void getAllUniversityList() {
+        // given
+        universityRepository.saveAll(List.of(
+                University.builder()
+                        .name("테스트1대학교")
+                        .emailDomain("test1.ac.kr")
+                        .build(),
+                University.builder()
+                        .name("테스트2대학교")
+                        .emailDomain("test2.ac.kr")
+                        .build(),
+                University.builder()
+                        .name("확인용대학교")
+                        .emailDomain("check.ac.kr")
+                        .build()
+        ));
+        em.flush();
+        em.clear();
+
+        // when
+        List<UniversityDto> universities = universityService.getAllUniversityList();
+
+        // then
+        assertThat(universities).hasSize(3);
+        assertThat(universities).extracting("name")
+                .containsExactly("테스트1대학교", "테스트2대학교", "확인용대학교");
+    }
+
+    @Test
     void getUniversityList() {
         // given
         universityRepository.saveAll(List.of(

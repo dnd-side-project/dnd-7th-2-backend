@@ -62,7 +62,7 @@ class UniversityControllerTest {
                 .andExpect(jsonPath("$.data").isArray())
                 .andDo(document("university-search",
                         requestParameters(
-                                parameterWithName("name").description("대학교 이름 검색 키워드")
+                                parameterWithName("name").description("대학교 이름 검색 키워드. 없을 경우 전체 조회.").optional()
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
@@ -71,6 +71,26 @@ class UniversityControllerTest {
                                 fieldWithPath("emailDomain").description("대학교 이메일 도메인")
                         )
                 ));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("대학교 검색 API")
+    void universitySearch_All() throws Exception {
+        // given
+        given(mockUniversityService.getAllUniversityList()).willReturn(List.of(
+                new UniversityDto(1L, "테스트1대학교", "test1.com"),
+                new UniversityDto(2L, "테스트2대학교", "test2.com"),
+                new UniversityDto(3L, "테스트3대학교", "test3.com")
+        ));
+
+        // expected
+        mockMvc.perform(get("/universities")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray());
     }
 
     @Test

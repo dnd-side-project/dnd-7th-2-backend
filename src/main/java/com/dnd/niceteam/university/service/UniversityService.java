@@ -22,6 +22,13 @@ public class UniversityService {
 
     private final DepartmentRepository departmentRepository;
 
+    public List<UniversityDto> getAllUniversityList() {
+        return universityRepository.findAll()
+                .stream()
+                .map(UniversityDto::of)
+                .collect(Collectors.toList());
+    }
+
     public List<UniversityDto> getUniversityList(String name) {
         return universityRepository.findAllByNameContaining(name).stream()
                 .map(UniversityDto::of)

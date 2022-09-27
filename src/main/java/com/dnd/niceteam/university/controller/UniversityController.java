@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/universities")
 @RestController
@@ -18,8 +19,12 @@ public class UniversityController {
     private final UniversityService universityService;
 
     @GetMapping
-    public ResponseEntity<ApiResult<List<UniversityDto>>> universitySearch(@RequestParam String name) {
-        ApiResult<List<UniversityDto>> apiResult = ApiResult.success(universityService.getUniversityList(name));
+    public ResponseEntity<ApiResult<List<UniversityDto>>> universitySearch(
+            @RequestParam(required = false) String name) {
+        List<UniversityDto> universityList = Optional.ofNullable(name)
+                .map(universityService::getUniversityList)
+                .orElse(universityService.getAllUniversityList());
+        ApiResult<List<UniversityDto>> apiResult = ApiResult.success(universityList);
         return ResponseEntity.ok(apiResult);
     }
 
