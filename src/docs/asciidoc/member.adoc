@@ -37,3 +37,9 @@ operation::member-update[snippets='http-request,request-fields,http-response,res
 == 회원 상세 조회
 
 operation::member-detail[snippets='http-request,path-parameters,http-response,response-fields-data']
+
+
+[[member-my-detail]]
+== 본인 회원 상세 조회
+
+operation::member-my-detail[snippets='http-request,http-response,response-fields-data']
