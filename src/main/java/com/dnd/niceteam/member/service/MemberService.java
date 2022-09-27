@@ -129,11 +129,6 @@ public class MemberService {
         return responseDto;
     }
 
-    private Member getMemberEntityByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException("email = " + email));
-    }
-
     public MemberDetail.ResponseDto getMemberDetail(long memberId) {
         Member member = getMemberEntityById(memberId);
         MemberScore memberScore = member.getMemberScore();
@@ -155,6 +150,34 @@ public class MemberService {
                 .filter(projectMember -> !projectMember.getExpelled())
                 .count());
         return responseDto;
+    }
+
+    public MemberDetail.ResponseDto getMyMemberDetail(String username) {
+        Member member = getMemberEntityByEmail(username);
+        MemberScore memberScore = member.getMemberScore();
+        List<ProjectMember> projectMembers = projectMemberRepository.findDoneProjectMemberByMember(member);
+        MemberDetail.ResponseDto responseDto = new MemberDetail.ResponseDto();
+        responseDto.setId(member.getId());
+        responseDto.setNickname(member.getNickname());
+        responseDto.setPersonality(member.getPersonality());
+        responseDto.setDepartmentName(member.getDepartment().getName());
+        responseDto.setInterestingFields(member.getInterestingFields());
+        responseDto.setAdmissionYear(member.getAdmissionYear());
+        responseDto.setIntroduction(member.getIntroduction());
+        responseDto.setIntroductionUrl(member.getIntroductionUrl());
+        responseDto.setLevel(memberScore.getLevel());
+        responseDto.setParticipationPct(memberScore.participationPct());
+        responseDto.setReviewTagToNums(memberScore.getReviewTagToNums());
+        responseDto.setNumTotalEndProject(projectMembers.size());
+        responseDto.setNumCompleteProject((int) projectMembers.stream()
+                .filter(projectMember -> !projectMember.getExpelled())
+                .count());
+        return responseDto;
+    }
+
+    private Member getMemberEntityByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException("email = " + email));
     }
 
     private Member getMemberEntityById(long memberId) {

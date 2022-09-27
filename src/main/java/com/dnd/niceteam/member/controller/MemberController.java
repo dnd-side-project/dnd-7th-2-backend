@@ -6,6 +6,7 @@ import com.dnd.niceteam.member.dto.MemberCreation;
 import com.dnd.niceteam.member.dto.MemberDetail;
 import com.dnd.niceteam.member.dto.MemberUpdate;
 import com.dnd.niceteam.member.service.MemberService;
+import com.dnd.niceteam.security.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,6 +60,13 @@ public class MemberController {
     @GetMapping("/{memberId}")
     public ResponseEntity<ApiResult<MemberDetail.ResponseDto>> memberDetail(@PathVariable long memberId) {
         MemberDetail.ResponseDto responseDto = memberService.getMemberDetail(memberId);
+        ApiResult<MemberDetail.ResponseDto> apiResult = ApiResult.success(responseDto);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResult<MemberDetail.ResponseDto>> memberMyDetail(@CurrentUsername String username) {
+        MemberDetail.ResponseDto responseDto = memberService.getMyMemberDetail(username);
         ApiResult<MemberDetail.ResponseDto> apiResult = ApiResult.success(responseDto);
         return ResponseEntity.ok(apiResult);
     }
