@@ -284,4 +284,58 @@ class MemberControllerTest {
                         )
                 ));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("본인 회원 상세 조회 API")
+    void memberMyDetail() throws Exception {
+
+        // given
+        MemberDetail.ResponseDto responseDto = new MemberDetail.ResponseDto();
+        responseDto.setId(1L);
+        responseDto.setNickname("테스트닉네임");
+        responseDto.setPersonality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.ANALYST));
+        responseDto.setDepartmentName("테스트학과");
+        responseDto.setInterestingFields(Set.of(Field.IT_SW_GAME, Field.DESIGN));
+        responseDto.setAdmissionYear(2017);
+        responseDto.setIntroduction("테스트자기소개");
+        responseDto.setIntroductionUrl("test.com");
+        responseDto.setLevel(1);
+        responseDto.setParticipationPct(100.0);
+        responseDto.setReviewTagToNums(new HashMap<>(
+                IntStream.range(0, ReviewTag.values().length).boxed()
+                        .collect(Collectors.toMap(i -> ReviewTag.values()[i], i -> 0))
+        ));
+        responseDto.setNumTotalEndProject(0);
+        responseDto.setNumCompleteProject(0);
+        given(mockMemberService.getMyMemberDetail(anyString())).willReturn(responseDto);
+
+        // expected
+        mockMvc.perform(get("/members/me")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Access token"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("member-my-detail",
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("회원 DB ID"),
+                                fieldWithPath("nickname").description("회원 닉네임"),
+                                subsectionWithPath("personality").description("회원 성향"),
+                                fieldWithPath("departmentName").description("학과 명"),
+                                fieldWithPath("interestingFields[].code").description("관심 분야 코드"),
+                                fieldWithPath("interestingFields[].title").description("관심 분야"),
+                                fieldWithPath("admissionYear").description("입학년도(학번)"),
+                                fieldWithPath("introduction").description("자기소개"),
+                                fieldWithPath("introductionUrl").description("자기소개 링크"),
+                                fieldWithPath("level").description("레벨"),
+                                fieldWithPath("participationPct").description("참여율"),
+                                subsectionWithPath("reviewTagToNums").description("리뷰 개수"),
+                                fieldWithPath("numTotalEndProject").description("전체 종료된 프로젝트 수"),
+                                fieldWithPath("numCompleteProject").description("완주한 프로젝트 수")
+                        )
+                ));
+    }
 }

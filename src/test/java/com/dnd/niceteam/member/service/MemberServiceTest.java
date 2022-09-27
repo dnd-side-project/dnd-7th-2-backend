@@ -519,6 +519,68 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("본인 회원 상세")
+    void getMyMemberDetail() {
+        // given
+        University university = universityRepository.save(University.builder()
+                .name("테스트대학교")
+                .emailDomain("email.com")
+                .build());
+        Department department = departmentRepository.save(Department.builder()
+                .university(university)
+                .collegeName("테스트단과대학")
+                .name("테스트학과")
+                .region("서울")
+                .mainBranchType("본교")
+                .build());
+        MemberScore memberScore = memberScoreRepository.save(MemberScore.builder()
+                .level(1)
+                .reviewNum(0)
+                .totalParticipationScore(0)
+                .totalTeamAgainScore(0)
+                .build());
+        Account account = accountRepository.save(Account.builder()
+                .email("test@email.com")
+                .password("Password123!@#")
+                .build());
+        Member member = memberRepository.save(Member.builder()
+                .account(account)
+                .university(university)
+                .department(department)
+                .memberScore(memberScore)
+                .nickname("테스트닉네임")
+                .admissionYear(2017)
+                .personality(new Personality(Personality.Adjective.LOGICAL, Personality.Noun.LEADER))
+                .interestingFields(Set.of(Field.DESIGN))
+                .introduction("테스트 자기소개")
+                .introductionUrl("test.com")
+                .build());
+        em.flush();
+        em.clear();
+
+        // when
+        MemberDetail.ResponseDto responseDto = memberService.getMyMemberDetail(member.getAccount().getEmail());
+
+        // given
+        List<ProjectMember> projectMembers = projectMemberRepository.findDoneProjectMemberByMember(member);
+        assertThat(responseDto.getId()).isEqualTo(member.getId());
+        assertThat(responseDto.getNickname()).isEqualTo(member.getNickname());
+        assertThat(responseDto.getPersonality().getAdjective()).isEqualTo(member.getPersonality().getAdjective());
+        assertThat(responseDto.getPersonality().getNoun()).isEqualTo(member.getPersonality().getNoun());
+        assertThat(responseDto.getDepartmentName()).isEqualTo(member.getDepartment().getName());
+        assertThat(responseDto.getInterestingFields()).isEqualTo(member.getInterestingFields());
+        assertThat(responseDto.getAdmissionYear()).isEqualTo(member.getAdmissionYear());
+        assertThat(responseDto.getIntroduction()).isEqualTo(member.getIntroduction());
+        assertThat(responseDto.getIntroductionUrl()).isEqualTo(member.getIntroductionUrl());
+        assertThat(responseDto.getLevel()).isEqualTo(memberScore.getLevel());
+        assertThat(responseDto.getParticipationPct()).isEqualTo(memberScore.participationPct());
+        assertThat(responseDto.getReviewTagToNums()).isEqualTo(memberScore.getReviewTagToNums());
+        assertThat(responseDto.getNumTotalEndProject()).isEqualTo(projectMembers.size());
+        assertThat(responseDto.getNumCompleteProject()).isEqualTo(
+                (int) projectMembers.stream().filter(projectMember -> !projectMember.getExpelled()).count());
+    }
+
+    @Test
     @DisplayName("회원 상세 - 존재하지 않는 회원")
     void getMemberDetail_MemberNotExists() {
         // expected
