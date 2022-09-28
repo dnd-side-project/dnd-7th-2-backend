@@ -6,12 +6,6 @@ import lombok.Data;
 
 public interface ApplicantFind {
     @Data
-    class ListRequestDto {
-        RecruitingStatus recruitingStatus;
-        Boolean applicantJoined;
-    }
-
-    @Data
     class ListResponseDto {
         Long recruitingId;
         RecruitingStatus recruitingStatus;
