@@ -35,14 +35,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
+@Import(RestDocsConfig.class)
 @AutoConfigureRestDocs
 @WebMvcTest(controllers = ApplicantController.class)
 class ApplicantControllerTest {
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private RestDocsObjectMapper objectMapper;
     @MockBean
     private ApplicantService applicantService;
 
@@ -102,9 +100,6 @@ class ApplicantControllerTest {
     @DisplayName("모집글 지원 현황 목록 조회 API")
     public void applicantList() throws Exception {
         // given
-        ApplicantFind.ListRequestDto request = new ApplicantFind.ListRequestDto();
-        request.setApplicantJoined(Boolean.TRUE);
-        request.setRecruitingStatus(RecruitingStatus.IN_PROGRESS);
         ApplicantFind.ListResponseDto responseDto = new ApplicantFind.ListResponseDto();
         responseDto.setRecruitingId(1L);
         responseDto.setRecruitingStatus(RecruitingStatus.IN_PROGRESS);
@@ -118,7 +113,7 @@ class ApplicantControllerTest {
                 .totalCount(1)
                 .contents(List.of(responseDto))
                 .build();
-        when(applicantService.getMyApplicnts(anyInt(), anyInt(), eq(request), anyString()))
+        when(applicantService.getMyApplicnts(anyInt(), anyInt(), eq(RecruitingStatus.IN_PROGRESS), anyBoolean(), anyString()))
                 .thenReturn(applicantResponsePage);
 
         // when
@@ -126,9 +121,10 @@ class ApplicantControllerTest {
                 get("/recruiting/applicant/me")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
                         .param("page", "1")
                         .param("perSize", "10")
+                        .param("recruitingStatus", RecruitingStatus.IN_PROGRESS.name())
+                        .param("applicantJoined", String.valueOf(Boolean.FALSE))
         );
         // then
         result.andDo(print())
@@ -138,11 +134,9 @@ class ApplicantControllerTest {
                         document("my-applicant-list",
                         requestParameters(
                                 parameterWithName("page").description("현재 페이지(입력하지 않을 경우, 1)").optional(),
-                                parameterWithName("perSize").description("페이지 별 아이템 개수(입력하지 않을 경우, 10)").optional()
-                        ),
-                        requestFields(
-                                fieldWithPath("recruitingStatus").description("모집글 상태").description("필터링에 따른 짝을 알려줘야함..").optional(),
-                                fieldWithPath("applicantJoined").description("지원 수락 여부").description("필터링에 따른 짝을 알려줘야함..").optional()
+                                parameterWithName("perSize").description("페이지 별 아이템 개수(입력하지 않을 경우, 10)").optional(),
+                                parameterWithName("recruitingStatus").description("지원 수락 여부").description("모집글의 상태").optional(),
+                                parameterWithName("applicantJoined").description("지원 수락 여부").description("지원자 조인 상태").optional()
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
@@ -154,7 +148,8 @@ class ApplicantControllerTest {
                                 fieldWithPath("next").description("다음 페이지 존재 여부"),
 
                                 fieldWithPath("contents[].recruitingId").description("모집글 식별자(ID)"),
-                                fieldWithPath("contents[].recruitingStatus").description("모집글 상태"),
+                                fieldWithPath("contents[].recruitingStatus.code").description("모집글 상태 코드"),
+                                fieldWithPath("contents[].recruitingStatus.title").description("모집글 상태"),
                                 fieldWithPath("contents[].joined").description("지원 수락 여부"),
                                 fieldWithPath("contents[].projectName").description("프로젝트명"),
                                 fieldWithPath("contents[].recruitingMemberCount").description("모집 인원")
