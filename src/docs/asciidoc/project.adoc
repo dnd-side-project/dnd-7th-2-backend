@@ -19,3 +19,9 @@ operation::get-my-project-list[snippets='http-request,request-parameters,http-re
 == 내 팀플 목록 조회
 
 operation::get-my-project[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+
+[[add-project-member]]
+== 프로젝트 팀원 등록
+
+operation::add-project-member[snippets='http-request,request-parameters,http-response,response-fields-data']

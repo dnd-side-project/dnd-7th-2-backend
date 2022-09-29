@@ -20,8 +20,8 @@
 - xref:applicant.adoc[Applicant (지원자)]
 - xref:comment.adoc[Comment (댓글 및 답글)]
 - xref:bookmark.adoc[Bookmark (북마크)]
-- xref:bookmark.adoc[Member Review (팀원 후기)]
-- xref:bookmark.adoc[Project (팀플)]
+- xref:member-review.adoc[Member Review (팀원 후기)]
+- xref:project.adoc[Project (팀플)]
 
 
 == HTTP Method
