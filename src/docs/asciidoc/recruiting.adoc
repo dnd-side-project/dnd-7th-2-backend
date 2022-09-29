@@ -44,3 +44,8 @@ operation::recruiting-modify[snippets='http-request,request-parameters,http-resp
 == 모집글 제거
 
 operation::recruiting-remove[snippets='http-request,request-parameters,http-response,response-fields-data']
+
+[[recruiting-poolup]]
+== 모집글 끌올
+
+operation::recruiting-poolup[snippets='http-request,request-parameters,http-response,response-fields-data']
