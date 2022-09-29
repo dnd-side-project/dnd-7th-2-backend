@@ -15,8 +15,12 @@ import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
 import com.dnd.niceteam.domain.project.Project;
 import com.dnd.niceteam.domain.project.ProjectRepository;
 import com.dnd.niceteam.domain.project.SideProject;
+import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
+import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.domain.university.University;
 import com.dnd.niceteam.domain.university.UniversityRepository;
+import com.dnd.niceteam.error.exception.ErrorCode;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -157,5 +161,62 @@ class ApplicantRepositoryTest {
         assertThat(myApplicantsPage.getContent().size()).isEqualTo(2);  // 전체조회
         assertThat(myApplicantsPageWithFiltering.getContent().size()).isZero();
         assertThat(myApplicantsPageWithFilteredPage.getContent().size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("지원 취소")
+    void removeApplicant() {
+        // given
+        Recruiting recruiting2 = recruitingRepository.save(Recruiting.builder()
+                .content("another recruiting content")
+                .title("another recruiting title")
+                .member(member)
+                .project(project)
+                .introLink("another recruiting introLink")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.FAILED)
+                .commentCount(0)
+                .poolUpCount(0)
+                .poolUpDate(LocalDateTime.now())
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build());
+        Applicant applicant = applicantRepository.save(Applicant.builder()
+                .member(member)
+                .recruiting(recruiting2)
+                .joined(Boolean.FALSE)
+                .build());
+        applicantRepository.delete(applicant);
+        // when
+        Recruiting foundRecruiting = recruitingRepository.findById(recruiting2.getId())
+                .orElseThrow(() -> new RecruitingNotFoundException("recruiting not found"));
+        // then
+        assertThat(foundRecruiting.getApplicants().size()).isZero();
+    }
+    @Test
+    @DisplayName("모집글 제거 시 지원자 제거")
+    void removeApplicant_afterRemoveRecruiting() {
+        // given
+        Applicant applicant = applicantRepository.save(Applicant.builder()
+                .member(member)
+                .recruiting(recruiting)
+                .joined(Boolean.FALSE)
+                .build());
+        recruiting.addApplicant(applicant);
+        recruitingRepository.delete(recruiting);
+        // when
+        RuntimeException e = Assertions.assertThrows(ApplicantNotFoundException.class
+                , () -> applicantRepository.findById(applicant.getId())
+                        .orElseThrow(() -> new ApplicantNotFoundException("존재하지 않는 지원자")));
+        // then
+        assertThat(e.getMessage()).startsWith(ErrorCode.APPLICANT_NOT_FOUND.name());
     }
 }
