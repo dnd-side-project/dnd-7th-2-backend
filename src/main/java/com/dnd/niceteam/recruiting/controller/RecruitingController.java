@@ -87,15 +87,27 @@ public class RecruitingController {
 
     @PutMapping("/{recruitingId}")
     public ResponseEntity<ApiResult<RecruitingModify.ResponseDto>> recruitingModify (@PathVariable @NotNull Long recruitingId,
-                                                                                     @RequestBody RecruitingModify.RequestDto requestDto) {
-        RecruitingModify.ResponseDto updatedRecruiting = recruitingService.modifyProjectAndRecruiting(recruitingId, requestDto);
+                                                                                     @RequestBody @Valid @NotNull RecruitingModify.RequestDto requestDto,
+                                                                                     @CurrentUsername String username) {
+        RecruitingModify.ResponseDto updatedRecruiting = recruitingService.modifyProjectAndRecruiting(recruitingId, requestDto, username);
         ApiResult<RecruitingModify.ResponseDto> apiResult = ApiResult.success(updatedRecruiting);
         return ResponseEntity.ok(apiResult);
     }
 
     @DeleteMapping("/{recruitingId}")
-    public ResponseEntity<ApiResult<Void>> recruitingRemove (@PathVariable @NotNull Long recruitingId) {
-        recruitingService.removeRecruiting(recruitingId);
+    public ResponseEntity<ApiResult<Void>> recruitingRemove (@PathVariable @NotNull Long recruitingId,
+                                                             @CurrentUsername String username) {
+        recruitingService.removeRecruiting(recruitingId, username);
+
+        ApiResult<Void> apiResult = ApiResult.<Void>success().build();
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @PutMapping("/{recruitingId}/pool-up")
+    public ResponseEntity<ApiResult<Void>> recruitingPoolUp (@PathVariable @NotNull Long recruitingId,
+                                                             @RequestBody @Valid RecruitingModify.PoolUpRequestDto requestDto,
+                                                             @CurrentUsername String username) {
+        recruitingService.poolUpRecruiting(recruitingId, requestDto, username);
 
         ApiResult<Void> apiResult = ApiResult.<Void>success().build();
         return ResponseEntity.ok(apiResult);
