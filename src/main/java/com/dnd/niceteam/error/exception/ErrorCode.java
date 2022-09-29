@@ -52,6 +52,8 @@ public enum ErrorCode {
 
     APPLY_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "지원 불가능한 모집글입니다."),
     APPLY_CANCEL_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "지원 취소가 불가능한 모집글입니다."),
+    POOL_UP_IMPOSSIBLE_RECRUITING(RECRUITING, SC_BAD_REQUEST, "끌올이 불가능한 모집글입니다."),
+
     APPLICANT_NOT_FOUND(APPLICANT, SC_NOT_FOUND, "존재하지 않는 지원자입니다."),
 
     COMMENT_NOT_FOUND(COMMENT, SC_NOT_FOUND, "존재하지 않는 댓글입니다."),
@@ -62,7 +64,6 @@ public enum ErrorCode {
     
     APPLY_ALREADY_ACCEPTED(APPLICANT, SC_BAD_REQUEST, "이미 수락된 지원입니다."),
     INVALID_APPLICANT_TYPE(APPLICANT, SC_BAD_REQUEST, "유요하지 않는 지원 상태입니다."),
-
     // Vote
     EXPIRED_VOTE_GROUP(VOTE_GROUP, SC_BAD_REQUEST, "내보내기 투표 기간이 만료되었습니다."),
     ALREADY_VOTED(VOTE, SC_BAD_REQUEST, "이미 투표에 참여하셨습니다."),
