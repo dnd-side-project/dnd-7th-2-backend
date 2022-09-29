@@ -5,6 +5,7 @@ import com.dnd.niceteam.applicant.dto.ApplicantFind;
 import com.dnd.niceteam.applicant.service.ApplicantService;
 import com.dnd.niceteam.common.dto.ApiResult;
 import com.dnd.niceteam.common.dto.Pagination;
+import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.security.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,9 +40,10 @@ public class ApplicantController {
     @GetMapping("/applicant/me")
     public ResponseEntity<ApiResult<Pagination<ApplicantFind.ListResponseDto>>> myApplyList(@RequestParam(defaultValue = "1", required = false) Integer page,
                                                                                             @RequestParam(defaultValue = "10", required = false) Integer perSize,
-                                                                                            @RequestBody ApplicantFind.ListRequestDto requestDto,
+                                                                                            @RequestParam(required = false) RecruitingStatus recruitingStatus,
+                                                                                            @RequestParam(required = false) Boolean applicantJoined,
                                                                                             @CurrentUsername String username) {
-        Pagination<ApplicantFind.ListResponseDto> applications = applicantService.getMyApplicnts(page, perSize, requestDto, username);
+        Pagination<ApplicantFind.ListResponseDto> applications = applicantService.getMyApplicnts(page, perSize, recruitingStatus, applicantJoined, username);
         ApiResult<Pagination<ApplicantFind.ListResponseDto>> apiResult = ApiResult.success(applications);
         return ResponseEntity.ok(apiResult);
     }

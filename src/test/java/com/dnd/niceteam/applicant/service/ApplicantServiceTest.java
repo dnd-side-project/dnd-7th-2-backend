@@ -213,17 +213,13 @@ class ApplicantServiceTest {
                 .recruiting(mockRecruiting)
                 .joined(Boolean.TRUE)
                 .build();
-        ApplicantFind.ListRequestDto requestDto = new ApplicantFind.ListRequestDto();
-        requestDto.setRecruitingStatus(RecruitingStatus.IN_PROGRESS);
-        requestDto.setApplicantJoined(Boolean.TRUE);
-
         Pageable pageable = PageRequest.of(0, 10);
         when(mockMemberRepository.findByEmail(email)).thenReturn(Optional.ofNullable(mockMember));
         when(mockApplicantRepository.findAllByMemberAndRecruitingStatusAndJoinedOrderByCreatedDateDesc(
-                mockMember, RecruitingStatus.IN_PROGRESS, Boolean.TRUE, pageable))
+                any(Member.class), any(RecruitingStatus.class), anyBoolean(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(applicant), pageable, 1L));
         // when
-        Pagination<ApplicantFind.ListResponseDto> myApplicntsDto = applicantService.getMyApplicnts(1, 10, requestDto, email);
+        Pagination<ApplicantFind.ListResponseDto> myApplicntsDto = applicantService.getMyApplicnts(1, 10, RecruitingStatus.IN_PROGRESS, Boolean.TRUE, email);
 
         // then
         assertThat(myApplicntsDto.getContents().size()).isEqualTo(1);

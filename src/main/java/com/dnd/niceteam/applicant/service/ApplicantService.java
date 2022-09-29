@@ -69,23 +69,24 @@ public class ApplicantService {
     }
 
     public Pagination<ApplicantFind.ListResponseDto> getMyApplicnts(int page, int perSize,
-                                                                    ApplicantFind.ListRequestDto requestDto, String username) {
-        if (isInvalidFiltering(requestDto)) {
-            throw new InvalidApplicantTypeException(requestDto.getRecruitingStatus(), requestDto.getApplicantJoined());
+                                                                    RecruitingStatus recruitingStatus,
+                                                                    Boolean applicantJoined, String username) {
+        if (isInvalidFiltering(recruitingStatus, applicantJoined)) {
+            throw new InvalidApplicantTypeException(recruitingStatus, applicantJoined);
         }
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
 
         Pageable pageable = PageRequest.of(page - 1, perSize);
         Page<ApplicantFind.ListResponseDto> applicationPages = applicantRepository.findAllByMemberAndRecruitingStatusAndJoinedOrderByCreatedDateDesc(
-                member, requestDto.getRecruitingStatus(), requestDto.getApplicantJoined(), pageable)
+                member, recruitingStatus, applicantJoined, pageable)
                 .map(ApplicantFind.ListResponseDto::from);
 
         return PaginationUtil.pageToPagination(applicationPages);
     }
 
-    private boolean isInvalidFiltering(ApplicantFind.ListRequestDto requestDto) {
-        return (isNull(requestDto.getApplicantJoined()) && requestDto.getRecruitingStatus() != null)
-                || (isNull(requestDto.getRecruitingStatus()) && requestDto.getApplicantJoined() != null);
+    private boolean isInvalidFiltering(RecruitingStatus recruitingStatus, Boolean applicantJoined) {
+        return (isNull(applicantJoined) && !isNull(recruitingStatus))
+                || (isNull(recruitingStatus) && !isNull(applicantJoined));
     }
 
     private boolean isApplyImpossible(RecruitingStatus recruitingStatus) {
