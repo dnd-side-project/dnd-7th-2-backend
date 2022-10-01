@@ -1,8 +1,6 @@
 package com.dnd.niceteam.comment.service;
 
-import com.dnd.niceteam.comment.dto.CommentCreation;
-import com.dnd.niceteam.comment.dto.CommentFind;
-import com.dnd.niceteam.comment.dto.CommentModify;
+import com.dnd.niceteam.comment.dto.*;
 import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.domain.account.Account;
@@ -83,7 +81,7 @@ class CommentServiceTest {
     Member member;
     LectureProject project;
     Recruiting recruiting;
-    // TODO: 2022-08-13 중복 제거 리팩토링 가능할지
+
     @BeforeEach
     void init() {
         //given
@@ -203,7 +201,7 @@ class CommentServiceTest {
         commentService.addComment(recruiting.getId(), account.getEmail(), childRequestDto);
 
         // when
-        commentService.removeComment(parentResponse.getId());
+        commentService.removeComment(parentResponse.getId(), account.getEmail());
 
         // then : 모댓글 1개만 제거됐는지 체크
         Recruiting updatedRecruiting = recruitingRepository.findById(recruiting.getId())
@@ -228,7 +226,8 @@ class CommentServiceTest {
         CommentModify.RequestDto commentModifyRequestDto = new CommentModify.RequestDto();
         commentModifyRequestDto.setId(savedComment.getId());
         commentModifyRequestDto.setContent("updated-comment!!");
-        CommentModify.ResponseDto modifiedCommentResponseDto = commentService.modifyComment(commentModifyRequestDto);
+        CommentModify.ResponseDto modifiedCommentResponseDto = commentService.modifyComment(
+                commentModifyRequestDto, account.getEmail());
 
         // then
         Comment foundModifiedComment = commentRepository.findById(modifiedCommentResponseDto.getId())
@@ -241,29 +240,35 @@ class CommentServiceTest {
     @DisplayName("모집글의 댓글 목록 조회")
     @Test
     void recruitingsCommentList() {
+        // given
         CommentCreation.RequestDto parentRequestDto1 = new CommentCreation.RequestDto();
         parentRequestDto1.setContent("모집글의 첫번째 댓글입니다.");
         parentRequestDto1.setParentId(0L);
-        CommentCreation.ResponseDto parentResponse1 = commentService.addComment(recruiting.getId(), account.getEmail(), parentRequestDto1);
+        CommentCreation.ResponseDto parentResponse1 = commentService.addComment(
+                recruiting.getId(), account.getEmail(), parentRequestDto1);
 
         CommentCreation.RequestDto parentRequestDto2 = new CommentCreation.RequestDto();
         parentRequestDto2.setContent("모집글의 두번째 댓글입니다.");
         parentRequestDto2.setParentId(0L);
-        CommentCreation.ResponseDto parentResponse2 = commentService.addComment(recruiting.getId(), account.getEmail(), parentRequestDto2);
+        CommentCreation.ResponseDto parentResponse2 = commentService.addComment(
+                recruiting.getId(), account.getEmail(), parentRequestDto2);
 
         CommentCreation.RequestDto childRequestDto1 = new CommentCreation.RequestDto();
         childRequestDto1.setContent("모집글의 첫번째 댓글의 답글입니다.");
         childRequestDto1.setParentId(parentResponse1.getId());
-        CommentCreation.ResponseDto childResponse1 = commentService.addComment(recruiting.getId(), account.getEmail(), childRequestDto1);
+        CommentCreation.ResponseDto childResponse1 = commentService.addComment(
+                recruiting.getId(), account.getEmail(), childRequestDto1);
 
         CommentCreation.RequestDto childRequestDto2 = new CommentCreation.RequestDto();
         childRequestDto2.setContent("모집글의 두번째 댓글의 답글입니다.");
         childRequestDto2.setParentId(parentResponse2.getId());
-        CommentCreation.ResponseDto childResponse2 = commentService.addComment(recruiting.getId(), account.getEmail(), childRequestDto2);
+        CommentCreation.ResponseDto childResponse2 = commentService.addComment(
+                recruiting.getId(), account.getEmail(), childRequestDto2);
         CommentCreation.RequestDto childRequestDto3 = new CommentCreation.RequestDto();
         childRequestDto3.setContent("모집글의 두번째 댓글의 두번째 답글입니다.");
         childRequestDto3.setParentId(parentResponse2.getId());
-        CommentCreation.ResponseDto childResponse3 = commentService.addComment(recruiting.getId(), account.getEmail(), childRequestDto3);
+        CommentCreation.ResponseDto childResponse3 = commentService.addComment(
+                recruiting.getId(), account.getEmail(), childRequestDto3);
 
         // when
         Pagination<CommentFind.ResponseDto> commentfirstPage = commentService.getComments(1, 4, recruiting.getId(), null);
@@ -282,7 +287,7 @@ class CommentServiceTest {
     @DisplayName("내가 쓴 댓글 목록 조회")
     @Test
     void myCommentList() {
-        // when : 댓글 2개 작성, 다른 멤버가 댓글 1개 작성, 내 댓글 1개 제거  => 내가 쓴 댓글 목록 조회 총 2개
+        // gieven
         CommentCreation.RequestDto myCommentRequestDto1 = new CommentCreation.RequestDto();
         myCommentRequestDto1.setContent("모집글의 첫번째 댓글입니다.");
         myCommentRequestDto1.setParentId(0L);
@@ -290,8 +295,10 @@ class CommentServiceTest {
         myCommentRequestDto2.setContent("모집글의 두번째 댓글입니다.");
         myCommentRequestDto2.setParentId(0L);
 
-        CommentCreation.ResponseDto myCommentResponse = commentService.addComment(recruiting.getId(), account.getEmail(), myCommentRequestDto1);
-        CommentCreation.ResponseDto myCommentResponse2 = commentService.addComment(recruiting.getId(), account.getEmail(), myCommentRequestDto2);
+        CommentCreation.ResponseDto myCommentResponse = commentService.addComment(
+                recruiting.getId(), account.getEmail(), myCommentRequestDto1);
+        CommentCreation.ResponseDto myCommentResponse2 = commentService.addComment(
+                recruiting.getId(), account.getEmail(), myCommentRequestDto2);
 
         //다른 멤버
         University university2 = universityRepository.save(University.builder()
@@ -332,10 +339,11 @@ class CommentServiceTest {
         otherCommentRequestDto.setParentId(myCommentResponse2.getId());
         commentService.addComment(recruiting.getId(), account2.getEmail(), otherCommentRequestDto);
 
-        // when (댓글 1개 및 모집글 제거 후 조회)
-        commentService.removeComment(myCommentResponse2.getId());
+        // when
+        commentService.removeComment(myCommentResponse2.getId(), account.getEmail());
         recruitingRepository.delete(recruiting);
-        Pagination<CommentFind.ResponseDto> myCommentsPage = commentService.getComments(1, 2, recruiting.getId(), account.getEmail());
+        Pagination<CommentFind.ResponseDto> myCommentsPage = commentService.getComments(
+                1, 2, recruiting.getId(), account.getEmail());
 
         // then
         assertThat(myCommentsPage.getPage()).isZero();
