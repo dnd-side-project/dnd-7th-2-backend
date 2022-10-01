@@ -11,7 +11,9 @@ import lombok.Data;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -21,9 +23,11 @@ import java.util.stream.Collectors;
 public interface RecruitingCreation {
     @Data
     class RequestDto {
-        @NotNull
+        @NotBlank(message = "제목에 텍스트를 입력해주세요.")
+        @Size(max = 30, message = "제목은 30자 이내로 입력해주세요.")
         private String title;
         @NotNull
+        @Size(max = 400, message = "400자 이내로 입력해주세요.")
         private String content;
         @NotNull
         private Integer recruitingMemberCount;
@@ -79,7 +83,6 @@ public interface RecruitingCreation {
                     .bookmarkCount(0)
                     .commentCount(0)
                     .poolUpCount(0)
-                    .poolUpDate(null)
                     .introLink(introLink)
                     .personalityAdjectives(personalityAdjectives)
                     .personalityNouns(personalityNouns)

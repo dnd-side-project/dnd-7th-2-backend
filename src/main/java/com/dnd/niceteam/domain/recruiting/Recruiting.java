@@ -71,8 +71,9 @@ public class Recruiting extends BaseEntity {
     @Column(name = "pool_up_count", nullable = false)
     private Integer poolUpCount;
 
-    @Column(name = "pool_up_date")
-    private LocalDateTime poolUpDate;
+    @Builder.Default
+    @Column(name = "pool_up_date", nullable = false)
+    private LocalDateTime poolUpDate = LocalDateTime.now();
 
     @Builder.Default
     @Column(name = "intro_link", nullable = false)
@@ -103,6 +104,12 @@ public class Recruiting extends BaseEntity {
             joinColumns = @JoinColumn(name= "recruiting_id", nullable = false))
     @Column(name = "activity_day_times", length = 50, nullable = false)
     private Set<ActivityDayTime> activityDayTimes = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "recruiting",
+            cascade = CascadeType.PERSIST,
+            orphanRemoval = true)
+    private Set<Applicant> applicants = new HashSet<>();
 
     public void plusCommentCount() {
         this.commentCount += 1;
@@ -140,5 +147,19 @@ public class Recruiting extends BaseEntity {
         activityDayTimes = dto.getActivityDayTimes().stream().map(ActivityDayTimeDto::toEntity).collect(Collectors.toSet());   // dto로 수정 필요.
         personalityAdjectives = dto.getPersonalityAdjectives();
         personalityNouns = dto.getPersonalityNouns();
+    }
+
+    public void updatePoolUpDate(LocalDateTime poolUpDate) {
+        this.poolUpDate = poolUpDate;
+    }
+    public void plusPoolUpCount() {
+        this.poolUpCount += 1;
+    }
+
+    public void addApplicant(Applicant applicant) {
+        applicants.add(applicant);
+    }
+    public void removeApplicant(Applicant applicant) {
+        applicants.remove(applicant);
     }
 }

@@ -14,7 +14,6 @@ import com.dnd.niceteam.domain.recruiting.Applicant;
 import com.dnd.niceteam.domain.recruiting.ApplicantRepository;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
-import com.dnd.niceteam.domain.recruiting.exception.ApplicantNotFoundException;
 import com.dnd.niceteam.domain.recruiting.exception.ApplyCancelImpossibleRecruitingException;
 import com.dnd.niceteam.domain.recruiting.exception.ApplyImpossibleRecruitingException;
 import com.dnd.niceteam.domain.university.University;
@@ -29,7 +28,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -94,9 +92,9 @@ class ApplicantServiceTest {
         // then
         verify(mockApplicantRepository).save(any(Applicant.class));
         assertThat(responseDto.getId()).isEqualTo(applicantId);
+        assertThat(recruiting.getApplicants().size()).isEqualTo(1);
     }
 
-    @Transactional
     @DisplayName("예외 - 모집글 지원 불가능 상태(DONE)")
     @Test
     void impossibleApplyException() {
@@ -122,8 +120,6 @@ class ApplicantServiceTest {
         assertThat(e.getMessage()).startsWith(ErrorCode.APPLY_IMPOSSIBLE_RECRUITING.name());
     }
 
-
-    @Transactional
     @DisplayName("모집글 지원 취소")
     @Test
     void remove() {
@@ -132,36 +128,31 @@ class ApplicantServiceTest {
                 .id(memberId)
                 .account(Account.builder().email(email).build())
                 .build();
-        given(mockMemberRepository.findByEmail(email))
-                .willReturn(Optional.of(member));
-
         recruiting = Recruiting.builder()
                 .id(recruitingId)
                 .status(RecruitingStatus.IN_PROGRESS)
                 .build();
-        given(mockRecruitingRepository.findById(recruitingId))
-                .willReturn(Optional.of(recruiting));
-
         applicant = Applicant.builder()
                 .id(applicantId)
                 .recruiting(recruiting)
                 .member(member)
                 .joined(Boolean.FALSE)
                 .build();
+        recruiting.addApplicant(applicant);
+
+        given(mockMemberRepository.findByEmail(email))
+                .willReturn(Optional.of(member));
+        given(mockRecruitingRepository.findById(recruitingId))
+                .willReturn(Optional.of(recruiting));
         given(mockApplicantRepository.findByMemberIdAndRecruitingId(memberId, recruitingId))
                 .willReturn(Optional.of(applicant));
-
         // when
         applicantService.removeApplicant(recruitingId, email);
-
         // then
-        RuntimeException e = Assertions.assertThrows(ApplicantNotFoundException.class
-                , () -> mockApplicantRepository.findById(applicantId)
-                        .orElseThrow(() -> new ApplicantNotFoundException("applicantId= " + applicantId)));
-        assertThat(e.getMessage()).startsWith(ErrorCode.APPLICANT_NOT_FOUND.name());
+        verify(mockApplicantRepository).delete(any(Applicant.class));
+        assertThat(recruiting.getApplicants().size()).isZero();
     }
 
-    @Transactional
     @DisplayName("예외 - 모집글 지원 취소 불가능 상태(DONE)")
     @Test
     void impossibleApplyCancelException() {
@@ -201,7 +192,6 @@ class ApplicantServiceTest {
         assertThat(e.getMessage()).startsWith(ErrorCode.APPLY_CANCEL_IMPOSSIBLE_RECRUITING.name());
     }
 
-    @Transactional
     @DisplayName("모집글 지원 현황 목록 조회(필터링)")
     @Test
     void getMyApplication() {

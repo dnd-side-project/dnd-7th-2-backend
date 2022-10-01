@@ -64,7 +64,7 @@ public interface ProjectRequest {
                     .build();
         }
 
-        public static ProjectRequest.Register createProjecRegistertRequestDto(RecruitingCreation.RequestDto recruitingReqDto) {
+        public static ProjectRequest.Register from (RecruitingCreation.RequestDto recruitingReqDto) {
             ProjectRequest.Register projectDto = new ProjectRequest.Register();
             projectDto.setType(recruitingReqDto.getRecruitingType());
             projectDto.setStartDate(recruitingReqDto.getProjectStartDate());
@@ -106,7 +106,7 @@ public interface ProjectRequest {
         private Field field;
         private FieldCategory fieldCategory;
 
-        public static ProjectRequest.Update createProjectUpdateRequestDto (RecruitingModify.RequestDto requestDto) {
+        public static ProjectRequest.Update of (RecruitingModify.RequestDto requestDto) {
             ProjectRequest.Update dto = new ProjectRequest.Update();
             dto.setName(requestDto.getProjectName());
             dto.setStartDate(requestDto.getProjectStartDate());

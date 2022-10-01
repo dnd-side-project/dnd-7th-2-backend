@@ -1,349 +1,565 @@
 package com.dnd.niceteam.recruiting.service;
 
-import com.dnd.niceteam.comment.DtoFactoryForTest;
-import com.dnd.niceteam.common.TestJpaConfig;
 import com.dnd.niceteam.common.dto.Pagination;
-import com.dnd.niceteam.domain.account.Account;
-import com.dnd.niceteam.domain.account.AccountRepository;
+import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.code.*;
 import com.dnd.niceteam.domain.department.Department;
-import com.dnd.niceteam.domain.department.DepartmentRepository;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.member.MemberRepository;
-import com.dnd.niceteam.domain.memberscore.MemberScore;
-import com.dnd.niceteam.domain.memberscore.MemberScoreRepository;
-import com.dnd.niceteam.domain.project.LectureProject;
-import com.dnd.niceteam.domain.project.Project;
-import com.dnd.niceteam.domain.project.ProjectRepository;
-import com.dnd.niceteam.domain.project.SideProject;
-import com.dnd.niceteam.domain.recruiting.Recruiting;
-import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
-import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
-import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
-import com.dnd.niceteam.domain.university.University;
-import com.dnd.niceteam.domain.university.UniversityRepository;
-import com.dnd.niceteam.project.exception.ProjectNotFoundException;
-import com.dnd.niceteam.project.service.ProjectMemberService;
+import com.dnd.niceteam.domain.project.*;
+import com.dnd.niceteam.domain.recruiting.*;
+import com.dnd.niceteam.project.dto.*;
 import com.dnd.niceteam.project.service.ProjectService;
+import com.dnd.niceteam.recruiting.dto.ActivityDayTimeDto;
 import com.dnd.niceteam.recruiting.dto.RecruitingCreation;
 import com.dnd.niceteam.recruiting.dto.RecruitingFind;
 import com.dnd.niceteam.recruiting.dto.RecruitingModify;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static com.dnd.niceteam.comment.EntityFactoryForTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
-@DataJpaTest
-@Import({TestJpaConfig.class, RecruitingService.class, ProjectService.class, ProjectMemberService.class})
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class RecruitingServiceTest {
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private UniversityRepository universityRepository;
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
-    @Autowired
-    private MemberScoreRepository memberScoreRepository;
-
-    @Autowired
-    private RecruitingRepository recruitingRepository;
-    @Autowired
+    @InjectMocks
     private RecruitingService recruitingService;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
+    @Mock
     private ProjectService projectService;
+    @Mock
+    private MemberRepository mockMemberRepository;
+    @Mock
+    private ProjectRepository mockProjectRepository;
+    @Mock
+    private RecruitingRepository mockRecruitingRepository;
+    @Mock
+    private BookmarkRepository mockBookmarkRepository;
 
-    @Autowired
-    private EntityManager em;
-
-    University university;
-    Department department;
-    MemberScore memberScore;
-    Account account;
-    Member member;
+    private final String email = "tester@gmail.com";
+    private final Long departmentId = 1L;
+    private final Long recruitingId = 1L;
+    private final Long projectId = 1L;
     private final int page = 1;
     private final int perSize = 5;
-    Pageable pageable = PageRequest.of(page - 1, perSize);
 
-    @BeforeEach
-    void init() {
-        university = universityRepository.save(createUniversity());
-        department = departmentRepository.save(createDepartment(university));
-        memberScore = memberScoreRepository.save(createMemberScore());
-        account = accountRepository.save(createAccount());
-        member = memberRepository.save(createMember(account, university, department, memberScore));
-
-        em.flush();
-        em.clear();
-    }
-
-    @Disabled
     @DisplayName("(Lecture)신규 모집글 작성 서비스 테스트 코드 ")
     @Test
     public void postRecruiting() {
         // given
-        RecruitingCreation.RequestDto recruitingReqDto = DtoFactoryForTest.createLectureRecruitingRequest();
-        //when
-        RecruitingCreation.ResponseDto recruitingResDto = recruitingService.addProjectAndRecruiting(account.getEmail(), recruitingReqDto);
+        Member mockMember = mock(Member.class);
+        given(mockMemberRepository.findByEmail(email))
+                .willReturn(Optional.of(mockMember));
+        LectureProject mockProject = mock(LectureProject.class);
 
-        //then
-        Recruiting createdRecruiting = recruitingRepository.findById(recruitingResDto.getRecruitingId())
-                        .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingResDto.getRecruitingId()));
-        Project createdProject = projectRepository.findById(createdRecruiting.getProject().getId())
-                .orElseThrow(() -> new ProjectNotFoundException(createdRecruiting.getProject().getId()));
+        ProjectResponse.Detail projectResponseDetail = new ProjectResponse.Detail();
+        projectResponseDetail.setId(projectId);
+        projectResponseDetail.setName(mockProject.getName());
+        projectResponseDetail.setStartDate(mockProject.getStartDate());
+        projectResponseDetail.setEndDate(mockProject.getEndDate());
 
-        assertThat(createdRecruiting.getPersonalityAdjectives()).size().isEqualTo(2);
-        assertThat(createdRecruiting.getId()).isEqualTo(recruitingResDto.getRecruitingId());
+        DepartmentResponse departmentResponse = new DepartmentResponse();
+        departmentResponse.setId(departmentId);
+        projectResponseDetail.setDepartment(departmentResponse);
+        projectResponseDetail.setProfessor(mockProject.getProfessor());
+        LectureTimeResponse lectureTimeResponse = new LectureTimeResponse();
+        lectureTimeResponse.setDayOfWeek(DayOfWeek.FRI);
+        lectureTimeResponse.setStartTime(LocalTime.of(9, 0));
+        projectResponseDetail.setLectureTimes(List.of(lectureTimeResponse));
 
-        assertThat(createdProject.getId()).isEqualTo(recruitingResDto.getProjectId());
+        given(projectService.registerProject(any(ProjectRequest.Register.class), any(Member.class)))
+                .willReturn(projectResponseDetail);
+        given(mockProjectRepository.getReferenceById(projectId)).willReturn(mockProject);
+
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockProject)
+                .title("recruiting title")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.LECTURE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        given(mockRecruitingRepository.save(any(Recruiting.class))).willReturn(recruiting);
+        RecruitingCreation.RequestDto requestDto = new RecruitingCreation.RequestDto();
+        requestDto.setTitle(recruiting.getTitle());
+        requestDto.setContent(recruiting.getContent());
+        requestDto.setIntroLink(recruiting.getIntroLink());
+        requestDto.setActivityArea(recruiting.getActivityArea());
+        requestDto.setRecruitingEndDate(recruiting.getRecruitingEndDate());
+        requestDto.setStatus(recruiting.getStatus());
+        requestDto.setRecruitingMemberCount(recruiting.getRecruitingMemberCount());
+        requestDto.setProjectName(recruiting.getProject().getName());
+        requestDto.setProjectStartDate(mockProject.getStartDate());
+        requestDto.setProjectEndDate(mockProject.getEndDate());
+        requestDto.setRecruitingEndDate(mockProject.getEndDate());
+        requestDto.setRecruitingType(recruiting.getRecruitingType());
+        requestDto.setProfessor(mockProject.getProfessor());
+        requestDto.setDepartmentId(departmentId);
+        LectureTimeRequest lectureTimeRequest = new LectureTimeRequest();
+        lectureTimeRequest.setDayOfWeek(DayOfWeek.WED);
+        lectureTimeRequest.setStartTime(LocalTime.of(10, 0));
+        requestDto.setLectureTimes(List.of(lectureTimeRequest));
+        requestDto.setPersonalityNouns(recruiting.getPersonalityNouns());
+        requestDto.setPersonalityAdjectives(recruiting.getPersonalityAdjectives());
+
+        ActivityDayTimeDto activityDayTimeDto = new ActivityDayTimeDto();
+        activityDayTimeDto.setDayOfWeek(DayOfWeek.FRI);
+        activityDayTimeDto.setStartTime(LocalTime.of(17, 0));
+        activityDayTimeDto.setEndTime(LocalTime.of(20, 0));
+        requestDto.setActivityDayTimes(Set.of(activityDayTimeDto));
+
+        // when
+        RecruitingCreation.ResponseDto responseDto = recruitingService.addProjectAndRecruiting(email, requestDto);
+
+        // then
+        verify(mockRecruitingRepository).save(any(Recruiting.class));
+        assertThat(responseDto.getRecruitingId()).isEqualTo(recruitingId);
+        assertThat(responseDto.getProjectId()).isEqualTo(mockProject.getId());
+        assertThat(recruiting.getPoolUpDate()).isNotNull();
     }
 
     @DisplayName("(Lecture) 모집글 상세 조회 서비스 테스트 코드")
     @Test
     public void detailRecruiting() {
         // given
-        Project savedProject = projectRepository.save(createLectureProject(department));
-        Recruiting savedRecruiting = recruitingRepository.save(createRecruiting(member, savedProject, Type.LECTURE));
+        Member mockMember = mock(Member.class);
+        LectureProject mockProject = mock(LectureProject.class, RETURNS_DEEP_STUBS);    // stub 'Department'
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockProject)
+                .title("recruiting title")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.LECTURE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        given(mockRecruitingRepository.findById(anyLong())).willReturn(Optional.of(recruiting));
+        given(mockMemberRepository.findByEmail(email)).willReturn(Optional.of(mockMember));
+        given(mockBookmarkRepository.existsByMemberAndRecruiting(any(Member.class), any(Recruiting.class)))
+                .willReturn(Boolean.FALSE);
 
         //when
-        RecruitingFind.DetailResponseDto responseDto = recruitingService.getRecruiting(savedRecruiting.getId(), account.getEmail());
+        RecruitingFind.DetailResponseDto responseDto = recruitingService.getRecruiting(recruiting.getId(), email);
 
-        //then
-        Recruiting foundRecruiting = recruitingRepository.findById(savedRecruiting.getId())
-                .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + savedRecruiting.getId()));
-        Project foundProject = projectRepository.findById(responseDto.getProjectResponse().getId())
-                .orElseThrow(() -> new ProjectNotFoundException(responseDto.getProjectResponse().getId()));
-
-        assertThat(foundRecruiting.getPersonalityNouns()).size().isEqualTo(2);
-        assertThat(foundRecruiting.getTitle()).isEqualTo(responseDto.getTitle());
-        assertThat(foundRecruiting.getProject().getType()).isEqualTo(foundProject.getType());
+        // then
+        verify(mockRecruitingRepository).findById(anyLong());
+        assertThat(responseDto.getRecruitingType()).isEqualTo(recruiting.getRecruitingType());
+        assertThat(responseDto.getProjectResponse().getId()).isEqualTo(mockProject.getId());
     }
 
     @DisplayName("내가 쓴 글 전체 조회 및 상태 별 조회 서비스 테스트 코드")
     @Test
     public void getMyRecruitingsPage() {
         // given
-        Project savedLectureProject = projectRepository.save(createLectureProject(department));
-        Project savedSideProject = projectRepository.save(createSideProject());
-        Recruiting savedRecruitingWithDone = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
-        savedRecruitingWithDone.updateStatus(RecruitingStatus.DONE);
-        Recruiting savedRecruiting2 = recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
+        Member mockMember = mock(Member.class);
+        SideProject mockProject = mock(SideProject.class);
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockProject)
+                .title("recruiting title")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+
+        Pageable pageable = PageRequest.of(page - 1, perSize);
+        given(mockMemberRepository.findByEmail(email)).willReturn(Optional.of(mockMember));
+        given(mockRecruitingRepository.findPageByMemberOrderByCreatedDateDesc(any(Pageable.class), eq(mockMember)))
+                .willReturn(new PageImpl<>(List.of(recruiting), pageable, 1L));
+        given(mockRecruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(
+                any(Pageable.class), eq(mockMember), any(RecruitingStatus.class)))
+                .willReturn(new PageImpl<>(Collections.emptyList(), pageable, 0L));
 
         //when - 전체 조회
-        Pagination<RecruitingFind.ListResponseDto> myRecruitings = recruitingService.getMyRecruitings(page, perSize, null, account.getEmail());
+        Pagination<RecruitingFind.ListResponseDto> myRecruitingsPage = recruitingService.getMyRecruitings(
+                page, perSize, null, email);
+        Pagination<RecruitingFind.ListResponseDto> myRecruitingsPageWithFailed = recruitingService.getMyRecruitings(
+                page, perSize, RecruitingStatus.FAILED, email);
 
         // then
-        Page<Recruiting> foundMyRecruitingsPage = recruitingRepository.findPageByMemberOrderByCreatedDateDesc(pageable, member);
-
-        assertThat(myRecruitings.getTotalCount()).isEqualTo(foundMyRecruitingsPage.getTotalElements());
-        assertThat(myRecruitings.getTotalPages()).isEqualTo(1);
-        assertThat(myRecruitings.getPerSize()).isEqualTo(perSize);
-        assertThat(myRecruitings.getContents().get(0).getType()).isEqualTo(savedRecruiting2.getRecruitingType());
-        assertThat(myRecruitings.getContents().get(1).getProfessor()).isEqualTo("test-professor");
+        verify(mockRecruitingRepository).findPageByMemberOrderByCreatedDateDesc(any(Pageable.class), any(Member.class));
+        verify(mockRecruitingRepository).findPageByMemberAndStatusOrderByCreatedDateDesc(
+                any(Pageable.class), any(Member.class), any(RecruitingStatus.class));
+        assertThat(myRecruitingsPage.getContents().get(0).getId()).isEqualTo(recruiting.getId());
+        assertThat(myRecruitingsPageWithFailed.getContents().size()).isZero();
     }
 
     @DisplayName("사이드 모집글 추천 서비스 테스트 코드")
     @Test
     public void getRecommendedSideRecruitingPage() {
         // given
-        Project savedLectureProject = projectRepository.save(createLectureProject(department));
-        Project savedSideProject = projectRepository.save(createSideProject());
-        Project savedRecommendedSideProject = projectRepository.save(SideProject.builder()
-                        .name("recommended-project-name")
-                        .field(Field.DESIGN)
-                        .fieldCategory(FieldCategory.STUDY)
-                        .startDate(LocalDate.of(2022, 7, 4))
-                        .endDate(LocalDate.of(2022, 8, 30))
-                        .build()
-        );
-        recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
-        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
-        Recruiting savedRecommendedRecruiting = recruitingRepository.save(createRecruiting(member, savedRecommendedSideProject, Type.SIDE));
+        Member mockMember = mock(Member.class);
+        SideProject project = SideProject.builder()
+                .name("project name")
+                .startDate(LocalDate.of(2022,12,17))
+                .endDate(LocalDate.of(2023,3,17))
+                .field(Field.IT_SW_GAME)
+                .fieldCategory(FieldCategory.STUDY)
+                .build();
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(project)
+                .title("recruiting title")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        Pageable pageable = PageRequest.of(page - 1, perSize);
 
+        given(mockMemberRepository.findByEmail(email)).willReturn(Optional.of(mockMember));
+        given(mockRecruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(
+                eq(mockMember.getInterestingFields()), eq(pageable)))
+                .willReturn(new PageImpl<>(List.of(recruiting), pageable, 1L));
         //when
-        Pagination<RecruitingFind.RecommendedListResponseDto> recommendedRecruitings = recruitingService.getRecommendedRecruitings(page, perSize, account.getEmail());
+        Pagination<RecruitingFind.RecommendedListResponseDto> recommendedRecruitings = recruitingService
+                .getRecommendedRecruitings(page, perSize, email);
 
         // then
-        Page<Recruiting> foundRecommendedRecruitingsPage = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
-
-        assertThat(recommendedRecruitings.getTotalCount()).isEqualTo(foundRecommendedRecruitingsPage.getTotalElements());
-        assertThat(recommendedRecruitings.getPage()).isEqualTo(0);
-        assertThat(recommendedRecruitings.getTotalPages()).isEqualTo(1);
-        assertThat(recommendedRecruitings.getPerSize()).isEqualTo(5);
-        assertThat(recommendedRecruitings.getTotalPages()).isEqualTo(foundRecommendedRecruitingsPage.getTotalPages());
-        assertThat(recommendedRecruitings.getContents().get(0).getRecruitingId()).isEqualTo(savedRecommendedRecruiting.getId());
+        verify(mockRecruitingRepository).findAllByInterestingFieldsOrderByWriterLevel(anySet(), any(Pageable.class));
         assertThat(recommendedRecruitings.getContents().size()).isEqualTo(1);
+        assertThat(recommendedRecruitings.getContents().get(0).getRecruitingId()).isEqualTo(recruiting.getId());
     }
 
-    @DisplayName("모집글 키워드 검색 서비스 테스트 코드")
+    @DisplayName("모집글 검색 - 키워드 & 필터링")
     @Test
     public void getSearchRecruitingWithKeywordPage() {
         // given
-        String projectName = "DND 동아리원 구해요!";
-        Project savedLectureProject = projectRepository.save(createLectureProject(department));
-        Project savedSideProject = projectRepository.save(SideProject.builder()
-                .name(projectName)
-                .field(Field.DESIGN)
-                .fieldCategory(FieldCategory.STUDY)
-                .startDate(LocalDate.of(2022, 7, 4))
-                .endDate(LocalDate.of(2022, 8, 30))
-                .build()
-        );
-        recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
-        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
+        Member mockMember = mock(Member.class, RETURNS_DEEP_STUBS); // stub 'department'
+        SideProject mockProject = mock(SideProject.class);
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockProject)
+                .title("DND 동아리원 모집해요!")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
 
-        // when (SIDE탭에서 키워드 검색)
-        Pagination<RecruitingFind.ListResponseDto> searchRecruitingPage = recruitingService.getSearchRecruitings(page, perSize, null, Type.SIDE, "DND", account.getEmail());
-        Pagination<RecruitingFind.ListResponseDto> nonSearchRecruitingPage = recruitingService.getSearchRecruitings(page, perSize, null, Type.SIDE, "DND동아리원", account.getEmail());
+        Pageable pageable = PageRequest.of(page - 1, perSize);
+        given(mockMemberRepository.findByEmail(anyString())).willReturn(Optional.of(mockMember));
+        given(mockRecruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(
+                anyString(), any(Field.class), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(recruiting), pageable, 1L));
+
+        given(mockRecruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(
+                anyString(), anyString(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(Collections.emptyList(), pageable, 0L));
+        given(mockMember.getDepartment().getName()).willReturn("example-department");
+
+        // when
+        Pagination<RecruitingFind.ListResponseDto> searchSideRecruitingPage = recruitingService.getSearchRecruitings(
+                page, perSize, Field.IT_SW_GAME, Type.SIDE, "DND", email);  // Side (검색 & 필터링)
+        Pagination<RecruitingFind.ListResponseDto> searchLectureRecruitingPage = recruitingService.getSearchRecruitings(
+                page, perSize, null, Type.LECTURE, "test-professor" , email); // Lecture (검색 & 필터링)
 
         // then
-        Page<Recruiting> foundRecommendedRecruitingsPage = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate("DND", null, pageable);
-        // 검색 o
-        assertThat(searchRecruitingPage.getTotalCount()).isEqualTo(foundRecommendedRecruitingsPage.getTotalElements());
-        assertThat(searchRecruitingPage.getPage()).isEqualTo(0);
-        assertThat(searchRecruitingPage.getTotalPages()).isEqualTo(1);
-        assertThat(searchRecruitingPage.getContents().get(0).getProjectName()).isEqualTo(projectName);
-        assertThat(searchRecruitingPage.getContents().size()).isEqualTo(1);
-        // 검색 x
-        assertThat(nonSearchRecruitingPage.getTotalCount()).isEqualTo(0);
-        assertThat(nonSearchRecruitingPage.getContents().size()).isEqualTo(0);
+        verify(mockRecruitingRepository).findAllSideBySearchWordAndFieldOrderByCreatedDate(anyString(), any(Field.class), any(Pageable.class));
+        assertThat(searchSideRecruitingPage.getContents().size()).isEqualTo(1);
+
+        verify(mockRecruitingRepository).findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(anyString(), anyString(), any(Pageable.class));
+        assertThat(searchLectureRecruitingPage.getContents().size()).isZero();
     }
 
-
-    @DisplayName("사이드 모집글 검색 목록 조회 서비스 테스트 코드")
+    @DisplayName("모집글 검색 - 키워드없이 디폴트")
     @Test
     public void getSearchRecruitingPage() {
         // given
-        String projectName = "나중에 등록된 프로젝트!";
-        Project lectureProjectWithSameDeaprtment = projectRepository.save(createLectureProject(department));
-        Project lectureProjectWithNonsameDepartment = projectRepository.save(createLectureProject(departmentRepository.save(Department.builder()
-                .university(university)
-                .collegeName("학교")
-                .region("부산")
-                .mainBranchType("main")
-                .name("다른 학과")
-                .build())));
-
-        Project savedSideProject = projectRepository.save(createSideProject());
-        Project afterSavedSideProject = projectRepository.save(SideProject.builder()
-                .name(projectName)
-                .field(Field.DESIGN)
-                .fieldCategory(FieldCategory.STUDY)
-                .startDate(LocalDate.of(2022, 7, 4))
-                .endDate(LocalDate.of(2022, 8, 30))
-                .build()
-        );
-        recruitingRepository.save(createRecruiting(member, lectureProjectWithNonsameDepartment, Type.LECTURE));
-        recruitingRepository.save(createRecruiting(member, lectureProjectWithSameDeaprtment, Type.LECTURE));
-        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
-        recruitingRepository.save(createRecruiting(member, afterSavedSideProject, Type.SIDE));
+        Department mockDepartment = mock(Department.class);
+        Member mockMember = mock(Member.class);
+        SideProject mockSideProject = mock(SideProject.class);
+        LectureProject mockLectureProject = mock(LectureProject.class);
+        Recruiting sideRecruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockSideProject)
+                .title("DND 동아리원 모집해요!")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        Pageable pageable = PageRequest.of(page - 1, perSize);
+        given(mockMemberRepository.findByEmail(email)).willReturn(Optional.of(mockMember));
+        given(mockMember.getDepartment()).willReturn(mockDepartment);
+        given(mockMember.getDepartment().getName()).willReturn("different-department");  // 멤버와 동일 department이어야 default 시 조회됨.
+        given(mockRecruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(
+                eq(null), eq(null), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(sideRecruiting), pageable, 1L));
+        given(mockRecruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(
+                eq(null), anyString(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(Collections.emptyList(), pageable, 0L));
 
         // when
-        Pagination<RecruitingFind.ListResponseDto> allSideRecruitingsPage = recruitingService.getSearchRecruitings(page, perSize, null, Type.SIDE, null, account.getEmail());   // side - 전체 조회
-        Pagination<RecruitingFind.ListResponseDto> allSideRecruitingsPageWithFiltered = recruitingService.getSearchRecruitings(page, perSize, Field.DESIGN, Type.SIDE, null, account.getEmail());   // side - 분야 필터링 조회
+        Pagination<RecruitingFind.ListResponseDto> defaultSearchSide = recruitingService.getSearchRecruitings(
+                page, perSize, null, Type.SIDE, null , email); // Side (default : 필터 X)
+        Pagination<RecruitingFind.ListResponseDto> defaultSearchLecture = recruitingService.getSearchRecruitings(
+                page, perSize, null, Type.LECTURE, null, email); // Lecture (default : 전공 학과 필터링)
 
         // then
-        assertThat(allSideRecruitingsPage.getContents().size()).isEqualTo(2);
-        assertThat(allSideRecruitingsPage.getPage()).isZero();
-        assertThat(allSideRecruitingsPage.getTotalPages()).isEqualTo(1);
-        assertThat(allSideRecruitingsPage.getContents().get(0).getProjectName()).isEqualTo(projectName);
+        verify(mockRecruitingRepository).findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(
+                eq(null), anyString(), any(Pageable.class));
+        assertThat(defaultSearchLecture.getContents().size()).isZero();
 
-        assertThat(allSideRecruitingsPageWithFiltered.getContents().size()).isEqualTo(1);
-        assertThat(allSideRecruitingsPageWithFiltered.getContents().get(0).getField()).isEqualTo(Field.DESIGN);
+        verify(mockRecruitingRepository).findAllSideBySearchWordAndFieldOrderByCreatedDate(
+                eq(null), eq(null), any(Pageable.class));
+        assertThat(defaultSearchSide.getContents().size()).isEqualTo(1);
     }
 
-    @DisplayName("강의 모집글 검색 목록 조회 서비스 테스트 코드")
-    @Test
-    public void getRecruitingPageWithFilter() {
-        // given
-        Project lectureProjectWithSameDeaprtment = projectRepository.save(createLectureProject(department));
-        Project lectureProjectWithNonsameDepartment = projectRepository.save(createLectureProject(departmentRepository.save(Department.builder()
-                .university(university)
-                .collegeName("학교")
-                .region("부산")
-                .mainBranchType("main")
-                .name("다른 학과")
-                .build())));
-
-        Project savedSideProject = projectRepository.save(createSideProject());
-        Project afterSavedSideProject = projectRepository.save(createSideProject());
-        recruitingRepository.save(createRecruiting(member, lectureProjectWithNonsameDepartment, Type.LECTURE));
-        recruitingRepository.save(createRecruiting(member, lectureProjectWithSameDeaprtment, Type.LECTURE));
-        recruitingRepository.save(createRecruiting(member, savedSideProject, Type.SIDE));
-        recruitingRepository.save(createRecruiting(member, afterSavedSideProject, Type.SIDE));
-        // when
-        Pagination<RecruitingFind.ListResponseDto> allLectureRecruitingsPageSameWithDepartment = recruitingService.getSearchRecruitings(page, perSize, null, Type.LECTURE, null, account.getEmail()); // 전체 조회 (전공 학과 필터링)
-        Pagination<RecruitingFind.ListResponseDto> allLectureRecruitingsPageSameWithKeyword = recruitingService.getSearchRecruitings(page, perSize, null, Type.LECTURE, "test-professor" , account.getEmail()); // 검색 (검색어 필터링)
-
-        // then
-        Page<Recruiting> foundLectureRecruitingPagSameWithDepartment = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(null, member.getDepartment().getName(), pageable);
-        assertThat(allLectureRecruitingsPageSameWithDepartment.getContents().size()).isEqualTo(1);
-        assertThat(allLectureRecruitingsPageSameWithDepartment.getPage()).isZero();
-        LectureProject foundLectureProject = (LectureProject)foundLectureRecruitingPagSameWithDepartment.getContent().get(0).getProject();
-        assertThat(foundLectureProject.getDepartment().getName()).isEqualTo(member.getDepartment().getName());
-
-        assertThat(allLectureRecruitingsPageSameWithKeyword.getTotalCount()).isEqualTo(2);  // 교수명 검색 -> 전공 필터링X
-    }
-
-    // TODO: 2022-08-23 PROJECT_NOT_FOUND 해결 필요
-    @Disabled
     @DisplayName("(LECTURE) 모집글 수정 서비스 테스트 코드")
     @Test
     public void modifyRecruiting() {
         // given
-        Project savedLectureProject = projectRepository.save(createLectureProject(department));
-        Recruiting savedRecruiting = recruitingRepository.save(createRecruiting(member, savedLectureProject, Type.LECTURE));
-        RecruitingModify.RequestDto recruitingReqDto = DtoFactoryForTest.createRecruitingModifyRequest();
-        recruitingReqDto.setActivityArea(ActivityArea.BUSAN);
-        recruitingReqDto.setPersonalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES));
-        recruitingReqDto.setRecruitingMemberCount(savedRecruiting.getRecruitingMemberCount()+1);    // update
+        Member mockMember = mock(Member.class);
+        SideProject mockProject = mock(SideProject.class);
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockProject)
+                .title("DND 동아리원 모집해요!")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        RecruitingModify.RequestDto modifyReqDto = new RecruitingModify.RequestDto();
+        modifyReqDto.setTitle("updated recruiting title");
+        modifyReqDto.setContent(recruiting.getContent());
+        modifyReqDto.setIntroLink(recruiting.getIntroLink());
+        modifyReqDto.setActivityArea(recruiting.getActivityArea());
+        modifyReqDto.setRecruitingEndDate(recruiting.getRecruitingEndDate());
+        modifyReqDto.setRecruitingMemberCount(recruiting.getRecruitingMemberCount());
+        modifyReqDto.setProjectName(recruiting.getProject().getName());
+        modifyReqDto.setProjectStartDate(mockProject.getStartDate());
+        modifyReqDto.setProjectEndDate(mockProject.getEndDate());
+        modifyReqDto.setRecruitingEndDate(mockProject.getEndDate());
+        modifyReqDto.setRecruitingType(recruiting.getRecruitingType());
+        modifyReqDto.setDepartmentId(departmentId);
+        LectureTimeRequest lectureTimeRequest = new LectureTimeRequest();
+        lectureTimeRequest.setDayOfWeek(DayOfWeek.WED);
+        lectureTimeRequest.setStartTime(LocalTime.of(10, 0));
+        modifyReqDto.setLectureTimes(List.of(lectureTimeRequest));
+        modifyReqDto.setPersonalityNouns(recruiting.getPersonalityNouns());
+        modifyReqDto.setPersonalityAdjectives(recruiting.getPersonalityAdjectives());
 
-        //when
-        RecruitingModify.ResponseDto recruitingResDto = recruitingService.modifyProjectAndRecruiting(savedRecruiting.getId(), recruitingReqDto);
+        ActivityDayTimeDto activityDayTimeDto = new ActivityDayTimeDto();
+        activityDayTimeDto.setDayOfWeek(DayOfWeek.FRI);
+        activityDayTimeDto.setStartTime(LocalTime.of(17, 0));
+        activityDayTimeDto.setEndTime(LocalTime.of(20, 0));
+        modifyReqDto.setActivityDayTimes(Set.of(activityDayTimeDto));
 
-        //then
-        Recruiting updatedRecruiting = recruitingRepository.findById(savedRecruiting.getId())
-                .orElseThrow(() -> new RecruitingNotFoundException("recruiting id : " + savedRecruiting.getId()));
-        assertThat(savedRecruiting.getActivityArea()).isNotEqualTo(updatedRecruiting.getActivityArea());
-        assertThat(savedRecruiting.getPersonalityNouns()).isNotEqualTo(updatedRecruiting.getPersonalityNouns());
-        assertThat(savedRecruiting.getPersonalityAdjectives()).isEqualTo(updatedRecruiting.getPersonalityAdjectives());
+        given(mockRecruitingRepository.findById(anyLong())).willReturn(Optional.of(recruiting));
+        given(mockMemberRepository.findByEmail(email)).willReturn(Optional.of(mockMember));
 
-        assertThat(recruitingResDto.getProjectId()).isEqualTo(updatedRecruiting.getProject().getId());
+        // when
+        RecruitingModify.ResponseDto recruitingResDto = recruitingService.modifyProjectAndRecruiting(recruitingId, modifyReqDto, email);
+
+        // then
+        verify(mockRecruitingRepository).findById(anyLong());
+        verify(mockMemberRepository).findByEmail(anyString());
+        assertThat(recruitingResDto.getRecruitingId()).isEqualTo(recruiting.getId());
     }
 
     @DisplayName("모집글 제거 서비스 테스트 코드")
     @Test
     public void removeRecruiting() {
         // given
-        Project saveSideProject = projectRepository.save(createSideProject());
-        Recruiting savedRecruiting = recruitingRepository.save(createRecruiting(member, saveSideProject, Type.SIDE));
-        // when
-        recruitingService.removeRecruiting(savedRecruiting.getId());
+        Member mockMember = mock(Member.class);
+        SideProject project = SideProject.builder()
+                .name("project name")
+                .startDate(LocalDate.of(2022,12,17))
+                .endDate(LocalDate.of(2023,3,17))
+                .field(Field.IT_SW_GAME)
+                .fieldCategory(FieldCategory.STUDY)
+                .build();
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(project)
+                .title("DND 동아리원 모집해요!")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        Applicant applicant = Applicant.builder()
+                .member(mockMember)
+                .recruiting(recruiting)
+                .joined(Boolean.FALSE)
+                .build();
+        recruiting.addApplicant(applicant);
+        given(mockRecruitingRepository.findById(anyLong())).willReturn(Optional.of(recruiting));
+        given(mockMemberRepository.findByEmail(anyString())).willReturn(Optional.of(mockMember));
 
-        // expected
-        assertThatThrownBy(() -> recruitingService.getRecruiting(savedRecruiting.getId(), account.getEmail()))
-                .isInstanceOf(RecruitingNotFoundException.class);
+        // when
+        recruitingService.removeRecruiting(recruitingId, email);
+
+        // then
+        verify(mockRecruitingRepository).delete(recruiting);
+        assertThat(project.getStatus()).isEqualTo(ProjectStatus.NOT_STARTED);
+        verify(mockProjectRepository).delete(project);
+        assertThat(recruiting.getApplicants().size()).isZero();
+    }
+
+    @DisplayName("모집글 끌올 서비스 테스트 코드")
+    @Test
+    public void poolupRecruiting() {
+        // given
+        Member mockMember = mock(Member.class);
+        Project mockProject = mock(Project.class);
+        Recruiting recruiting = Recruiting.builder()
+                .id(recruitingId)
+                .member(mockMember)
+                .project(mockProject)
+                .title("DND 동아리원 모집해요!")
+                .content("recruiting content")
+                .introLink("intro link")
+                .activityArea(ActivityArea.BUSAN)
+                .recruitingMemberCount(4)
+                .recruitingType(Type.SIDE)
+                .recruitingEndDate(LocalDate.of(2022, 12, 29))
+                .status(RecruitingStatus.IN_PROGRESS)
+                .commentCount(0)
+                .poolUpCount(0)
+                .bookmarkCount(0)
+                .personalityNouns(Set.of(Personality.Noun.JACK_OF_ALL_TRADES))
+                .personalityAdjectives(Set.of(Personality.Adjective.LOGICAL))
+                .activityDayTimes(Set.of(ActivityDayTime.builder().
+                        dayOfWeek(DayOfWeek.FRI)
+                        .startTime(LocalTime.of(17, 0)).endTime(LocalTime.of(20, 0))
+                        .build()))
+                .build();
+        RecruitingModify.PoolUpRequestDto poolUpReqDto = new RecruitingModify.PoolUpRequestDto();
+        poolUpReqDto.setPoolUpDate(LocalDateTime.now());
+        given(mockRecruitingRepository.findById(anyLong())).willReturn(Optional.of(recruiting));
+        given(mockMemberRepository.findByEmail(anyString())).willReturn(Optional.of(mockMember));
+
+        // when
+        recruitingService.poolUpRecruiting(recruitingId, poolUpReqDto, email);
+        // then
+        verify(mockRecruitingRepository).findById(anyLong());
+        verify(mockMemberRepository).findByEmail(anyString());
+        assertThat(recruiting.getPoolUpCount()).isEqualTo(1);
     }
 }

@@ -27,6 +27,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,15 +44,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(RestDocsConfig.class)
+@Import({ RestDocsConfig.class, RestDocsObjectMapper.class })
 @AutoConfigureRestDocs
 @WebMvcTest(controllers = RecruitingController.class)
 class RecruitingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private final RestDocsObjectMapper objectMapper = new RestDocsObjectMapper();
+    @Autowired
+    private RestDocsObjectMapper objectMapper;
 
     @MockBean
     private RecruitingService recruitingService;
@@ -87,7 +88,8 @@ class RecruitingControllerTest {
                                         fieldWithPath("activityArea.code").description("활동 지역 코드"),
                                         fieldWithPath("activityArea.title").description("활동 지역"),
                                         fieldWithPath("introLink").description("프로젝트 소개(없다면 null이 아닌 빈 문자열)"),
-                                        fieldWithPath("status").description("모집글 상태"),
+                                        fieldWithPath("status.code").description("모집글 상태 코드"),
+                                        fieldWithPath("status.title").description("모집글 상태"),
                                         fieldWithPath("recruitingEndDate").description("모집 마감일")
                                                 .attributes(key("constraint")
                                                         .value("must be a date in the present or in the future")),
@@ -134,7 +136,6 @@ class RecruitingControllerTest {
         // then
         mockMvc.perform(get("/recruiting/{recruitingId}", RECRUITING_ID)
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
@@ -147,7 +148,8 @@ class RecruitingControllerTest {
                                         fieldWithPath("title").description("모집글 제목"),
                                         fieldWithPath("content").description("모집글 내용"),
                                         fieldWithPath("recruitingType").description("모집글 타입"),
-                                        fieldWithPath("recruitingStatus").description("모집글 상태"),
+                                        fieldWithPath("recruitingStatus.code").description("모집글 상태 코드"),
+                                        fieldWithPath("recruitingStatus.title").description("모집글 상태"),
                                         fieldWithPath("commentCount").description("댓글 개수"),
                                         fieldWithPath("bookmarkCount").description("북마크 개수"),
                                         fieldWithPath("introLink").description("프로젝트 소개"),
@@ -244,7 +246,8 @@ class RecruitingControllerTest {
                                         fieldWithPath("contents[].id").description("모집글 식별자(ID)"),
                                         fieldWithPath("contents[].title").description("모집글 제목"),
                                         fieldWithPath("contents[].type").description("모집글 타입"),
-                                        fieldWithPath("contents[].status").description("모집글 상태"),
+                                        fieldWithPath("contents[].status.code").description("모집글 상태 코드"),
+                                        fieldWithPath("contents[].status.title").description("모집글 상태"),
                                         fieldWithPath("contents[].commentCount").description("댓글 개수"),
                                         fieldWithPath("contents[].bookmarkCount").description("북마크 개수"),
                                         fieldWithPath("contents[].projectName").description("강의명 혹은 사이드 프로젝트명"),
@@ -359,7 +362,8 @@ class RecruitingControllerTest {
                                         fieldWithPath("contents[].id").description("모집글 식별자(ID)"),
                                         fieldWithPath("contents[].title").description("모집글 제목"),
                                         fieldWithPath("contents[].type").description("모집글 타입"),
-                                        fieldWithPath("contents[].status").description("모집글 상태"),
+                                        fieldWithPath("contents[].status.code").description("모집글 상태 코드"),
+                                        fieldWithPath("contents[].status.title").description("모집글 상태"),
                                         fieldWithPath("contents[].commentCount").description("댓글 개수"),
                                         fieldWithPath("contents[].bookmarkCount").description("북마크 개수"),
                                         fieldWithPath("contents[].projectName").description("강의명 혹은 사이드 프로젝트명"),
@@ -392,7 +396,7 @@ class RecruitingControllerTest {
         RecruitingModify.ResponseDto responseDto = new RecruitingModify.ResponseDto();
         responseDto.setRecruitingId(RECRUITING_ID);
         responseDto.setProjectId(projectId);
-        when(recruitingService.modifyProjectAndRecruiting(anyLong(), eq(requestDto))).thenReturn(responseDto);
+        when(recruitingService.modifyProjectAndRecruiting(anyLong(), eq(requestDto), anyString())).thenReturn(responseDto);
 
         // expected
         mockMvc.perform(put("/recruiting/{recruitingId}", RECRUITING_ID)
@@ -452,8 +456,8 @@ class RecruitingControllerTest {
         // given
         Recruiting mockRecruiting = mock(Recruiting.class, RETURNS_DEEP_STUBS);
         when(mockRecruiting.getId()).thenReturn(RECRUITING_ID);
-        when(recruitingRepository.findById(RECRUITING_ID)).thenReturn(Optional.of(mockRecruiting));
-        doNothing().when(recruitingService).removeRecruiting(RECRUITING_ID);
+        when(recruitingRepository.findById(anyLong())).thenReturn(Optional.of(mockRecruiting));
+        doNothing().when(recruitingService).removeRecruiting(anyLong(), anyString());
 
         // expected
         mockMvc.perform(delete("/recruiting/{recruitingId}", RECRUITING_ID)
@@ -465,6 +469,33 @@ class RecruitingControllerTest {
                 .andDo(document("recruiting-remove",
                         pathParameters(
                                 parameterWithName("recruitingId").description("모집글 식별자(ID)")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("모집글 끌올 요청 API")
+    @WithMockUser
+    public void poolupRecruiting() throws Exception {
+        // given
+        RecruitingModify.PoolUpRequestDto requestDto = new RecruitingModify.PoolUpRequestDto();
+        requestDto.setPoolUpDate(LocalDateTime.now());
+        // expected
+        mockMvc.perform(put("/recruiting/{recruitingId}/pool-up", RECRUITING_ID)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("recruiting-poolup",
+                        pathParameters(
+                                parameterWithName("recruitingId").description("모집글 식별자(ID)")
+                        ),
+                        requestFields(
+                                fieldWithPath("poolUpDate").description("모집글 끌올 요일 및 시간")
                         )
                 ));
     }

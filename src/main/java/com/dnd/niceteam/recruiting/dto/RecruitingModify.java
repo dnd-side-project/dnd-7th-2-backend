@@ -8,11 +8,11 @@ import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 public interface RecruitingModify {
-    // 수정 (바뀌지 않은 것도 담아서 보내는 방식)
     @Data
     class RequestDto {
         @NotNull
@@ -70,5 +70,10 @@ public interface RecruitingModify {
 
             return dto;
         }
+    }
+
+    @Data
+    class PoolUpRequestDto {
+        LocalDateTime poolUpDate;
     }
 }

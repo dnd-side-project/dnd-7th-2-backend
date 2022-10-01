@@ -63,10 +63,10 @@ public class RecruitingRepositoryCustomImpl implements RecruitingRepositoryCusto
                 .select(recruiting)
                 .from(recruiting)
                 .join(recruiting.project, project)
-                .where(project
+                .on(project
                         .in(findSideProjectsBySearchWordAndField(searchWord, field))
-                        .and(project.type.eq(Type.SIDE))
                         .or(nameContains(recruiting.title, searchWord))
+                        .and(project.type.eq(Type.SIDE))
                 )
                 .orderBy(recruiting.createdDate.desc())
                 .offset(pageable.getOffset())

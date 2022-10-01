@@ -93,4 +93,8 @@ public abstract class Project extends BaseEntity {
         return projectMembers.contains(projectMember);
     }
 
+    public boolean isNotStarted() {
+        return ProjectStatus.NOT_STARTED.equals(this.getStatus());
+    }
+
 }

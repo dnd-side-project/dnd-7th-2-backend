@@ -122,7 +122,8 @@ class RecruitingRepositoryTest {
         em.clear();
 
         // when
-        Page<Recruiting> foundMyRecruitings = recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, RecruitingStatus.DONE);
+        Page<Recruiting> foundMyRecruitings = recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(
+                pageable, member, RecruitingStatus.DONE);
 
         assertThat(foundMyRecruitings.getTotalPages()).isEqualTo(1);
         assertThat(foundMyRecruitings.getTotalElements()).isEqualTo(1);
@@ -185,7 +186,8 @@ class RecruitingRepositoryTest {
 
         // when
         pageable = PageRequest.of(page - 1, 4);
-        Page<Recruiting> foundRecommendedRecruitings = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(member.getInterestingFields(), pageable);
+        Page<Recruiting> foundRecommendedRecruitings = recruitingRepository.findAllByInterestingFieldsOrderByWriterLevel(
+                member.getInterestingFields(), pageable);
 
         // then
         assertThat(foundRecommendedRecruitings.getTotalElements()).isEqualTo(2);
@@ -243,15 +245,24 @@ class RecruitingRepositoryTest {
         em.clear();
 
         // when - 사이드
-        List<Recruiting> sideRecruitingsWithKeyword = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate("proj", null, pageable).getContent();
-        List<Recruiting> sideRecruitingsWithKeywordAndField = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate("proj", Field.IT_SW_GAME, pageable).getContent();
-        List<Recruiting> sideRecruitingsWithField = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(null, Field.IT_SW_GAME, pageable).getContent();
-        List<Recruiting> sideRecruitings = recruitingRepository.findAllSideBySearchWordAndFieldOrderByCreatedDate(null, null, pageable).getContent();
+        List<Recruiting> sideRecruitingsWithKeyword = recruitingRepository
+                .findAllSideBySearchWordAndFieldOrderByCreatedDate("proj", null, pageable)
+                .getContent();
+        List<Recruiting> sideRecruitingsWithKeywordAndField = recruitingRepository
+                .findAllSideBySearchWordAndFieldOrderByCreatedDate("proj", Field.IT_SW_GAME, pageable)
+                .getContent();
+        List<Recruiting> sideRecruitingsWithField = recruitingRepository
+                .findAllSideBySearchWordAndFieldOrderByCreatedDate(null, Field.IT_SW_GAME, pageable)
+                .getContent();
+        List<Recruiting> defaultSideRecruitings = recruitingRepository
+                .findAllSideBySearchWordAndFieldOrderByCreatedDate(null, null, pageable)
+                .getContent();
         // then
         assertThat(sideRecruitingsWithKeyword.size()).isEqualTo(3);
         assertThat(sideRecruitingsWithKeywordAndField.size()).isEqualTo(2);
         assertThat(sideRecruitingsWithField.size()).isEqualTo(2);
-        assertThat(sideRecruitings.get(0).getProject().getName()).isEqualTo("project-side2");   // just 최신순
+        assertThat(defaultSideRecruitings.size()).isEqualTo(3);   // 기본 조회
+        assertThat(defaultSideRecruitings.get(0).getProject().getName()).isEqualTo("project-side2");   // just 최신순
     }
 
     @Test
@@ -260,7 +271,10 @@ class RecruitingRepositoryTest {
         Project lectureProjectNonsameDepartment = projectRepository.save(LectureProject.builder()
                 .name("project-0")
                 .professor("common-professor")
-                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
+                .lectureTimes(Set.of(LectureTime.builder()
+                                .dayOfWeek(DayOfWeek.MON)
+                                .startTime(LocalTime.of(9,0))
+                                .build()))
                 .department(departmentRepository.save(Department.builder()
                         .name("미디어커뮤니케이션 학과")
                         .mainBranchType("main")
@@ -274,7 +288,10 @@ class RecruitingRepositoryTest {
         Project lectureProject1 = projectRepository.save(LectureProject.builder()
                 .name("project-")
                 .professor("common-professor")
-                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
+                .lectureTimes(Set.of(LectureTime.builder()
+                        .dayOfWeek(DayOfWeek.MON)
+                        .startTime(LocalTime.of(9,0))
+                        .build()))
                 .department(department)
                 .startDate(LocalDate.of(2022, 7, 4))
                 .endDate(LocalDate.of(2022, 8, 28))
@@ -282,7 +299,8 @@ class RecruitingRepositoryTest {
         Project lectureProject2 = projectRepository.save(LectureProject.builder()
                 .name("project-side2")
                 .professor("only-professor")
-                .lectureTimes(Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
+                .lectureTimes(
+                        Set.of(LectureTime.builder().dayOfWeek(DayOfWeek.MON).startTime(LocalTime.of(9,0)).build()))
                 .department(department)
                 .startDate(LocalDate.of(2022, 7, 4))
                 .endDate(LocalDate.of(2022, 8, 28))
@@ -310,11 +328,21 @@ class RecruitingRepositoryTest {
         em.clear();
 
         // when - 강의
-        List<Recruiting> lectureRecruitingsWithoutKeyword = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(null, department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
-        List<Recruiting> lectureRecruitingsWithKeyword = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("project", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
-        List<Recruiting> lectureRecruitingsWithDiffKeyword = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("33", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
-        List<Recruiting> lectureRecruitingsWithKeywordSameWithLectureTitle = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("lecture-type-recruiting-title", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
-        List<Recruiting> lectureRecruitingsWithKeywordSameWithProfessor = recruitingRepository.findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("only-professor", department.getName(), pageable).getContent();  // 1개나와야함 (name은 같지만, sw가 다르므로
+        List<Recruiting> lectureRecruitingsWithoutKeyword = recruitingRepository
+                .findAllLectureBySearchWordAndDepartmentOrderByCreatedDate(null, department.getName(), pageable)
+                .getContent();
+        List<Recruiting> lectureRecruitingsWithKeyword = recruitingRepository
+                .findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("project", department.getName(), pageable)
+                .getContent();
+        List<Recruiting> lectureRecruitingsWithDiffKeyword = recruitingRepository
+                .findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("33", department.getName(), pageable)
+                .getContent();
+        List<Recruiting> lectureRecruitingsWithKeywordSameWithLectureTitle = recruitingRepository
+                .findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("lecture-type-recruiting-title", department.getName(), pageable)
+                .getContent();
+        List<Recruiting> lectureRecruitingsWithKeywordSameWithProfessor = recruitingRepository
+                .findAllLectureBySearchWordAndDepartmentOrderByCreatedDate("only-professor", department.getName(), pageable)
+                .getContent();
         // then
         assertThat(lectureRecruitingsWithoutKeyword.size()).isEqualTo(2);   // 검색 없을 때는 같은 전공
         assertThat(lectureRecruitingsWithKeyword.size()).isEqualTo(3);   // 검색 있을 때는 전공 필터링X

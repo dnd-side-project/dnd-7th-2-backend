@@ -4,6 +4,7 @@ import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.util.PaginationUtil;
 import com.dnd.niceteam.domain.bookmark.BookmarkRepository;
 import com.dnd.niceteam.domain.code.Field;
+import com.dnd.niceteam.domain.recruiting.Applicant;
 import com.dnd.niceteam.domain.recruiting.RecruitingStatus;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.member.Member;
@@ -12,6 +13,7 @@ import com.dnd.niceteam.domain.project.*;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
 import com.dnd.niceteam.domain.recruiting.RecruitingRepository;
 import com.dnd.niceteam.domain.recruiting.exception.InvalidRecruitingTypeException;
+import com.dnd.niceteam.domain.recruiting.exception.PoolUpImpossibleRecruitingException;
 import com.dnd.niceteam.domain.recruiting.exception.RecruitingNotFoundException;
 import com.dnd.niceteam.member.util.MemberUtils;
 import com.dnd.niceteam.project.dto.ProjectRequest;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +46,7 @@ public class RecruitingService {
     public RecruitingCreation.ResponseDto addProjectAndRecruiting(String username, RecruitingCreation.RequestDto recruitingReqDto) {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         // 프로젝트
-        ProjectRequest.Register projectRequestDto = ProjectRequest.Register.createProjecRegistertRequestDto(recruitingReqDto);
+        ProjectRequest.Register projectRequestDto = ProjectRequest.Register.from(recruitingReqDto);
         ProjectResponse.Detail detail = projectService.registerProject(projectRequestDto, member);
         Project project = projectRepository.getReferenceById(detail.getId());
 
@@ -110,11 +113,18 @@ public class RecruitingService {
 
     // 모집글 수정
     @Transactional
-    public RecruitingModify.ResponseDto modifyProjectAndRecruiting(Long recruitingId, RecruitingModify.RequestDto requestDto) {
+    public RecruitingModify.ResponseDto modifyProjectAndRecruiting(Long recruitingId,
+                                                                   RecruitingModify.RequestDto requestDto,
+                                                                   String email) {
         Recruiting recruiting = findRecruitingById(recruitingId);
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
 
-        ProjectRequest.Update upateRequestDto = ProjectRequest.Update.createProjectUpdateRequestDto (requestDto);
-        projectService.modifyProject(recruiting.getProject().getId(), recruiting.getMember().getId(), upateRequestDto);
+        if (isNotWriter(recruiting, member)) {
+            throw new AccessDeniedException("모집글 수정 접근이 불가능합니다.");
+        }
+
+        ProjectRequest.Update updateRequestDto = ProjectRequest.Update.of(requestDto);
+        projectService.modifyProject(recruiting.getProject().getId(), recruiting.getMember().getId(), updateRequestDto);
 
         recruiting.update(requestDto);
 
@@ -122,18 +132,39 @@ public class RecruitingService {
     }
 
     @Transactional
-    public void removeRecruiting(Long recruitingId) {
+    public void removeRecruiting(Long recruitingId, String email) {
         Recruiting recruiting = findRecruitingById(recruitingId);
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
 
+        if (isNotWriter(recruiting, member)) {
+            throw new AccessDeniedException("모집글 제거 접근이 불가능합니다.");
+        }
         recruitingRepository.delete(recruiting);
 
-        if (isProjectNotStarted(recruiting.getProject())) {
+        if (recruiting.getProject().isNotStarted()) {
             projectRepository.delete(recruiting.getProject());
+        }
+
+        for(Applicant applicant : recruiting.getApplicants()) {
+            recruiting.removeApplicant(applicant);
         }
     }
 
-    private boolean isProjectNotStarted(Project project) {
-        return project.getStatus().equals(ProjectStatus.NOT_STARTED);
+    @Transactional
+    public void poolUpRecruiting(Long recruitingId, RecruitingModify.PoolUpRequestDto requestDto, String email) {
+        Recruiting recruiting = findRecruitingById(recruitingId);
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
+
+        if (isNotWriter(recruiting, member)) {
+            throw new AccessDeniedException("모집글 끌올 접근이 불가능합니다.");
+        }
+
+        if (isPoolUpImpossible(recruiting)) {
+            throw new PoolUpImpossibleRecruitingException(recruiting.getStatus());
+        }
+
+        recruiting.updatePoolUpDate(requestDto.getPoolUpDate());
+        recruiting.plusPoolUpCount();
     }
 
     private Recruiting findRecruitingById(Long recruitingId) {
@@ -147,5 +178,13 @@ public class RecruitingService {
         else {
             return recruitingRepository.findPageByMemberAndStatusOrderByCreatedDateDesc(pageable, member, recruitingStatus);
         }
+    }
+
+    private boolean isNotWriter(Recruiting recruiting, Member member) {
+        return !recruiting.getMember().getId().equals(member.getId());
+    }
+
+    private boolean isPoolUpImpossible(Recruiting recruiting) {
+        return !recruiting.getStatus().equals(RecruitingStatus.IN_PROGRESS);
     }
 }

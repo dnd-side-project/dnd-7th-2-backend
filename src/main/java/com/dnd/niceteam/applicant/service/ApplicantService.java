@@ -43,6 +43,8 @@ public class ApplicantService {
                 .member(member)
                 .recruiting(recruiting)
                 .build());
+        recruiting.addApplicant(savedApplicant);
+
         ApplicantCreation.ResponseDto responseDto = new ApplicantCreation.ResponseDto();
         responseDto.setId(savedApplicant.getId());
         return responseDto;
@@ -66,6 +68,7 @@ public class ApplicantService {
             projectMemberRepository.delete(projectMember);
         }
         applicantRepository.delete(foundApplicant);
+        recruiting.removeApplicant(foundApplicant);
     }
 
     public Pagination<ApplicantFind.ListResponseDto> getMyApplicnts(int page, int perSize,
