@@ -29,12 +29,12 @@ public interface CommentFind {
         private String recruitingTitle;
         private Type recruitingType;
 
-        public static ResponseDto fromMyComments(Comment comment) {
+        public static ResponseDto fromMyComment(Comment comment) {
             ResponseDto dto = createCommonListResponseDto(comment);
             dto.setNickname(comment.getMember().getNickname());
             return dto;
         }
-        public static ResponseDto fromRecruitingComments(Comment comment) {
+        public static ResponseDto fromRecruitingComment(Comment comment) {
             ResponseDto dto = createCommonListResponseDto(comment);
             dto.setRecruitingTitle(comment.getRecruiting().getTitle());
             dto.setRecruitingType(comment.getRecruiting().getRecruitingType());
