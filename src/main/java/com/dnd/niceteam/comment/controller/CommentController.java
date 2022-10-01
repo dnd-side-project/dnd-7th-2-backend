@@ -50,17 +50,21 @@ public class CommentController {
         ApiResult<Pagination<CommentFind.ResponseDto>> apiResult = ApiResult.success(comments);
         return ResponseEntity.ok(apiResult);
     }
+
     @DeleteMapping("/comment/{commentId}")
-    public ResponseEntity<ApiResult<Void>> commentRemove (@PathVariable Long commentId) {
-        commentService.removeComment(commentId);
+    public ResponseEntity<ApiResult<Void>> commentRemove (@PathVariable Long commentId,
+                                                          @CurrentUsername String username) {
+        commentService.removeComment(commentId, username);
 
         ApiResult<Void> apiResult = ApiResult.<Void>success().build();
         return ResponseEntity.ok(apiResult);
     }
 
     @PutMapping("/comment")
-    public ResponseEntity<ApiResult<CommentModify.ResponseDto>> commentModify(@RequestBody @Valid CommentModify.RequestDto requestDto) {
-        CommentModify.ResponseDto comments = commentService.modifyComment(requestDto);
+    public ResponseEntity<ApiResult<CommentModify.ResponseDto>> commentModify(@RequestBody @Valid CommentModify.RequestDto requestDto,
+                                                                              @CurrentUsername String username) {
+        CommentModify.ResponseDto comments = commentService.modifyComment(requestDto, username);
+
         ApiResult<CommentModify.ResponseDto> apiResult = ApiResult.success(comments);
         return ResponseEntity.ok(apiResult);
     }
