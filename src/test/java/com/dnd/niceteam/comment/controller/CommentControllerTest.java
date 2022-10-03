@@ -4,12 +4,12 @@ import com.dnd.niceteam.comment.dto.CommentCreation;
 import com.dnd.niceteam.comment.dto.CommentFind;
 import com.dnd.niceteam.comment.dto.CommentModify;
 import com.dnd.niceteam.comment.service.CommentService;
+import static com.dnd.niceteam.comment.DtoFactoryForTest.*;
 import com.dnd.niceteam.common.RestDocsConfig;
 import com.dnd.niceteam.common.dto.Pagination;
 import com.dnd.niceteam.common.jackson.RestDocsObjectMapper;
 import com.dnd.niceteam.domain.code.Type;
 import com.dnd.niceteam.domain.comment.Comment;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +18,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
-import static com.dnd.niceteam.comment.DtoFactoryForTest.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -46,7 +45,6 @@ class CommentControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private RestDocsObjectMapper objectMapper;
-
     @MockBean
     private CommentService commentService;
 
@@ -55,9 +53,6 @@ class CommentControllerTest {
     @DisplayName("댓글 등록 요청 API")
     public void commentCreate() throws Exception {
         //given
-        Comment mockComment = mock(Comment.class, RETURNS_DEEP_STUBS);
-        when(mockComment.getParentId()).thenReturn(PARENT_ID);
-
         CommentCreation.RequestDto request = createCommentAddRequest();
         CommentCreation.ResponseDto response = createCommentAddResponse();
         when(commentService.addComment(anyLong(), anyString(), eq(request))).thenReturn(response);
@@ -145,7 +140,6 @@ class CommentControllerTest {
                 );
     }
 
-    @Disabled
     @Test
     @WithMockUser
     @DisplayName("내가 쓴 댓글 목록 조회 요청 API")
@@ -154,7 +148,7 @@ class CommentControllerTest {
         CommentFind.ResponseDto response = createCommentListResponse();
         response.setRecruitingTitle("모집글 제목");
         response.setRecruitingType(Type.LECTURE);
-        when(commentService.getComments(anyInt(), anyInt(), anyLong(), anyString())).thenReturn(
+        when(commentService.getComments(anyInt(), anyInt(), eq(null), anyString())).thenReturn(
                 Pagination.<CommentFind.ResponseDto>builder()
                         .page(PAGE-1)
                         .perSize(PER_SIZE)
@@ -190,7 +184,7 @@ class CommentControllerTest {
                                         fieldWithPath("contents[].recruitingId").description("모집글 식별자(ID)"),
                                         fieldWithPath("contents[].createdAt").description("생성 날짜(요일+시간)"),
 
-                                        fieldWithPath("contents[].recruitingTitle").description("모집글 제목").type(JsonFieldType.STRING),
+                                        fieldWithPath("contents[].recruitingTitle").description("모집글 제목").type(String.class),
                                         fieldWithPath("contents[].recruitingType").description("모집글 타입").type(Type.class)
                                 )
                         )
@@ -202,14 +196,12 @@ class CommentControllerTest {
     @DisplayName("댓글 제거 요청 API")
     public void commentRemove() throws Exception {
         // given
-        Long commentId = 1L;
-        Long parrentId = 0L;
         Comment mockComment = mock(Comment.class, RETURNS_DEEP_STUBS);
-        when(mockComment.getParentId()).thenReturn(parrentId);
-        doNothing().when(commentService).removeComment(COMMENT_ID);
+        when(mockComment.getParentId()).thenReturn(PARENT_ID);
+        doNothing().when(commentService).removeComment(eq(COMMENT_ID), anyString());
 
         // when
-        ResultActions result = mockMvc.perform(delete("/recruiting/comment/{commentId}", commentId)
+        ResultActions result = mockMvc.perform(delete("/recruiting/comment/{commentId}", COMMENT_ID)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
         );
@@ -240,7 +232,7 @@ class CommentControllerTest {
         responseDto.setParentId(PARENT_ID);
         responseDto.setGroupNo(1L);
 
-        when(commentService.modifyComment(eq(requestDto))).thenReturn(responseDto);
+        when(commentService.modifyComment(eq(requestDto), anyString())).thenReturn(responseDto);
 
         // when
         ResultActions result = mockMvc.perform(put("/recruiting/comment")

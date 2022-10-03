@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class CommentService {
         Member member = MemberUtils.findMemberByEmail(username, memberRepository);
         Comment createdComment = requestDto.toEntity(member, recruiting);
 
-        if (requestDto.isChild()) {
+        if (isChildComment(requestDto)) {
             Comment parentComment = commentRepository.findById(requestDto.getParentId())
                     .orElseThrow(() -> new CommentNotFoundException("Parent CommentId = " + requestDto.getParentId()));
 
@@ -62,19 +63,24 @@ public class CommentService {
         Page<CommentFind.ResponseDto> commentPagesDto;
         if (isNull(email))
             commentPagesDto = commentRepository.findPageByRecruitingIdOrderByGroupNoAscCreatedDateAsc(pageable, recruitingId)
-                    .map(CommentFind.ResponseDto::fromRecruitingComments);
+                    .map(CommentFind.ResponseDto::fromRecruitingComment);
         else {  // 내가 쓴 댓글 목록
             Member member = MemberUtils.findMemberByEmail(email, memberRepository);
             commentPagesDto = commentRepository.findPageByMemberOrderByCreatedDateDesc(pageable, member)
-                    .map(CommentFind.ResponseDto::fromMyComments);
+                    .map(CommentFind.ResponseDto::fromMyComment);
         }
         return PaginationUtil.pageToPagination(commentPagesDto);
     }
 
     @Transactional
-    public void removeComment(Long commentId) {
+    public void removeComment(Long commentId, String email) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("comment ID = " + commentId));
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
+
+        if (isNotWriter(comment, member)) {
+            throw new AccessDeniedException("댓글 제거 접근이 불가능합니다.");
+        }
         commentRepository.delete(comment);
 
         Recruiting recruiting = recruitingRepository.findById(comment.getRecruiting().getId())
@@ -83,10 +89,14 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentModify.ResponseDto modifyComment(CommentModify.RequestDto requestDto) {
+    public CommentModify.ResponseDto modifyComment(CommentModify.RequestDto requestDto, String email) {
         Comment comment = commentRepository.findById(requestDto.getId())
                 .orElseThrow(() -> new CommentNotFoundException("comment ID = " + requestDto.getId()));
+        Member member = MemberUtils.findMemberByEmail(email, memberRepository);
 
+        if (isNotWriter(comment, member)) {
+            throw new AccessDeniedException("댓글 제거 접근이 불가능합니다.");
+        }
         comment.update(requestDto.getContent());
 
         return CommentModify.ResponseDto.from(comment);
@@ -95,5 +105,13 @@ public class CommentService {
     private Recruiting getRecruitingtEntity(Long recruitingId) {
         return recruitingRepository.findById(recruitingId)
                 .orElseThrow(() -> new RecruitingNotFoundException("recruitingId = " + recruitingId));
+    }
+
+    private boolean isNotWriter(Comment comment, Member member) {
+        return !comment.getMember().getId().equals(member.getId());
+    }
+
+    private boolean isChildComment(CommentCreation.RequestDto requestDto) {
+        return requestDto.getParentId() != 0L;
     }
 }

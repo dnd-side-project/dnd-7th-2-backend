@@ -3,7 +3,6 @@ package com.dnd.niceteam.comment.dto;
 import com.dnd.niceteam.domain.comment.Comment;
 import com.dnd.niceteam.domain.member.Member;
 import com.dnd.niceteam.domain.recruiting.Recruiting;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -26,11 +25,6 @@ public interface CommentCreation {
                     .content(content)
                     .parentId(parentId)
                     .build();
-        }
-
-        @JsonIgnore
-        public boolean isChild() {
-            return this.getParentId() != 0L;
         }
     }
 
